@@ -1,0 +1,203 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Call Libraries
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+library(readxl)
+```
+
+```{r}
+# The palette with grey:
+# cb_palette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# The palette with black:
+# cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# The palette with all colours:
+cbb_palette <- c("#000000", "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# # To use for fills, add
+#   scale_fill_manual(values=cbPalette)
+# 
+# # To use for line and point colors, add
+#   scale_colour_manual(values=cbPalette)
+```
+
+
+__Overview of GDP in UK and G7 Countries__
+
+Load Data
+```{r}
+# read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 2 R-proc")
+# read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv"))
+gdp_phw_current <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 1 R-proc") 
+gdp_pw_current <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 2 R-proc") 
+gdp_phw_const <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 3 R-proc") 
+gdp_pw_const <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 4 R-proc") 
+
+
+glimpse(gdp_phw_current)
+glimpse(gdp_pw_current)
+glimpse(gdp_phw_const)
+glimpse(gdp_pw_const)
+```
+
+```{r}
+tidy_gdp_phw_current <- gdp_phw_current %>%
+  pivot_longer(-Year, names_to = "Country", values_to = "GDP_phw") %>%
+  relocate(Year, .after = Country)
+
+tidy_gdp_pw_current <- gdp_pw_current %>%
+  pivot_longer(-Year, names_to = "Country", values_to = "GDP_pw") %>%
+  relocate(Year, .after = Country)
+
+tidy_gdp_phw_const <- gdp_phw_const %>%
+  pivot_longer(-Year, names_to = "Country", values_to = "GDP_phw") %>%
+  relocate(Year, .after = Country)
+
+tidy_gdp_pw_const <- gdp_pw_const %>%
+  pivot_longer(-Year, names_to = "Country", values_to = "GDP_pw") %>%
+  relocate(Year, .after = Country)
+  
+ 
+tidy_gdp_phw_current
+tidy_gdp_pw_current
+tidy_gdp_phw_const
+tidy_gdp_pw_const
+```
+
+```{r}
+tidy_gdp_phw_current %>% 
+  ggplot() +
+  aes(x = Year, y = GDP_phw, colour = Country) +
+  geom_line() +
+  geom_line(size = 0.75) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+```
+
+
+```{r}
+tidy_gdp_pw_current %>% 
+  ggplot() +
+  aes(x = Year, y = GDP_pw, colour = Country) +
+  geom_line() +
+  geom_line(size = 0.75) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+```
+
+
+
+
+
+```{r}
+tidy_gdp_phw_const %>% 
+  ggplot() +
+  aes(x = Year, y = GDP_phw, colour = Country) +
+  geom_line() +
+  geom_line(size = 0.75) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+```
+
+
+```{r}
+tidy_gdp_pw_const %>% 
+  ggplot() +
+  aes(x = Year, y = GDP_pw, colour = Country) +
+  geom_line() +
+  geom_line(size = 0.75) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+```
+
+
+```{r}
+gdp_phw_OECD <- read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv")) 
+
+glimpse(gdp_phw_OECD)
+```
+
+```{r}
+gdp_phw_OECD %>% 
+  distinct(LOCATION)
+  # distinct(SUBJECT) # TOT
+  # distinct(MEASURE) # USD IDX2010
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA	B E
+```
+
+```{r}
+gdp_phw_OECD %>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
+  filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR") ) %>% 
+  filter(MEASURE == "USD") %>% 
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+  
+```
+
+
+
+```{r}
+gdp_phw_OECD %>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
+  filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR") ) %>% 
+  filter(MEASURE == "IDX2010") %>% 
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
