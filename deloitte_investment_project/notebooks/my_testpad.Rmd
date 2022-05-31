@@ -667,7 +667,7 @@ private_sector %>%
                    .fns = ~sum(is.na(.x))))
 ```
 
-Remove junk and change data type to numeric in all columns except `Country`
+Remove junk and change data type to numeric in all columns except `Country` and turn ICT variables to millions of USD
 ```{r}
 private_sector_clean <- private_sector %>%
   select(-c(`Businesses registered New 2016`, `Businesses registered Entry density 2016`)) %>% 
@@ -676,6 +676,10 @@ private_sector_clean <- private_sector %>%
       .cols = where(is.character) & !Country, 
       .fns = ~as.numeric(.x)
     )
+  ) %>% 
+  mutate(
+    `ICT $ 2006-11` = `ICT $ 2006-11`/1000000,
+    `ICT $ 2012-17` = `ICT $ 2012-17`/1000000
   )
   
 glimpse(private_sector_clean)
@@ -696,7 +700,8 @@ private_sector_investment <- private_sector_clean %>%
     period = str_sub(sector, -7),
     sector = str_remove(sector, pattern = " \\$.*")
   ) %>% 
-  relocate(period, .after = sector)
+  relocate(period, .after = sector) %>% 
+  clean_names()
 
 private_sector_investment
 ```
@@ -716,6 +721,121 @@ domestic_credit_to_private_sector <- private_sector_clean %>%
 
 domestic_credit_to_private_sector
 ```
+
+
+
+```{r}
+private_sector_investment %>% 
+  distinct(country)
+```
+
+
+
+```{r}
+domestic_credit_to_private_sector %>%
+  filter(
+    country %in% c("Canada", "France", "Germany", "Italy", "Japan", "United States", "United Kingdom")
+  ) %>% 
+  ggplot() +
+  aes(x = country, y = gdp_pc, fill  = period) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(
+    axis.text.x = element_text(angle = 30, vjust = 0.75)
+    )
+  
+```
+
+
+
+__Compare skills and education between UK and other countries__
+
+
+OECD Adult Education Levels
+
+Read data
+```{r}
+adult_education <- read_excel(here("raw_data/OECD_Adult_Education_Levels.xlsx")) 
+
+glimpse(adult_education)
+```
+
+
+Check for NA's
+```{r}
+adult_education %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+adult_education %>% 
+  distinct(LOCATION)
+  # distinct(INDICATOR) # EDUADULT
+  # distinct(SUBJECT) # TRY
+  # distinct(MEASURE) # PC_25_64
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA
+```
+
+
+G-7 countries adult education levels 25-64
+```{r}
+adult_education %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE)) %>%
+  # filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+
+```
+
+```{r}
+adult_education %>%
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    TIME == 2017
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
