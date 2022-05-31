@@ -13,13 +13,13 @@ library(readxl)
 
 ```{r}
 # The palette with grey:
-# cb_palette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cb_palette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # The palette with black:
-# cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-# The palette with all colours:
-cbb_palette <- c("#000000", "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+# # The palette with all colours:
+# cbb_palette <- c("#000000", "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # # To use for fills, add
 #   scale_fill_manual(values=cbPalette)
@@ -46,6 +46,33 @@ glimpse(gdp_pw_current)
 glimpse(gdp_phw_const)
 glimpse(gdp_pw_const)
 ```
+
+Check for NA values
+```{r}
+gdp_phw_current %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+```{r}
+gdp_pw_current %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+```{r}
+gdp_phw_const %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+gdp_pw_const %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
 
 Pivot data to long format
 ```{r}
@@ -123,6 +150,13 @@ tidy_gdp_pw_const %>%
 gdp_phw_OECD <- read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv")) 
 
 glimpse(gdp_phw_OECD)
+```
+
+Check for NA values
+```{r}
+gdp_phw_OECD %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
 ```
 
 ```{r}
@@ -220,15 +254,31 @@ glimpse(productivity_phw)
 glimpse(productivity_growth)
 ```
 
+
+
+Check for NA values
+```{r}
+productivity_phw %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+productivity_growth %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
 Pivot data to long format
 ```{r}
 tidy_productivity_phw <- productivity_phw %>%
-  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Output_per_hour") %>%
-  select(-`A*10 (excl L)`)
+  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Output_per_hour") 
 
 tidy_productivity_growth <- productivity_growth %>%
-  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Labour_Productivity_Growth") %>%
-  select(-`A*10 (excl L)`)
+  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Labour_Productivity_Growth") 
 
 
 tidy_productivity_phw
@@ -289,6 +339,316 @@ tidy_productivity_growth %>%
     text = element_text(size = 8)
     )
 ```
+
+Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
+```{r}
+tidy_productivity_phw %>% 
+  filter(
+    Country %in% c("United Kingdom", "France", "Germany")
+  ) %>% 
+  ggplot() +
+  aes(
+    x = `A*10 (excl L)`, 
+    y = Output_per_hour,
+    fill = Country
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2")
+  # scale_fill_manual(values = cbb_palette)
+  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
+  # theme(
+  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+  #   text = element_text(size = 8)
+  #   )
+```
+```{r}
+tidy_productivity_phw %>% 
+  distinct(`A*10 (excl L)`, `NACE Industry`)
+```
+
+
+```{r}
+tidy_productivity_growth %>% 
+  filter(
+    Country %in% c("United Kingdom", "Germany")
+  ) %>% 
+  ggplot() +
+  aes(
+    x = `A*10 (excl L)`, 
+    y = Labour_Productivity_Growth,
+    fill = Country
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2")
+  # scale_fill_manual(values = cbb_palette)
+  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
+  # theme(
+  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+  #   text = element_text(size = 8)
+  #   )
+```
+
+
+
+Comparison with most productive countries in Europe (2017): UK, Ireland, Norway
+```{r}
+tidy_productivity_phw %>% 
+  filter(
+    Country %in% c("United Kingdom", "Ireland", "Norway")
+  ) %>% 
+  ggplot() +
+  aes(
+    x = `A*10 (excl L)`, 
+    y = Output_per_hour,
+    fill = Country
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2")
+  # scale_fill_manual(values = cbb_palette)
+  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
+  # theme(
+  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+  #   text = element_text(size = 8)
+  #   )
+```
+
+
+
+__Compare  investment between UK and other countries__
+
+
+Cross country infrastructure investment
+
+Read data
+```{r}
+infrastructure_investment <- read_excel(here("raw_data/Cross_country_infrastructure_investment.xls")) 
+
+glimpse(infrastructure_investment)
+```
+
+```{r}
+infrastructure_investment %>% 
+  # distinct(LOCATION)
+  # distinct(INDICATOR) # INFRAINVEST
+  distinct(SUBJECT) #
+  # distinct(MEASURE) # EUR, PC_GDP
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, B, P, E, M
+```
+
+```{r}
+infrastructure_investment %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+```{r}
+infrastructure_investment %>% 
+  filter(is.na(Value))
+```
+
+```{r}
+infrastructure_investment %>%
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "RAIL",
+    # SUBJECT == "ROAD",
+    # SUBJECT == "SEA",
+    # SUBJECT == "AIR",
+    # SUBJECT == "INLANDWATER",
+    MEASURE == "EUR",
+    TIME == 2016
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
+
+
+
+```{r}
+infrastructure_investment %>%
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "INLAND",
+    MEASURE == "PC_GDP", # "EUR",
+    TIME == 2016
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
+
+Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
+```{r}
+infrastructure_investment %>% 
+  filter(
+    LOCATION %in% c("GBR", "FRA", "DEU"),
+    MEASURE == "EUR", #"PC_GDP", # 
+    TIME == 2016
+  ) %>% 
+  ggplot() +
+  aes(
+    x = SUBJECT, 
+    y = Value,
+    fill = LOCATION
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2")
+  # scale_fill_manual(values = cbb_palette)
+  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
+  # theme(
+  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+  #   text = element_text(size = 8)
+  #   )
+```
+
+
+Comparison with most productive countries in Europe (2017): UK, Ireland, Norway
+```{r}
+infrastructure_investment %>% 
+  filter(
+    LOCATION %in% c("GBR", "IRL", "NOR"),
+    MEASURE == "EUR", #"PC_GDP", # 
+    TIME == 2015
+  ) %>% 
+  ggplot() +
+  aes(
+    x = SUBJECT, 
+    y = Value,
+    fill = LOCATION
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2")
+  # scale_fill_manual(values = cbb_palette)
+  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
+  # theme(
+  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+  #   text = element_text(size = 8)
+  #   )
+```
+
+
+Cross Country Gross Domestic Spending on R&D
+
+Read data
+```{r}
+gdexp_rd <- read_excel(here("raw_data/Cross_country_Gross_Domestic_Spending_on_R&D.xls")) 
+
+glimpse(gdexp_rd)
+```
+
+```{r}
+gdexp_rd %>% 
+  distinct(LOCATION)
+  # distinct(INDICATOR) # GDEXPRD
+  # distinct(SUBJECT) # TOT
+  # distinct(MEASURE) # MLN_USD, PC_GDP
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA
+```
+
+```{r}
+gdexp_rd %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+<!-- ```{r} -->
+<!-- gdp_phw_OECD %>%  -->
+<!--   select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%  -->
+<!--   filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"), -->
+<!--          MEASURE == "USD") %>%  -->
+<!--   ggplot() + -->
+<!--   aes(x = TIME, y = Value, colour = LOCATION) + -->
+<!--   geom_line(size = 0.75) + -->
+<!--   # scale_colour_brewer(palette = "Dark2") -->
+<!--   scale_colour_manual(values = cbb_palette) -->
+
+<!-- ``` -->
+
+
+
+```{r}
+gdexp_rd %>%
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "PC_GDP",
+    TIME == 2016
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
+
+
+```{r}
+gdexp_rd %>%
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "MLN_USD",
+    TIME == 2016
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
