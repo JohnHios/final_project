@@ -47,6 +47,7 @@ glimpse(gdp_phw_const)
 glimpse(gdp_pw_const)
 ```
 
+Pivot data to long format
 ```{r}
 tidy_gdp_phw_current <- gdp_phw_current %>%
   pivot_longer(-Year, names_to = "Country", values_to = "GDP_phw") %>%
@@ -136,8 +137,8 @@ gdp_phw_OECD %>%
 ```{r}
 gdp_phw_OECD %>% 
   select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
-  filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR") ) %>% 
-  filter(MEASURE == "USD") %>% 
+  filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+         MEASURE == "USD") %>% 
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
@@ -151,8 +152,8 @@ gdp_phw_OECD %>%
 ```{r}
 gdp_phw_OECD %>% 
   select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
-  filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR") ) %>% 
-  filter(MEASURE == "IDX2010") %>% 
+  filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+         MEASURE == "IDX2010") %>% 
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
@@ -162,30 +163,132 @@ gdp_phw_OECD %>%
 ```
 
 
+```{r}
+gdp_phw_OECD %>%
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "USD",
+    TIME == 2017
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
 
 
+```{r}
+gdp_phw_OECD %>%
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "IDX2010",
+    TIME == 2017
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
+
+__Compare productivity by industry in UK and EU Countries__
+
+Load Data
+```{r}
+productivity_phw <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 1 R-proc")
+productivity_growth <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 2 R-proc")
 
 
+glimpse(productivity_phw)
+glimpse(productivity_growth)
+```
+
+Pivot data to long format
+```{r}
+tidy_productivity_phw <- productivity_phw %>%
+  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Output_per_hour") %>%
+  select(-`A*10 (excl L)`)
+
+tidy_productivity_growth <- productivity_growth %>%
+  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Labour_Productivity_Growth") %>%
+  select(-`A*10 (excl L)`)
 
 
+tidy_productivity_phw
+tidy_productivity_growth
+```
+
+```{r}
+tidy_productivity_phw %>% 
+  filter(
+    # `NACE Industry` == "Agriculture, forestry and fishing"
+    # `NACE Industry` == "Industry (except construction)"
+    # `NACE Industry` == "Construction"
+    # `NACE Industry` == "Wholesale and retail trade, transport, accommodation and food service activities"
+    `NACE Industry` == "Information and communication"
+    # `NACE Industry` == "Financial and insurance activities"
+    # `NACE Industry` == "Professional, scientific and technical activities; administrative and support service activities"
+    # `NACE Industry` == "Public administration, defence, education, human health and social work activities"
+    # `NACE Industry` == "Arts, entertainment and recreation; other service activities"
+  ) %>% 
+  ggplot() +
+  aes(
+    x = reorder(Country, Output_per_hour), 
+    y = Output_per_hour,
+    fill = reorder(Country, Output_per_hour) == "United Kingdom"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```{r}
+tidy_productivity_growth %>% 
+  filter(
+    # `NACE Industry` == "Agriculture, forestry and fishing"
+    # `NACE Industry` == "Industry (except construction)"
+    # `NACE Industry` == "Construction"
+    # `NACE Industry` == "Wholesale and retail trade, transport, accommodation and food service activities"
+    `NACE Industry` == "Information and communication"
+    # `NACE Industry` == "Financial and insurance activities"
+    # `NACE Industry` == "Professional, scientific and technical activities; administrative and support service activities"
+    # `NACE Industry` == "Public administration, defence, education, human health and social work activities"
+    # `NACE Industry` == "Arts, entertainment and recreation; other service activities"
+  ) %>%  
+  ggplot() +
+  aes(
+    x = reorder(Country, Labour_Productivity_Growth), 
+    y = Labour_Productivity_Growth,
+    fill = reorder(Country, Labour_Productivity_Growth) == "United Kingdom"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    text = element_text(size = 8)
+    )
+```
 
 
 
