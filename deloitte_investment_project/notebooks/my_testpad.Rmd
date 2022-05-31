@@ -90,7 +90,7 @@ tidy_gdp_phw_const <- gdp_phw_const %>%
 
 tidy_gdp_pw_const <- gdp_pw_const %>%
   pivot_longer(-Year, names_to = "Country", values_to = "GDP_pw") %>%
-  relocate(Year, .after = Country)
+  c
   
  
 tidy_gdp_phw_current
@@ -567,26 +567,40 @@ gdexp_rd %>%
   # distinct(FREQUENCY) #A
   # distinct(`Flag Codes`) # NA
 ```
-
+Check for NA's
 ```{r}
 gdexp_rd %>% 
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 ```
 
+G-7 countries gross domestic expenditure on R&D (Million USD)
+```{r}
+gdexp_rd %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+         MEASURE == "MLN_USD") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
 
-<!-- ```{r} -->
-<!-- gdp_phw_OECD %>%  -->
-<!--   select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%  -->
-<!--   filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"), -->
-<!--          MEASURE == "USD") %>%  -->
-<!--   ggplot() + -->
-<!--   aes(x = TIME, y = Value, colour = LOCATION) + -->
-<!--   geom_line(size = 0.75) + -->
-<!--   # scale_colour_brewer(palette = "Dark2") -->
-<!--   scale_colour_manual(values = cbb_palette) -->
+```
 
-<!-- ``` -->
+G-7 countries gross domestic expenditure on R&D (% GDP)
+```{r}
+gdexp_rd %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+         MEASURE == "PC_GDP") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+
+```
 
 
 
@@ -637,21 +651,71 @@ gdexp_rd %>%
 
 
 
+__Comparison of Private Sector In Economy__
+
+Read data
+```{r}
+private_sector <- read_excel(here("raw_data/Private_Sector_In_Economy.xlsx"), sheet = "5.1_Private_sector R-proc") 
+
+glimpse(private_sector)
+```
+
+Check for NA's
+```{r}
+private_sector %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+Remove junk and change data type to numeric in all columns except `Country`
+```{r}
+private_sector_clean <- private_sector %>%
+  select(-c(`Businesses registered New 2016`, `Businesses registered Entry density 2016`)) %>% 
+  mutate(
+    across(
+      .cols = where(is.character) & !Country, 
+      .fns = ~as.numeric(.x)
+    )
+  )
+  
+glimpse(private_sector_clean)
+```
 
 
 
+Pivot data to long format
+```{r}
+private_sector_investment <- private_sector_clean %>%
+  select(-c(`Domestic credit % of GDP 2006-11`, `Domestic credit % of GDP 2012-17`)) %>% 
+  pivot_longer(
+    cols = -Country,
+    names_to = "sector",
+    values_to = "mln_usd"
+  ) %>% 
+  mutate(
+    period = str_sub(sector, -7),
+    sector = str_remove(sector, pattern = " \\$.*")
+  ) %>% 
+  relocate(period, .after = sector)
 
+private_sector_investment
+```
 
+```{r}
+domestic_credit_to_private_sector <- private_sector_clean %>%
+  select(`Country`, `Domestic credit % of GDP 2006-11`, `Domestic credit % of GDP 2012-17`) %>% 
+  pivot_longer(
+    cols = -Country,
+    names_to = "period",
+    values_to = "gdp_pc"
+  ) %>% 
+  mutate(
+    period = str_sub(period, -7)
+  ) %>% 
+  clean_names()
 
-
-
-
-
-
-
-
-
-
+domestic_credit_to_private_sector
+```
 
 
 
