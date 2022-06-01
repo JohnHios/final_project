@@ -16,10 +16,10 @@ library(readxl)
 cb_palette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # The palette with black:
-cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+# cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # # The palette with all colours:
-# cbb_palette <- c("#000000", "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbb_palette <- c("#000000", "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # # To use for fills, add
 #   scale_fill_manual(values=cbPalette)
@@ -90,7 +90,8 @@ tidy_gdp_phw_const <- gdp_phw_const %>%
 
 tidy_gdp_pw_const <- gdp_pw_const %>%
   pivot_longer(-Year, names_to = "Country", values_to = "GDP_pw") %>%
-  c
+  relocate(Year, .after = Country)
+
   
  
 tidy_gdp_phw_current
@@ -103,8 +104,8 @@ tidy_gdp_pw_const
 tidy_gdp_phw_current %>% 
   ggplot() +
   aes(x = Year, y = GDP_phw, colour = Country) +
-  geom_line() +
   geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette)
 ```
@@ -114,8 +115,8 @@ tidy_gdp_phw_current %>%
 tidy_gdp_pw_current %>% 
   ggplot() +
   aes(x = Year, y = GDP_pw, colour = Country) +
-  geom_line() +
   geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette)
 ```
@@ -128,8 +129,8 @@ tidy_gdp_pw_current %>%
 tidy_gdp_phw_const %>% 
   ggplot() +
   aes(x = Year, y = GDP_phw, colour = Country) +
-  geom_line() +
   geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette)
 ```
@@ -139,8 +140,8 @@ tidy_gdp_phw_const %>%
 tidy_gdp_pw_const %>% 
   ggplot() +
   aes(x = Year, y = GDP_pw, colour = Country) +
-  geom_line() +
   geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette)
 ```
@@ -176,6 +177,7 @@ gdp_phw_OECD %>%
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette)
   
@@ -191,6 +193,7 @@ gdp_phw_OECD %>%
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette)
   
@@ -583,6 +586,7 @@ gdexp_rd %>%
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette)
 
@@ -597,6 +601,7 @@ gdexp_rd %>%
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette)
 
@@ -784,7 +789,7 @@ G-7 countries adult education levels 25-64
 ```{r}
 adult_education %>%
   select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE)) %>%
-  # filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")) %>%
+  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")) %>%
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
@@ -797,7 +802,6 @@ adult_education %>%
 ```{r}
 adult_education %>%
   filter(
-    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     TIME == 2017
     ) %>%  
   select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
@@ -810,16 +814,376 @@ adult_education %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
-    text = element_text(size = 8)
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
+    )
+```
+
+OECD Quality of human capital
+
+Read data
+```{r}
+overqualified_workers <- read_excel(here("raw_data/OECD_Quality_of_human_capital.xlsx"), sheet = "Prop Workers Overqualified R-pr") 
+underqualified_workers <- read_excel(here("raw_data/OECD_Quality_of_human_capital.xlsx"), sheet = "Prop Worker Underqualified R-pr") 
+qualified_workers <- read_excel(here("raw_data/OECD_Quality_of_human_capital.xlsx"), sheet = "Prop Workers Well-matched R-pr") 
+
+glimpse(overqualified_workers)
+glimpse(underqualified_workers)
+glimpse(qualified_workers)
+```
+
+Change data type to numeric in all columns except `Country` 
+```{r}
+overqualified_workers_clean <- overqualified_workers %>%
+  mutate(
+    across(
+      .cols = where(is.character) & !Country, 
+      .fns = ~as.numeric(.x)
+    )
+  )
+
+
+underqualified_workers_clean <- underqualified_workers %>%
+  mutate(
+    across(
+      .cols = where(is.character) & !Country, 
+      .fns = ~as.numeric(.x)
+    )
+  )
+
+
+qualified_workers_clean <- qualified_workers %>%
+  mutate(
+    across(
+      .cols = where(is.character) & !Country, 
+      .fns = ~as.numeric(.x)
+    )
+  )
+
+glimpse(overqualified_workers_clean)
+glimpse(underqualified_workers_clean)
+glimpse(qualified_workers_clean)
+```
+
+
+Check for NA's
+```{r}
+overqualified_workers_clean %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+```{r}
+underqualified_workers_clean %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+qualified_workers_clean %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
+Pivot data to long format
+```{r}
+tidy_overqualified_workers <- overqualified_workers_clean %>%
+  pivot_longer(
+    cols = -Country,
+    names_to = "year",
+    values_to = "percentage"
+  )  %>% 
+  clean_names()
+
+
+tidy_underqualified_workers <- underqualified_workers_clean %>%
+  pivot_longer(
+    cols = -Country,
+    names_to = "year",
+    values_to = "percentage"
+  )  %>% 
+  clean_names()
+
+
+tidy_qualified_workers <- qualified_workers_clean %>%
+  pivot_longer(
+    cols = -Country,
+    names_to = "year",
+    values_to = "percentage"
+  )  %>% 
+  clean_names()
+
+
+
+tidy_overqualified_workers
+tidy_underqualified_workers
+tidy_qualified_workers
+```
+
+Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
+```{r}
+tidy_overqualified_workers %>%
+  filter(
+    country %in% c("France", "Germany", "Italy", "Spain", "United Kingdom")
+  ) %>% 
+  ggplot() +
+  aes(x = year, y = percentage, group = country, colour = country) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+```
+
+```{r}
+tidy_underqualified_workers %>%
+  filter(
+    country %in% c("France", "Germany", "Italy", "Spain", "United Kingdom")
+  ) %>% 
+  ggplot() +
+  aes(x = year, y = percentage, group = country, colour = country) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+```
+
+
+```{r}
+tidy_qualified_workers %>%
+  filter(
+    country %in% c("France", "Germany", "Italy", "Spain", "United Kingdom")
+  ) %>% 
+  ggplot() +
+  aes(x = year, y = percentage, group = country, colour = country) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+```
+
+
+Comparison with all countries in Europe
+```{r}
+tidy_overqualified_workers %>%
+  filter(
+    year == 2013
+    ) %>%  
+  ggplot() +
+  aes(
+    x = reorder(country, percentage), 
+    y = percentage,
+    fill = reorder(country, percentage) == "United Kingdom"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
+    )
+```
+
+```{r}
+tidy_underqualified_workers %>%
+  filter(
+    year == 2013
+    ) %>%  
+  ggplot() +
+  aes(
+    x = reorder(country, percentage), 
+    y = percentage,
+    fill = reorder(country, percentage) == "United Kingdom"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
+    )
+```
+
+
+```{r}
+tidy_qualified_workers %>%
+  filter(
+    year == 2013
+    ) %>%  
+  ggplot() +
+  aes(
+    x = reorder(country, percentage), 
+    y = percentage,
+    fill = reorder(country, percentage) == "United Kingdom"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
+    )
+```
+
+
+OECD Tertiary Spending Expenditure
+
+
+Read data
+```{r}
+education_expenditure <- read_excel(here("raw_data/OECD_Tertiary_Education_Expenditure.xlsx")) 
+
+glimpse(education_expenditure)
+```
+
+
+Check for NA's
+```{r}
+education_expenditure %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+education_expenditure %>% 
+  # distinct(LOCATION)
+  # distinct(INDICATOR) # EDUPUBEXP
+  # distinct(SUBJECT) # TRY, PRY_NTRY, PRY_TRY
+  # distinct(MEASURE) # PC_GDP
+  # distinct(FREQUENCY) #A
+  distinct(`Flag Codes`) # NA, M
+```
+
+
+G-7 countries education expenditure (GDP percentage)
+TRY : TeRtiarY
+PRY_NTRY: PRimarY to Non-TeRtiarY
+PRY_TRY: PRimarY to TeRtiarY
+```{r}
+education_expenditure %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "TRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+
+```
+
+```{r}
+education_expenditure %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "PRY_TRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+
+```
+
+```{r}
+education_expenditure %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "PRY_NTRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  # scale_colour_brewer(palette = "Dark2")
+  scale_colour_manual(values = cbb_palette)
+
+```
+
+
+```{r}
+education_expenditure %>%
+  filter(
+    TIME == 2015,
+    SUBJECT == "TRY"
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
     )
 ```
 
 
 
+```{r}
+education_expenditure %>%
+  filter(
+    TIME == 2015,
+    SUBJECT == "PRY_TRY"
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
+    )
+```
 
 
 
+```{r}
+education_expenditure %>%
+  filter(
+    TIME == 2015,
+    SUBJECT == "PRY_NTRY"
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE, TIME)) %>% 
+  ggplot() +
+  aes(
+    x = reorder(LOCATION, Value), 
+    y = Value,
+    fill = reorder(LOCATION, Value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
+    )
+```
+
+
+```{r}
+education_expenditure %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    TIME == 2015
+    ) %>%  
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>% 
+  ggplot() +
+  aes(x = LOCATION, y = Value, fill = SUBJECT) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2")
+```
+TRY : TeRtiarY
+PRY_NTRY: PRimarY to Non-TeRtiarY
+PRY_TRY: PRimarY to TeRtiarY
 
 
 
