@@ -31,10 +31,10 @@ cbb_palette <- c("#000000", "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442
 
 __Overview of GDP in UK and G7 Countries__
 
+International_Labour_Productivity-G7
+
 Load Data
 ```{r}
-# read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 2 R-proc")
-# read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv"))
 gdp_phw_current <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 1 R-proc") 
 gdp_pw_current <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 2 R-proc") 
 gdp_phw_const <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 3 R-proc") 
@@ -107,7 +107,11 @@ tidy_gdp_phw_current %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per hour worked (current) \n"
+  ) 
 ```
 
 
@@ -118,7 +122,11 @@ tidy_gdp_pw_current %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per worker (current) \n"
+  ) 
 ```
 
 
@@ -132,7 +140,11 @@ tidy_gdp_phw_const %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per hour worked (constant)\n"
+  ) 
 ```
 
 
@@ -143,10 +155,23 @@ tidy_gdp_pw_const %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per worker (constant) \n"
+  ) 
 ```
 
 
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+Labour_Productivity-OECD_Countries
+
+Read data
 ```{r}
 gdp_phw_OECD <- read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv")) 
 
@@ -172,14 +197,25 @@ gdp_phw_OECD %>%
 ```{r}
 gdp_phw_OECD %>% 
   select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
-  filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-         MEASURE == "USD") %>% 
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # LOCATION %in% c("G-7", "EU28", "GBR"),
+    MEASURE == "USD") %>% 
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "GDP per hour worked (index 2010)",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs) "
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per hour worked ($) \n"
+  ) 
   
 ```
 
@@ -195,7 +231,11 @@ gdp_phw_OECD %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per hour worked (index 2010) \n"
+  ) 
   
 ```
 
@@ -217,9 +257,16 @@ gdp_phw_OECD %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
-    text = element_text(size = 8)
-    )
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1) ) +
+  ggtitle(
+    "GDP per hour worked ($)",
+    subtitle =  "(Year 2017)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "GDP per hour worked ($)\n"
+  ) 
+  
 ```
 
 
@@ -240,10 +287,22 @@ gdp_phw_OECD %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
-    text = element_text(size = 8)
-    )
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
+    ) +
+  ggtitle(
+    "GDP per hour worked (index 2010)",
+    subtitle =  "(Year 2017)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "GDP per hour worked (%)\n"
+  ) 
 ```
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
 
 __Compare productivity by industry in UK and EU Countries__
 
@@ -310,9 +369,16 @@ tidy_productivity_phw %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-    text = element_text(size = 8)
-    )
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
+  ) +
+  ggtitle(
+    "Output per hour by industry .....",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "Output per hour (€)"
+  ) 
 ```
 
 
@@ -338,9 +404,16 @@ tidy_productivity_growth %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-    text = element_text(size = 8)
-    )
+    axis.text.x = element_text(size = 6,angle = 45, vjust = 1, hjust = 1)
+    ) +
+  ggtitle(
+    "Labour Productivity Growth by industry ..... ",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "Labour Productivity Growth (%)"
+  ) 
 ```
 
 Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
@@ -356,13 +429,15 @@ tidy_productivity_phw %>%
     fill = Country
     ) +
   geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2")
-  # scale_fill_manual(values = cbb_palette)
-  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
-  # theme(
-  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-  #   text = element_text(size = 8)
-  #   )
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Output per hour by industry",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "\n NACE Industry", 
+    y = "Output per hour (€)"
+  ) 
 ```
 ```{r}
 tidy_productivity_phw %>% 
@@ -373,7 +448,7 @@ tidy_productivity_phw %>%
 ```{r}
 tidy_productivity_growth %>% 
   filter(
-    Country %in% c("United Kingdom", "Germany")
+    Country %in% c("United Kingdom", "France", "Germany")
   ) %>% 
   ggplot() +
   aes(
@@ -382,13 +457,15 @@ tidy_productivity_growth %>%
     fill = Country
     ) +
   geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2")
-  # scale_fill_manual(values = cbb_palette)
-  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
-  # theme(
-  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-  #   text = element_text(size = 8)
-  #   )
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Labour Productivity Growth by industry",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "\n NACE Industry", 
+    y = "Labour Productivity Growth (%)"
+  ) 
 ```
 
 
@@ -406,18 +483,248 @@ tidy_productivity_phw %>%
     fill = Country
     ) +
   geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2")
-  # scale_fill_manual(values = cbb_palette)
-  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
-  # theme(
-  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-  #   text = element_text(size = 8)
-  #   )
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Output per hour by industry",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "\n NACE Industry", 
+    y = "Output per hour (€)"
+  ) 
+```
+
+
+Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
+Output per hour by industry 2014-16
+
+
+```{r}
+productivity_phw %>% 
+  select(France, `United Kingdom`, Germany, Spain, Italy) %>% 
+  summarise(
+    sum_France = sum(France),
+    sum_UK = sum(`United Kingdom`),
+    sum_Germany = sum(Germany),
+    sum_Spain = sum(Spain),
+    sum_Italy = sum(Italy)
+  )
+  
+```
+
+########################################################################################################################
+France has a similar GDP with the UK for the past years and the population is similar, hence it is ideal for making one-to-one comparisons.
+Overall, France is doing better than the UK in terms of productivity (GDP per hrs worked or GDP per worker) 
+```{r}
+productivity_phw %>% 
+  select(`A*10 (excl L)`, `NACE Industry`,  `France`, `United Kingdom`) %>% 
+  mutate(
+    France = 100*France/sum(France),
+    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
+  ) %>% 
+  ggplot() +
+  aes(
+    x = France, 
+    y = `United Kingdom`
+    ) +
+  geom_point(color = "steelblue") +
+  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
+  geom_text(
+    aes(label = `A*10 (excl L)`),
+    nudge_x = 0.75,
+    nudge_y = 0,
+    size = 3.5
+  ) +
+  ggtitle(
+    "Differences in industrial output structure",
+    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
+  ) +
+  xlim(0, 25) +
+  ylim(0, 25)
+```
+
+```{r}
+tidy_productivity_phw %>% 
+  distinct(`A*10 (excl L)`, `NACE Industry`)
+```
+
+```{r}
+productivity_phw %>% 
+  select(`A*10 (excl L)`, `NACE Industry`,  `Germany`, `United Kingdom`) %>% 
+  mutate(
+    Germany = 100*Germany/sum(Germany),
+    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
+  ) %>% 
+  ggplot() +
+  aes(
+    x = Germany, 
+    y = `United Kingdom`
+    ) +
+  geom_point(color = "steelblue") +
+  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
+  geom_text(
+    aes(label = `A*10 (excl L)`),
+    nudge_x = 1.0,
+    nudge_y = 0,
+    size = 3.5
+  ) +
+  ggtitle(
+    "Differences in industrial output structure",
+    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
+  ) +
+  xlim(0, 25) +
+  ylim(0, 25)
+```
+
+
+```{r}
+tidy_productivity_phw %>% 
+  distinct(`A*10 (excl L)`, `NACE Industry`)
+```
+
+
+```{r}
+productivity_phw %>% 
+  select(`A*10 (excl L)`, `NACE Industry`,  `Spain`, `United Kingdom`) %>% 
+  mutate(
+    Spain = 100*Spain/sum(Spain),
+    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
+  ) %>%
+  ggplot() +
+  aes(
+    x = Spain, 
+    y = `United Kingdom`
+    ) +
+  geom_point(color = "steelblue") +
+  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
+  geom_text(
+    aes(label = `A*10 (excl L)`),
+    nudge_x = 1.0,
+    nudge_y = 0,
+    size = 3.5
+  ) +
+  ggtitle(
+    "Differences in industrial output structure",
+    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
+  ) +
+  xlim(0, 25) +
+  ylim(0, 25)
+```
+
+```{r}
+productivity_phw %>% 
+  select(`A*10 (excl L)`, `NACE Industry`,  `Italy`, `United Kingdom`) %>% 
+  mutate(
+    Italy = 100*Italy/sum(Italy),
+    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
+  ) %>%
+  ggplot() +
+  aes(
+    x = Italy, 
+    y = `United Kingdom`
+    ) +
+  geom_point(color = "steelblue") +
+  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
+  geom_text(
+    aes(label = `A*10 (excl L)`),
+    nudge_x = 1.0,
+    nudge_y = 0,
+    size = 3.5
+  ) +
+  ggtitle(
+    "Differences in industrial output structure",
+    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
+  ) +
+  xlim(0, 25) +
+  ylim(0, 25)
 ```
 
 
 
-__Compare  investment between UK and other countries__
+```{r}
+tidy_productivity_phw %>% 
+  distinct(`A*10 (excl L)`, `NACE Industry`)
+```
+
+Comparison with most productive countries in Europe for 2017: Ireland, Norway
+Output per hour by industry 2014-16
+
+
+```{r}
+productivity_phw %>% 
+  select(`United Kingdom`, Ireland, Norway) %>% 
+  summarise(
+    sum_UK = sum(`United Kingdom`),
+    sum_Ireland = sum(Ireland),
+    sum_Norway = sum(Norway)
+  )
+  
+```
+
+```{r}
+productivity_phw %>% 
+  select(`A*10 (excl L)`, `NACE Industry`,  `Ireland`, `United Kingdom`) %>% 
+  mutate(
+    Ireland = 100*Ireland/sum(Ireland),
+    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
+  ) %>%
+  ggplot() +
+  aes(
+    x = Ireland, 
+    y = `United Kingdom`
+    ) +
+  geom_point(color = "steelblue") +
+  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
+  geom_text(
+    aes(label = `A*10 (excl L)`),
+    nudge_x = 1.0,
+    nudge_y = 0,
+    size = 3.5
+  ) +
+  ggtitle(
+    "Differences in industrial output structure",
+    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
+  ) +
+  xlim(0, 25) +
+  ylim(0, 25)
+```
+
+```{r}
+productivity_phw %>% 
+  select(`A*10 (excl L)`, `NACE Industry`,  `Norway`, `United Kingdom`) %>% 
+  mutate(
+    Norway = 100*Norway/sum(Norway),
+    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
+  ) %>%
+  ggplot() +
+  aes(
+    x = Norway, 
+    y = `United Kingdom`
+    ) +
+  geom_point(color = "steelblue") +
+  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
+  geom_text(
+    aes(label = `A*10 (excl L)`),
+    nudge_x = 1.0,
+    nudge_y = 0,
+    size = 3.5
+  ) +
+  ggtitle(
+    "Differences in industrial output structure",
+    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
+  ) +
+  xlim(0, 25) +
+  ylim(0, 25)
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Compare investment between UK and other countries__
 
 
 Cross country infrastructure investment
@@ -472,9 +779,16 @@ infrastructure_investment %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
-    text = element_text(size = 8)
-    )
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
+  ) +
+  ggtitle(
+    "Cross country infrastructure investment",
+    subtitle =  "(Year 2016)"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "Value (€) \n"
+  ) 
 ```
 
 
@@ -497,10 +811,18 @@ infrastructure_investment %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
-    text = element_text(size = 8)
-    )
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
+  ) +
+  ggtitle(
+    "Cross country infrastructure investment",
+    subtitle =  "(Year 2016)"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "Value (% of GDP) \n"
+  ) 
 ```
+
 
 Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
 ```{r}
@@ -517,14 +839,19 @@ infrastructure_investment %>%
     fill = LOCATION
     ) +
   geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2")
-  # scale_fill_manual(values = cbb_palette)
-  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
-  # theme(
-  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-  #   text = element_text(size = 8)
-  #   )
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Cross country infrastructure investment",
+    subtitle =  "(Year 2016)"
+  ) +
+  labs(
+    x = "\n Infrastructure Type", 
+    y = "Value (€)"
+  ) 
 ```
+
+
+ 
 
 
 Comparison with most productive countries in Europe (2017): UK, Ireland, Norway
@@ -542,15 +869,20 @@ infrastructure_investment %>%
     fill = LOCATION
     ) +
   geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2")
-  # scale_fill_manual(values = cbb_palette)
-  # scale_fill_manual(values = c('steelblue', 'red'), guide = "none") # +
-  # theme(
-  #   axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
-  #   text = element_text(size = 8)
-  #   )
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Cross country infrastructure investment",
+    subtitle =  "(Year 2015)"
+  ) +
+  labs(
+    x = "\n Infrastructure Type", 
+    y = "Value (€)"
+  ) 
 ```
 
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
 
 Cross Country Gross Domestic Spending on R&D
 
@@ -587,24 +919,33 @@ gdexp_rd %>%
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
-
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 countries gross domestic expenditure on R&D") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure ($MM) \n"
+  ) 
 ```
-
+################################################################ KEEP THIS FIGURE!!!!
 G-7 countries gross domestic expenditure on R&D (% GDP)
 ```{r}
 gdexp_rd %>%
   select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
-  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-         MEASURE == "PC_GDP") %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # LOCATION %in% c( "FRA", "DEU", "USA", "GBR"),
+    MEASURE == "PC_GDP"
+    ) %>%
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
-
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 countries gross domestic expenditure on R&D") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure (% of GDP) \n"
+  ) 
 ```
 
 
@@ -626,9 +967,16 @@ gdexp_rd %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
-    text = element_text(size = 8)
-    )
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
+  ) +
+  ggtitle(
+    "Cross country gross domestic expenditure on R&D",
+    subtitle =  "(Year 2016)"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "Expenditure (% of GDP) \n"
+  ) 
 ```
 
 
@@ -649,11 +997,22 @@ gdexp_rd %>%
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(angle = 45, vjust = 1.15, hjust = 1),
-    text = element_text(size = 8)
-    )
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
+  ) +
+  ggtitle(
+    "Cross country gross domestic expenditure on R&D",
+    subtitle =  "(Year 2016)"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "Expenditure ($MM) \n"
+  ) 
 ```
 
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
 
 
 __Comparison of Private Sector In Economy__
@@ -747,10 +1106,19 @@ domestic_credit_to_private_sector %>%
   scale_fill_brewer(palette = "Dark2") +
   theme(
     axis.text.x = element_text(angle = 30, vjust = 0.75)
-    )
-  
+  ) +
+  ggtitle("Domestic credit to private sector") +
+  labs(
+    x = "Country", 
+    y = "GDP (%)"
+  ) 
 ```
 
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
 
 
 __Compare skills and education between UK and other countries__
@@ -795,8 +1163,15 @@ adult_education %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
-
+  scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries adult education levels",
+    subtitle = "Age group: 25-64 years"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "Same age group population (%) \n"
+  ) 
 ```
 
 ```{r}
@@ -815,10 +1190,23 @@ adult_education %>%
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    )
+    ) +
+  ggtitle(
+    "Adult education levels",
+    subtitle = "Age group: 25-64; Year: 2017"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "Same age group population (%) \n"
+  ) 
 ```
 
-OECD Quality of human capital
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+OECD Quality of human capital - Better to combine the data sets from the 3 sheets in file below
 
 Read data
 ```{r}
@@ -933,7 +1321,12 @@ tidy_overqualified_workers %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  ggtitle("Percentage of overqualified workers") +
+  labs(
+    x = "\n Year", 
+    y = "Percentage (%) \n"
+  ) 
 ```
 
 ```{r}
@@ -946,7 +1339,12 @@ tidy_underqualified_workers %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  ggtitle("Percentage of underqualified workers") +
+  labs(
+    x = "\n Year", 
+    y = "Percentage (%) \n"
+  ) 
 ```
 
 
@@ -960,7 +1358,12 @@ tidy_qualified_workers %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  ggtitle("Percentage of well-matched workers") +
+  labs(
+    x = "\n Year", 
+    y = "Percentage (%) \n"
+  ) 
 ```
 
 
@@ -980,7 +1383,15 @@ tidy_overqualified_workers %>%
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    )
+    ) +
+  ggtitle(
+    "Percentage of overqualified workers",
+    subtitle = "(Year 2013)"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "Percentage (%) \n"
+  ) 
 ```
 
 ```{r}
@@ -998,7 +1409,15 @@ tidy_underqualified_workers %>%
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    )
+    ) +
+  ggtitle(
+    "Percentage of underqualified workers",
+    subtitle = "(Year 2013)"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "Percentage (%) \n"
+  ) 
 ```
 
 
@@ -1017,8 +1436,22 @@ tidy_qualified_workers %>%
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    )
+    ) +
+  ggtitle(
+    "Percentage of well-matched workers",
+    subtitle = "(Year 2013)"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "Percentage (%) \n"
+  ) 
 ```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
 
 
 OECD Tertiary Spending Expenditure
@@ -1053,7 +1486,7 @@ education_expenditure %>%
 
 G-7 countries education expenditure (GDP percentage)
 TRY : TeRtiarY
-PRY_NTRY: PRimarY to Non-TeRtiarY
+PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
 PRY_TRY: PRimarY to TeRtiarY
 ```{r}
 education_expenditure %>%
@@ -1067,8 +1500,15 @@ education_expenditure %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
-
+  scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
 ```
 
 ```{r}
@@ -1083,7 +1523,15 @@ education_expenditure %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Primary to Tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
 
 ```
 
@@ -1099,7 +1547,15 @@ education_expenditure %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)
+  scale_colour_manual(values = cbb_palette)+
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Primary to post-secondary non-Tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
 
 ```
 
@@ -1121,7 +1577,15 @@ education_expenditure %>%
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    )
+  ) +
+  ggtitle(
+    "Education expenditure",
+    subtitle = "Tertiary education"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "GDP (%) \n"
+  ) 
 ```
 
 
@@ -1143,7 +1607,15 @@ education_expenditure %>%
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    )
+  ) +
+  ggtitle(
+    "Education expenditure",
+    subtitle = "Primary to Tertiary education"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "GDP (%) \n"
+  ) 
 ```
 
 
@@ -1165,7 +1637,15 @@ education_expenditure %>%
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    )
+  ) +
+  ggtitle(
+    "Education expenditure",
+    subtitle = "Primary to post-secondary non-Tertiary education"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "GDP (%) \n"
+  ) 
 ```
 
 
@@ -1179,11 +1659,50 @@ education_expenditure %>%
   ggplot() +
   aes(x = LOCATION, y = Value, fill = SUBJECT) +
   geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2")
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Year 2015"
+  ) +
+  labs(
+    x = "\n Country", 
+    y = "GDP (%) \n"
+  ) 
 ```
 TRY : TeRtiarY
-PRY_NTRY: PRimarY to Non-TeRtiarY
+PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
 PRY_TRY: PRimarY to TeRtiarY
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
