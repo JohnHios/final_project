@@ -209,8 +209,8 @@ gdp_phw_OECD %>%
   scale_colour_brewer(palette = "Dark2") +
   # scale_colour_manual(values = cbb_palette) +
   ggtitle(
-    "GDP per hour worked (index 2010)",
-    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs) "
+    "GDP per hour worked",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
   ) +
   labs(
     x = "\n Year", 
@@ -232,9 +232,13 @@ gdp_phw_OECD %>%
   geom_point(size = 1.5) +
   # scale_colour_brewer(palette = "Dark2")
   scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "GDP per hour worked",
+    subtitle =  "indicator is measured in USD (index 2010 = 100)"
+  ) +
   labs(
     x = "\n Year", 
-    y = "GDP per hour worked (index 2010) \n"
+    y = "GDP per hour worked ($) \n"
   ) 
   
 ```
@@ -259,8 +263,8 @@ gdp_phw_OECD %>%
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1) ) +
   ggtitle(
-    "GDP per hour worked ($)",
-    subtitle =  "(Year 2017)"
+    "GDP per hour worked (Year 2017)",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
   ) +
   labs(
     x = "Country", 
@@ -290,12 +294,12 @@ gdp_phw_OECD %>%
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
     ) +
   ggtitle(
-    "GDP per hour worked (index 2010)",
-    subtitle =  "(Year 2017)"
+    "GDP per hour worked (Year 2017)",
+    subtitle =  "indicator is measured in USD (index 2010 = 100)"
   ) +
   labs(
     x = "Country", 
-    y = "GDP per hour worked (%)\n"
+    y = "GDP per hour worked ($)\n"
   ) 
 ```
 
@@ -757,6 +761,56 @@ infrastructure_investment %>%
   filter(is.na(Value))
 ```
 
+G-7 Cross country infrastructure investment (Euros)
+```{r}
+infrastructure_investment %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # SUBJECT == "RAIL",
+    # SUBJECT == "ROAD",
+    # SUBJECT == "SEA",
+    SUBJECT == "AIR",
+    # SUBJECT == "ROAD",
+    MEASURE == "EUR") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country infrastructure investment") +
+  labs(
+    x = "\n Year", 
+    y = "Investment (€) \n"
+  ) 
+```
+
+G-7 Cross country infrastructure investment (% of GDP)
+```{r}
+infrastructure_investment %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "INLAND",
+    MEASURE == "PC_GDP") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "G-7 Cross country infrastructure investment",
+    subtitle = "(Type: Inland)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "Investment (% of GDP) \n"
+  ) 
+```
+
+
+
+
 ```{r}
 infrastructure_investment %>%
   filter(
@@ -783,7 +837,7 @@ infrastructure_investment %>%
   ) +
   ggtitle(
     "Cross country infrastructure investment",
-    subtitle =  "(Year 2016)"
+    subtitle =  "(Rail; Year 2016)"
   ) +
   labs(
     x = "\n Country", 
@@ -815,7 +869,7 @@ infrastructure_investment %>%
   ) +
   ggtitle(
     "Cross country infrastructure investment",
-    subtitle =  "(Year 2016)"
+    subtitle =  "(Inland; Year 2016)"
   ) +
   labs(
     x = "\n Country", 
@@ -1107,7 +1161,7 @@ domestic_credit_to_private_sector %>%
   theme(
     axis.text.x = element_text(angle = 30, vjust = 0.75)
   ) +
-  ggtitle("Domestic credit to private sector") +
+  ggtitle("G-7 domestic credit to private sector") +
   labs(
     x = "Country", 
     y = "GDP (%)"
@@ -1162,8 +1216,8 @@ adult_education %>%
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
   ggtitle(
     "G-7 countries adult education levels",
     subtitle = "Age group: 25-64 years"
@@ -1320,9 +1374,9 @@ tidy_overqualified_workers %>%
   aes(x = year, y = percentage, group = country, colour = country) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
-  ggtitle("Percentage of overqualified workers") +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("G-7 countries percentage of overqualified workers") +
   labs(
     x = "\n Year", 
     y = "Percentage (%) \n"
@@ -1338,9 +1392,9 @@ tidy_underqualified_workers %>%
   aes(x = year, y = percentage, group = country, colour = country) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
-  ggtitle("Percentage of underqualified workers") +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("G-7 countries percentage of underqualified workers") +
   labs(
     x = "\n Year", 
     y = "Percentage (%) \n"
@@ -1357,9 +1411,9 @@ tidy_qualified_workers %>%
   aes(x = year, y = percentage, group = country, colour = country) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
-  ggtitle("Percentage of well-matched workers") +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("G-7 countries percentage of well-matched workers") +
   labs(
     x = "\n Year", 
     y = "Percentage (%) \n"
@@ -1463,6 +1517,10 @@ education_expenditure <- read_excel(here("raw_data/OECD_Tertiary_Education_Expen
 
 glimpse(education_expenditure)
 ```
+```{r}
+education_expenditure %>% 
+  filter(LOCATION == "GBR")
+```
 
 
 Check for NA's
@@ -1499,8 +1557,8 @@ education_expenditure %>%
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
   ggtitle(
     "G-7 countries education expenditure",
     subtitle = "Tertiary education"
@@ -1522,8 +1580,8 @@ education_expenditure %>%
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
   ggtitle(
     "G-7 countries education expenditure",
     subtitle = "Primary to Tertiary education"
@@ -1546,8 +1604,8 @@ education_expenditure %>%
   aes(x = TIME, y = Value, colour = LOCATION) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette)+
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
   ggtitle(
     "G-7 countries education expenditure",
     subtitle = "Primary to post-secondary non-Tertiary education"
@@ -1580,7 +1638,7 @@ education_expenditure %>%
   ) +
   ggtitle(
     "Education expenditure",
-    subtitle = "Tertiary education"
+    subtitle = "Tertiary education (Ye)"
   ) +
   labs(
     x = "\n Country", 
@@ -1673,13 +1731,112 @@ TRY : TeRtiarY
 PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
 PRY_TRY: PRimarY to TeRtiarY
 
+
+
+```{r}
+education_expenditure %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(LOCATION %in% c("GBR")) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = SUBJECT) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("UK education expenditure") +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+
+```
+
+
 #################################################################################################################################
 #################################################################################################################################
 #################################################################################################################################
 
 
 
+__Multifactor productivity__
 
+
+Read data
+```{r}
+mfp <- read_excel(here("raw_data/Multifactor_Productivity-OECD_Countries.xls")) 
+
+glimpse(mfp)
+```
+
+
+Check for NA's
+```{r}
+mfp %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+mfp %>% 
+  # distinct(LOCATION)
+  # distinct(INDICATOR) # MFP
+  # distinct(SUBJECT) # TOT
+  # distinct(MEASURE) # AGRWTH, IDX2010
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA
+```
+
+G-7 countries Multifactor productivity (annual growth rate)
+```{r}
+mfp%>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "AGRWTH"
+  ) %>% 
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries Multifactor productivity",
+    subtitle = "(annual growth rate)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "MFP (%)\n"
+  ) 
+  
+```
+
+
+G-7 countries Multifactor productivity (index 2010)
+```{r}
+mfp%>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "IDX2010"
+  ) %>% 
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries Multifactor productivity",
+    subtitle = "(index 2010 = 100)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "MFP \n"
+  ) 
+  
+```
 
 
 
