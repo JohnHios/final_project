@@ -1,0 +1,323 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+Call Libraries
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+
+__Labour_Productivity-OECD_Countries__
+
+Read data
+```{r}
+gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) 
+
+glimpse(gdp_phw)
+```
+
+Check for NA values
+```{r}
+gdp_phw %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
+```{r}
+gdp_phw %>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # LOCATION %in% c("G-7", "EU28", "GBR"),
+    MEASURE == "USD") %>% 
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "GDP per hour worked",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per hour worked ($) \n"
+  ) 
+  
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Cross Country Gross Domestic Spending on R&D__
+
+Read data
+```{r}
+gdexp_rnd <- read_csv(here("raw_data/OECD_Gross_Domestic_Spending_on_R&D_JHios.csv")) 
+
+glimpse(gdexp_rnd)
+```
+
+G-7 countries gross domestic expenditure on R&D (Million USD)
+```{r}
+gdexp_rnd %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+         MEASURE == "MLN_USD") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 countries gross domestic expenditure on R&D") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure ($MM) \n"
+  ) 
+```
+################################################################ KEEP THIS FIGURE!!!!
+G-7 countries gross domestic expenditure on R&D (% GDP)
+```{r}
+gdexp_rnd %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # LOCATION %in% c( "FRA", "DEU", "USA", "GBR"),
+    MEASURE == "PC_GDP"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 countries gross domestic expenditure on R&D") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure (% of GDP) \n"
+  ) 
+```
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Compare investment between UK and other countries__
+
+
+Cross country infrastructure investment
+
+Read data
+```{r}
+infr_inv <- read_csv(here("raw_data/OECD_Infrastructure_Investment_JHios.csv")) 
+
+glimpse(infr_inv)
+```
+
+
+Check for NA's
+```{r}
+infr_inv %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+G-7 Cross country infrastructure investment (Euros)
+```{r}
+infr_inv %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # SUBJECT == "RAIL",
+    # SUBJECT == "ROAD",
+    # SUBJECT == "SEA",
+    SUBJECT == "AIR",
+    # SUBJECT == "ROAD",
+    MEASURE == "EUR") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country infrastructure investment") +
+  labs(
+    x = "\n Year", 
+    y = "Investment (€) \n"
+  ) 
+```
+
+
+G-7 Cross country infrastructure investment (% of GDP)
+```{r}
+infr_inv %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "INLAND",
+    MEASURE == "PC_GDP") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "G-7 Cross country infrastructure investment",
+    subtitle = "(Type: Inland)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "Investment (% of GDP) \n"
+  ) 
+```
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+OECD Education Spending Expenditure
+
+
+Read data
+```{r}
+edu_exp <- read_csv(here("raw_data/OECD_Public_Spending_on_Education_JHios.csv")) 
+
+glimpse(edu_exp)
+```
+
+
+
+Check for NA's
+```{r}
+edu_exp %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+G-7 countries education expenditure (GDP percentage)
+TRY : TeRtiarY
+PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
+PRY_TRY: PRimarY to TeRtiarY
+```{r}
+edu_exp %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "TRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+```
+
+
+```{r}
+edu_exp %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "PRY_TRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Primary to tTertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+
+```
+
+
+```{r}
+edu_exp %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "PRY_NTRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Primary to post-secondary non-tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+
+```
+
+
+```{r}
+edu_exp %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(LOCATION %in% c("GBR")) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = SUBJECT) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("UK education expenditure") +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
