@@ -395,6 +395,34 @@ glimpse(prod_uk)
 ```
 
 
+Investigate how the correlations are affected when a quantity originally expressed as % of GDP is transformed
+into GDP USD (constant prices 2010 and PPPs)
+```{r}
+prod_uk2 <- prod_uk %>%
+  mutate(
+    inland_usd = inland_pc_gdp * gdp_usd,
+    rnd_usd = rnd_pc_gdp * gdp_usd,
+    try_usd = try_pc_gdp * gdp_usd,
+    pry_ntry_usd = pry_ntry_pc_gdp * gdp_usd,
+    pry_try_usd = pry_try_pc_gdp * gdp_usd,
+  ) %>%
+  select(
+    TIME, 
+    gdp_usd, 
+    rnd_usd, 
+    rnd_billionusd, 
+    rail_billioneuro, 
+    road_billioneuro, 
+    inland_usd, 
+    air_billioneuro,
+    sea_billioneuro, 
+    try_usd, 
+    pry_ntry_usd, 
+    pry_try_usd
+  )
+```
+
+
 
 
 #################################################################################################################################
@@ -406,144 +434,7 @@ glimpse(prod_uk)
 ```{r}
 prod_uk %>% 
 ggplot() +
-  aes(x = gdp_usd, y = rnd_billionusd, colour = TIME) +
-   geom_point() +
-  # scale_colour_gradient()
-  # scale_colour_gradient(low = "gray0", high = "gray100")
-  # geom_point(color = "steelblue") +
-  geom_text(
-    aes(label = TIME),
-    nudge_x = 0.75,
-    nudge_y = 0,
-    size = 2.5
-  ) +
-  geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0)
-```
-
-```{r}
-prod_uk %>% 
-ggplot() +
-  aes(x = gdp_usd, y = rail_billioneuro, colour = TIME) +
-   geom_point() +
-  # scale_colour_gradient()
-  # scale_colour_gradient(low = "gray0", high = "gray100")
-  # geom_point(color = "steelblue") +
-  geom_text(
-    aes(label = TIME),
-    nudge_x = 0.75,
-    nudge_y = 0,
-    size = 2.5
-  ) +
-  geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0)
-```
-
-
-```{r}
-prod_uk %>% 
-ggplot() +
-  aes(x = gdp_usd, y = road_billioneuro, colour = TIME) +
-   geom_point() +
-  # scale_colour_gradient()
-  # scale_colour_gradient(low = "gray0", high = "gray100")
-  # geom_point(color = "steelblue") +
-  geom_text(
-    aes(label = TIME),
-    nudge_x = 0.75,
-    nudge_y = 0,
-    size = 2.5
-  ) +
-  geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0)
-```
-
-
-
-```{r}
-prod_uk %>% 
-ggplot() +
-  aes(x = gdp_usd, y = inland_pc_gdp, colour = TIME) +
-   geom_point() +
-  # scale_colour_gradient()
-  # scale_colour_gradient(low = "gray0", high = "gray100")
-  # geom_point(color = "steelblue") +
-  geom_text(
-    aes(label = TIME),
-    nudge_x = 0.75,
-    nudge_y = 0,
-    size = 2.5
-  ) +
-  geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0)
-```
-
-
-```{r}
-prod_uk %>% 
-ggplot() +
-  aes(x = gdp_usd, y = air_billioneuro, colour = TIME) +
-   geom_point() +
-  # scale_colour_gradient()
-  # scale_colour_gradient(low = "gray0", high = "gray100")
-  # geom_point(color = "steelblue") +
-  geom_text(
-    aes(label = TIME),
-    nudge_x = 0.75,
-    nudge_y = 0,
-    size = 2.5
-  ) +
-  geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0)
-```
-
-
-
-```{r}
-prod_uk %>% 
-ggplot() +
-  aes(x = gdp_usd, y = sea_billioneuro, colour = TIME) +
-   geom_point() +
-  # scale_colour_gradient()
-  # scale_colour_gradient(low = "gray0", high = "gray100")
-  # geom_point(color = "steelblue") +
-  geom_text(
-    aes(label = TIME),
-    nudge_x = 0.75,
-    nudge_y = 0,
-    size = 2.5
-  ) +
-  geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0)
-```
-
-
-
-
-```{r}
-prod_uk %>% 
-ggplot() +
-  aes(x = gdp_usd, y = try_pc_gdp, colour = TIME) +
-   geom_point() +
-  # scale_colour_gradient()
-  # scale_colour_gradient(low = "gray0", high = "gray100")
-  # geom_point(color = "steelblue") +
-  geom_text(
-    aes(label = TIME),
-    nudge_x = 0.75,
-    nudge_y = 0,
-    size = 2.5
-  ) +
-  geom_vline(xintercept = 0) +
-  geom_hline(yintercept = 0)
-```
-
-
-
-```{r}
-prod_uk %>% 
-ggplot() +
-  aes(x = gdp_usd, y = pry_ntry_pc_gdp, colour = TIME) +
+  aes(x = rnd_billionusd, y = gdp_usd, colour = TIME) +
    geom_point() +
   # scale_colour_gradient()
   # scale_colour_gradient(low = "gray0", high = "gray100")
@@ -559,19 +450,177 @@ ggplot() +
 ```
 
 
-
-
 ```{r}
 prod_uk %>% 
 ggplot() +
-  aes(x = gdp_usd, y = pry_try_pc_gdp, colour = TIME) +
+  aes(x = rnd_pc_gdp, y = gdp_usd, colour = TIME) +
    geom_point() +
   # scale_colour_gradient()
   # scale_colour_gradient(low = "gray0", high = "gray100")
   # geom_point(color = "steelblue") +
   geom_text(
     aes(label = TIME),
-    nudge_x = 1.5,
+    nudge_x = 0.075,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = rail_billioneuro, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.5,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = road_billioneuro, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.25,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = inland_pc_gdp, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.025,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = air_billioneuro, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.075,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = sea_billioneuro, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.015,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = try_pc_gdp, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.035,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = pry_ntry_pc_gdp, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.15,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = pry_try_pc_gdp, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.15,
     nudge_y = 0,
     size = 2.5
   ) +
@@ -613,6 +662,72 @@ prod_uk %>%
 ```{r}
 prod_uk
 ```
+
+
+
+
+```{r}
+prod_uk2 %>% 
+  select(-TIME) %>% 
+  GGally::ggcorr(
+    label = TRUE,
+    label_size = 3, 
+    label_round = 2, 
+    label_alpha = TRUE,
+    hjust = 1,
+    layout.exp = 0.5
+  )
+```
+
+
+
+
+
+
+
+```{r}
+prod_uk2 %>% 
+ggplot() +
+  aes(x = rnd_billionusd, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 2.5,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+```{r}
+prod_uk2 %>% 
+ggplot() +
+  # aes(x = try_usd, y = gdp_usd, colour = TIME) +
+  # aes(x = pry_ntry_usd, y = gdp_usd, colour = TIME) +
+  aes(x = pry_try_usd, y = gdp_usd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 5.0,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+
 
 
 
