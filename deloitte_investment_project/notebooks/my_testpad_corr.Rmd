@@ -1,0 +1,624 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Call Libraries
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+library(readxl)
+```
+
+
+__Labour_Productivity-OECD_Countries__
+
+Read data
+```{r}
+gdp_phw_OECD <- read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv")) 
+
+glimpse(gdp_phw_OECD)
+```
+
+
+```{r}
+gdp_phw_OECD %>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # LOCATION %in% c("G-7", "EU28", "GBR"),
+    MEASURE == "USD") %>% 
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "GDP per hour worked",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per hour worked ($) \n"
+  ) 
+  
+```
+
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Cross Country Gross Domestic Spending on R&D__
+
+Read data
+```{r}
+gdexp_rd <- read_excel(here("raw_data/Cross_country_Gross_Domestic_Spending_on_R&D.xls")) 
+
+glimpse(gdexp_rd)
+```
+
+G-7 countries gross domestic expenditure on R&D (Million USD)
+```{r}
+gdexp_rd %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+         MEASURE == "MLN_USD") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 countries gross domestic expenditure on R&D") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure ($MM) \n"
+  ) 
+```
+################################################################ KEEP THIS FIGURE!!!!
+G-7 countries gross domestic expenditure on R&D (% GDP)
+```{r}
+gdexp_rd %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # LOCATION %in% c( "FRA", "DEU", "USA", "GBR"),
+    MEASURE == "PC_GDP"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 countries gross domestic expenditure on R&D") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure (% of GDP) \n"
+  ) 
+```
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Compare investment between UK and other countries__
+
+
+Cross country infrastructure investment
+
+Read data
+```{r}
+infrastructure_investment <- read_excel(here("raw_data/Cross_country_infrastructure_investment.xls")) 
+
+glimpse(infrastructure_investment)
+```
+
+
+G-7 Cross country infrastructure investment (Euros)
+```{r}
+infrastructure_investment %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # SUBJECT == "RAIL",
+    # SUBJECT == "ROAD",
+    # SUBJECT == "SEA",
+    SUBJECT == "AIR",
+    # SUBJECT == "ROAD",
+    MEASURE == "EUR") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country infrastructure investment") +
+  labs(
+    x = "\n Year", 
+    y = "Investment (€) \n"
+  ) 
+```
+
+
+G-7 Cross country infrastructure investment (% of GDP)
+```{r}
+infrastructure_investment %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "INLAND",
+    MEASURE == "PC_GDP") %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "G-7 Cross country infrastructure investment",
+    subtitle = "(Type: Inland)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "Investment (% of GDP) \n"
+  ) 
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+OECD Tertiary Spending Expenditure
+
+
+Read data
+```{r}
+education_expenditure <- read_excel(here("raw_data/OECD_Tertiary_Education_Expenditure.xlsx")) 
+
+glimpse(education_expenditure)
+```
+```{r}
+education_expenditure %>% 
+  filter(LOCATION == "GBR")
+```
+
+
+Check for NA's
+```{r}
+education_expenditure %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+education_expenditure %>% 
+  # distinct(LOCATION)
+  # distinct(INDICATOR) # EDUPUBEXP
+  # distinct(SUBJECT) # TRY, PRY_NTRY, PRY_TRY
+  # distinct(MEASURE) # PC_GDP
+  # distinct(FREQUENCY) #A
+  distinct(`Flag Codes`) # NA, M
+```
+
+
+G-7 countries education expenditure (GDP percentage)
+TRY : TeRtiarY
+PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
+PRY_TRY: PRimarY to TeRtiarY
+```{r}
+education_expenditure %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "TRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+```
+
+```{r}
+education_expenditure %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "PRY_TRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Primary to Tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+
+```
+
+```{r}
+education_expenditure %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "PRY_NTRY"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries education expenditure",
+    subtitle = "Primary to post-secondary non-Tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+
+```
+
+
+```{r}
+education_expenditure %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(LOCATION %in% c("GBR")) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = SUBJECT) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("UK education expenditure") +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+```{r}
+gdp_phw_uk <- gdp_phw_OECD %>% 
+  filter(
+    LOCATION ==  "GBR"
+  ) %>% 
+  select(MEASURE, TIME, Value) %>% 
+  pivot_wider(names_from = MEASURE, values_from = Value) %>% 
+  rename(
+    gdp_usd = USD,
+    gdp_idx2010 = IDX2010
+    )
+
+glimpse(gdp_phw_uk )
+```
+
+
+```{r}
+rnd_uk <- gdexp_rd %>% 
+  filter(
+    LOCATION ==  "GBR"
+  ) %>% 
+  select(MEASURE, TIME, Value) %>% 
+  pivot_wider(names_from = MEASURE, values_from = Value) %>% 
+  mutate(MLN_USD = MLN_USD/1e3) %>%
+  rename(
+    rnd_billionusd = MLN_USD,
+    rnd_pc_gdp = PC_GDP
+  )
+
+glimpse(rnd_uk)
+```
+
+```{r}
+infr_inv_uk <- infrastructure_investment %>% 
+  filter(
+    LOCATION ==  "GBR"
+  ) %>%
+  select(SUBJECT, TIME, Value) %>% 
+  pivot_wider(names_from = SUBJECT, values_from = Value) %>% 
+  mutate(
+    RAIL = RAIL/1e9,
+    ROAD = ROAD/1e9,
+    INLAND = INLAND,
+    AIR = AIR/1e9,
+    SEA = SEA/1e9
+  ) %>%
+  rename(
+    rail_billioneuro = RAIL,
+    road_billioneuro = ROAD,
+    inland_pc_gdp = INLAND,
+    air_billioneuro = AIR,
+    sea_billioneuro = SEA
+  )
+
+glimpse(infr_inv_uk)
+```
+
+
+```{r}
+edu_uk <- education_expenditure %>%
+  filter(LOCATION ==  "GBR") %>% 
+  pivot_wider(names_from = SUBJECT, values_from = Value) %>% 
+  select(TIME, TRY, PRY_NTRY, PRY_TRY) %>% 
+  rename(
+    try_pc_gdp = TRY,
+    pry_ntry_pc_gdp = PRY_NTRY,
+    pry_try_pc_gdp = PRY_TRY
+  ) 
+
+glimpse(edu_uk)
+```
+
+
+```{r}
+prod_uk <- gdp_phw_uk %>% 
+  left_join(rnd_uk, by = "TIME") %>% 
+  left_join(infr_inv_uk, by = "TIME") %>% 
+  left_join(edu_uk, by = "TIME")
+
+glimpse(prod_uk)
+```
+
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = rnd_billionusd, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.75,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = rail_billioneuro, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.75,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = road_billioneuro, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.75,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = inland_pc_gdp, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.75,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = air_billioneuro, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.75,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = sea_billioneuro, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.75,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = try_pc_gdp, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 0.75,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = pry_ntry_pc_gdp, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 1.5,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+
+
+```{r}
+prod_uk %>% 
+ggplot() +
+  aes(x = gdp_usd, y = pry_try_pc_gdp, colour = TIME) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  geom_text(
+    aes(label = TIME),
+    nudge_x = 1.5,
+    nudge_y = 0,
+    size = 2.5
+  ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+```{r}
+library(GGally)
+
+prod_uk %>%
+  select(-TIME, -gdp_idx2010) %>% 
+  select(gdp_usd, rnd_billionusd:sea_billioneuro) %>% 
+  ggscatmat()
+```
+
+```{r}
+prod_uk %>%
+  select(-TIME, -gdp_idx2010) %>% 
+  select(-c(rnd_billionusd:sea_billioneuro)) %>% 
+  ggscatmat()
+```
+
+
+```{r}
+prod_uk %>% 
+  select(-TIME, -gdp_idx2010) %>% 
+  GGally::ggcorr(
+    label = TRUE,
+    label_size = 3, 
+    label_round = 2, 
+    label_alpha = TRUE,
+    hjust = 1,
+    layout.exp = 0.5
+  )
+```
+
+```{r}
+prod_uk
+```
+
+
+
+
+
+
+
+
+
