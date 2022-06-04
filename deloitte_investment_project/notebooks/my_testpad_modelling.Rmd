@@ -137,6 +137,13 @@ infr_inv %>%
 ```
 
 
+```{r}
+infr_inv %>% 
+  distinct(SUBJECT, MEASURE)
+```
+
+
+
 G-7 Cross country infrastructure investment (Euros)
 ```{r}
 infr_inv %>%
@@ -144,10 +151,9 @@ infr_inv %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     # SUBJECT == "RAIL",
-    # SUBJECT == "ROAD",
+    SUBJECT == "ROAD",
     # SUBJECT == "SEA",
-    SUBJECT == "AIR",
-    # SUBJECT == "ROAD",
+    # SUBJECT == "AIR",
     MEASURE == "EUR") %>%
   ggplot() +
   aes(x = TIME, y = Value, colour = LOCATION) +
@@ -184,6 +190,289 @@ infr_inv %>%
     y = "Investment (% of GDP) \n"
   ) 
 ```
+
+##########################################################################################
+
+OECD_Gross_Domestic_Product_GDP
+
+Read data
+```{r}
+gdp <- read_csv(here("raw_data/OECD_Gross_Domestic_Product_GDP_JHios.csv")) 
+
+glimpse(gdp)
+```
+
+Check for NA's
+```{r}
+gdp %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+gdp %>% 
+  # distinct(LOCATION)
+  distinct(INDICATOR) # GDP
+  # distinct(SUBJECT) # TOT
+  # distinct(MEASURE) # MLN_USD, USD_CAP
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, E, P, B, D
+```
+
+
+
+
+```{r}
+gdp %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "MLN_USD"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, group = LOCATION, color = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country GDP") +
+  labs(
+    x = "\n Year",
+    y = "GDP ($MM) \n"
+  ) +
+  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+```
+
+
+```{r}
+gdp_light <- gdp %>%
+  filter(MEASURE == "MLN_USD") %>%
+  select(LOCATION, TIME, Value) %>%
+  rename(gdp = Value)
+
+
+inv_inland_usd <- infr_inv %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    SUBJECT == "INLAND",
+    MEASURE == "PC_GDP"
+  ) %>%
+  left_join(gdp_light, by = c("LOCATION", "TIME")) %>%
+  mutate(
+    value_mmusd = Value * gdp / 100
+  )
+
+inv_inland_usd
+```
+
+
+G-7 Cross country INLAND infrastructure investment ($MM)
+```{r}
+inv_inland_usd %>%
+  select(-c(SUBJECT, MEASURE, Value, gdp)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")) %>%
+  ggplot() +
+  aes(x = TIME, y = value_mmusd, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "G-7 Cross country infrastructure investment",
+    subtitle = "(Type: Inland)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "Investment ($MM) \n"
+  ) 
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+
+
+OECD Investment by Asset
+
+Read data
+```{r}
+inv_asset <- read_csv(here("raw_data/OECD_Investment_by_Asset_JHios.csv")) 
+
+glimpse(inv_asset)
+```
+
+
+Check for NA's
+```{r}
+inv_asset %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
+```{r}
+inv_asset %>% 
+  # distinct(LOCATION)
+  # distinct(INDICATOR) # GFCFASSET
+  distinct(SUBJECT) # OTHMACHINEQT, CULTASSET, OTHBUILDING, FIXASSET, TRANSPEQT, DWELLING
+  # distinct(MEASURE) # PC_GFCF
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, E, B
+```
+
+
+OTHMACHINEQT: Information and Communication Technology (ICT) equipment (computer software and databases, telecommunications equipment and computer hardware)
+
+CULTASSET: cultivated biological resources (managed forests, livestock raised for milk production, etc.)
+
+OTHBUILDING: other buildings and structures (roads, bridges, airfields, dams, etc.)
+
+FIXASSET: intellectual property products (such as R&D, mineral exploration, software and databases, and literary and artistic originals, etc.)
+
+TRANSPEQT: transport equipment (ships, trains, aircraft, etc.)
+
+DWELLING: dwellings (excluding land)
+
+
+G-7 Cross country investment by Asset (% GFCF)
+```{r}
+inv_asset %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # SUBJECT == "OTHMACHINEQT",
+    # SUBJECT == "CULTASSET",
+    # SUBJECT == "OTHBUILDING",
+    SUBJECT == "FIXASSET",
+    # SUBJECT == "TRANSPEQT",
+    # SUBJECT == "DWELLING"
+  ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country investment by Asset") +
+  labs(
+    x = "\n Year", 
+    y = "Investment (% GFCF) \n"
+  ) 
+```
+
+OECD Investment GFCF
+
+
+Read data
+```{r}
+gfcf <- read_csv(here("raw_data/OECD_Investment_GFCF_JHios.csv")) 
+
+glimpse(gfcf)
+```
+
+```{r}
+gfcf <- gfcf %>%
+  mutate(TIME = as.numeric(TIME))
+```
+
+
+
+Check for NA's
+```{r}
+gfcf %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+gfcf %>% 
+  # distinct(LOCATION)
+  # distinct(INDICATOR) # GFCF
+  # distinct(SUBJECT) # TOT
+  distinct(MEASURE) # AGRWTH, MLN_USD, QGRWTH
+  # distinct(FREQUENCY) #A, Q
+  # distinct(`Flag Codes`) # NA, E, P, B, D
+```
+
+AGRWTH: Annual growth (%)
+MLN_USD: Million US Dollars
+QGRWTH: Quarterly growth rate (%)
+
+```{r}
+gfcf %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "MLN_USD"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, group = LOCATION, color = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country investment by Asset") +
+  labs(
+    x = "\n Year", 
+    y = "GFCF ($MM) \n"
+  ) +
+  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+```
+
+
+```{r}
+gfcf_light <- gfcf %>% 
+  filter(MEASURE == "MLN_USD") %>% 
+  select(LOCATION, TIME, Value) %>% 
+  rename(gfcf = Value)
+
+inv_asset_usd <- inv_asset %>% 
+  left_join(gfcf_light, by = c("LOCATION", "TIME")) %>% 
+  mutate(
+    value_mmusd = Value * gfcf / 100
+  )
+
+```
+
+
+G-7 Cross country investment by Asset (million USD)
+```{r}
+inv_asset_usd %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE, Value, gfcf)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # SUBJECT == "OTHMACHINEQT",
+    # SUBJECT == "CULTASSET",
+    # SUBJECT == "OTHBUILDING",
+    # SUBJECT == "FIXASSET",
+    # SUBJECT == "TRANSPEQT",
+    SUBJECT == "DWELLING"
+  ) %>%
+  ggplot() +
+  aes(x = TIME, y = value_mmusd, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country investment by Asset") +
+  labs(
+    x = "\n Year", 
+    y = "Investment ($MM) \n"
+  ) 
+```
+OTHMACHINEQT: Information and Communication Technology (ICT) equipment (computer software and databases, telecommunications equipment and computer hardware)
+
+CULTASSET: cultivated biological resources (managed forests, livestock raised for milk production, etc.)
+
+OTHBUILDING: other buildings and structures (roads, bridges, airfields, dams, etc.)
+
+FIXASSET: intellectual property products (such as R&D, mineral exploration, software and databases, and literary and artistic originals, etc.)
+
+TRANSPEQT: transport equipment (ships, trains, aircraft, etc.)
+
+DWELLING: dwellings (excluding land)
+
 
 #################################################################################################################################
 #################################################################################################################################
@@ -253,7 +542,7 @@ edu_exp %>%
   # scale_colour_manual(values = cbb_palette) +
   ggtitle(
     "G-7 countries education expenditure",
-    subtitle = "Primary to tTertiary education"
+    subtitle = "Primary to tertiary education"
   ) +
   labs(
     x = "\n Year", 
@@ -305,6 +594,108 @@ edu_exp %>%
   ) 
 
 ```
+
+```{r}
+# gdp_light <- gdp %>%
+#   filter(MEASURE == "MLN_USD") %>%
+#   select(LOCATION, TIME, Value) %>%
+#   rename(gdp = Value)
+
+edu_exp_usd <- edu_exp %>% 
+  left_join(gdp_light, by = c("LOCATION", "TIME")) %>% 
+  mutate(
+    value_mmusd = Value * gdp / 100
+  )
+
+```
+
+
+```{r}
+edu_exp_usd %>%
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  filter(LOCATION %in% c("GBR")) %>%
+  ggplot() +
+  aes(x = TIME, y = value_mmusd, colour = SUBJECT) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("UK education expenditure") +
+  labs(
+    x = "\n Year", 
+    y = "GDP ($MM) \n"
+  ) 
+
+```
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Modelling Dataset__
+
+
+```{r}
+gdp_phw %>% 
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "USD"
+  ) %>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE)) %>% 
+  rename(gdp_phw_usd = Value)
+```
+
+
+```{r}
+gdexp_rnd %>%
+  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+         MEASURE == "MLN_USD") %>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE)) %>%
+  rename(gdexp_rnd_mmusd = Value)
+```
+
+```{r}
+infr_inv %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")
+  ) %>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  pivot_wider(names_from = SUBJECT, values_from = Value) %>% 
+  mutate(
+    RAIL = RAIL/1e6,
+    ROAD = ROAD/1e6,
+    INLAND = INLAND,
+    AIR = AIR/1e6,
+    SEA = SEA/1e6,
+    INLANDWATER = INLANDWATER/1e6
+  ) %>%
+  rename(
+    rail_mmeuro = RAIL,
+    road_mmeuro = ROAD,
+    inland_pc_gdp = INLAND,
+    air_mmeuro = AIR,
+    sea_mmeuro = SEA,
+    inlandwater_mmeuro = INLANDWATER
+  )
+
+```
+
+
+```{r}
+infr_inv %>% 
+  distinct(SUBJECT, MEASURE)
+```
+
+
+```{r}
+edu_exp_usd %>%
+  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")) %>% 
+  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE))
+```
+
+
+
 
 
 
