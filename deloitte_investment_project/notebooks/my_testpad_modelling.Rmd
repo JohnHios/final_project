@@ -583,6 +583,9 @@ Call libraries for liner regression modelling
 library(GGally)
 library(ggfortify)
 library(modelr)
+library(relaimpo)
+library(caret)
+library(leaps)
 ```
 
 
@@ -590,6 +593,7 @@ Check for correlations in data
 ```{r}
 ggpairs(prod_uk_trim)
 ```
+#################################################################################################################################
 
 Simple linear regression
 
@@ -614,6 +618,7 @@ autoplot(model_1) #diagnostics
 ```{r}
 summary(model_1)
 ```
+#################################################################################################################################
 
 - Adding a second predictor to the model
 
@@ -629,6 +634,9 @@ prod_uk_remaining_resid %>%
 
 It seems that road_bil_eur is a good candidate for a second predictor followed by inland_bil_usd
 
+#################################################################################################################################
+
+
 Model with road_bil_eur (model_2a)
 ```{r}
 model_2a <- lm(gdp_phw_usd ~ gdexp_rnd_bil_usd + road_bil_eur, data = prod_uk_trim)
@@ -639,6 +647,7 @@ autoplot(model_2a) #diagnostics
 ```{r}
 summary(model_2a)
 ```
+#################################################################################################################################
 
 Model with inland_bil_usd (model_2b)
 ```{r}
@@ -652,6 +661,7 @@ summary(model_2b)
 
 Results indicate that model_2b performs slightly better than model_2a. We keep model_2b for further modelling.
 
+#################################################################################################################################
 
 
 - Adding a third predictor to the model
@@ -680,6 +690,9 @@ summary(model_3a)
 ```
 
 It doesn't seem that road_bil_eur adds too much value in explaining the variability of the response.
+
+
+#################################################################################################################################
 
 Let's see if adding an interaction makes any improvement in our model.
 
@@ -713,81 +726,104 @@ anova(model_2b, model_3b)
 The ANOVA tells us that including the interaction is significantly better than not doing so.
 
 
+#################################################################################################################################
 
 Checking of relative importance of model terms
 ```{r}
-library(relaimpo)
-
 calc.relimp(model_3b, type = "lmg", rela = TRUE)
 
 ```
 
 
+#################################################################################################################################
+#################################################################################################################################
 
-
+__K-fold cross validation__
 
 ```{r}
-model2 <- lm(gdp_phw_usd ~ gdexp_rnd_bil_usd + rail_bil_eur, data = prod_uk_trim)
+# set up options for train function below
+cv_10_fold <- trainControl(method = "cv", # cross-validation
+                           number = 10, # 10-fold
+                           savePredictions = TRUE) # save all predictions
 
-autoplot(model2) #diagnostics
+model_3b_kfold <- train(gdp_phw_usd ~ gdexp_rnd_bil_usd + inland_bil_usd + 
+                 gdexp_rnd_bil_usd:inland_bil_usd,
+               data = prod_uk_trim,
+               trControl = cv_10_fold, # use options defined above
+               method = 'lm')
 ```
 
 ```{r}
-summary(model2)
-```
-
-Adding a third predictor to the model
-```{r}
-model3 <- lm(gdp_phw_usd ~ gdexp_rnd_bil_usd + rail_bil_eur + inland_bil_usd, data = prod_uk_trim)
-
-autoplot(model3) #diagnostics
-```
-
-
-```{r}
-summary(model3)
-```
-
-
-Adding a fourth predictor to the model
-```{r}
-model4 <- lm(gdp_phw_usd ~ gdexp_rnd_bil_usd + rail_bil_eur + inland_bil_usd + road_bil_eur, data = prod_uk_trim)
-
-autoplot(model4) #diagnostics
-```
-
-```{r}
-summary(model4)
-```
-
-Check for including in the model  potential interactions between predictors
-```{r}
-coplot(gdp_phw_usd ~ road_bil_eur | inland_bil_usd,
-       rows = 1,
-       panel = function(x, y, ...){
-         points(x, y)
-         abline(lm(y ~ x), col = "blue")
-       },
-       data = prod_uk_trim)
+model_3b_kfold$resample
 ```
 
 
 
-Adding a fifth predictor to the model
 ```{r}
-model5 <- lm(gdp_phw_usd ~ gdexp_rnd_bil_usd + rail_bil_eur + inland_bil_usd + road_bil_eur + road_bil_eur:inland_bil_usd, data = prod_uk_trim)
-
-autoplot(model5) #diagnostics
-```
-
-```{r}
-summary(model5)
+tibble(
+  relationship = "GDP_phw ~ RnD + Inland_inv + RnD:Inland_inv",
+  RMSE = mean(model_3b_kfold$resample$RMSE),
+  Rsquared = mean(model_3b_kfold$resample$Rsquared)
+)
 ```
 
 
-Model :
-gdp_phw_usd ~ gdexp_rnd_bil_usd + rail_bil_eur + road_bil_eur + 
-    inland_bil_usd
+
+
+```{r}
+model_2b_kfold <- train(gdp_phw_usd ~ gdexp_rnd_bil_usd + inland_bil_usd,
+               data = prod_uk_trim,
+               trControl = cv_10_fold, # use options defined above
+               method = 'lm')
+```
+
+
+```{r}
+model_2b_kfold$resample
+```
+
+```{r}
+tibble(
+  relationship = "GDP_phw ~ RnD + Inland_inv",
+  RMSE = mean(model_2b_kfold$resample$RMSE),
+  Rsquared = mean(model_2b_kfold$resample$Rsquared)
+)
+```
+
+
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Automated modelling__
+
+```{r}
+regsubsets_exhaustive <- regsubsets(gdp_phw_usd ~ ., data = prod_uk_trim, nvmax = 5, method = "exhaustive")
+```
+
+```{r}
+sum_regsubsets_exhaustive <- summary(regsubsets_exhaustive)
+sum_regsubsets_exhaustive
+```
+
+
+```{r}
+plot(regsubsets_exhaustive, scale = "bic")
+```
+
+
+```{r}
+plot(sum_regsubsets_exhaustive$bic, type = "b")
+```
+
+
+
+```{r}
+plot(sum_regsubsets_exhaustive$rsq, type = "b")
+```
+
+
+
 
 
 
