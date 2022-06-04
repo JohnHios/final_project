@@ -32,7 +32,7 @@ gdp_phw %>%
 
 ```{r}
 gdp_phw %>% 
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>% 
   filter(
     # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
@@ -74,7 +74,7 @@ glimpse(gdexp_rnd)
 G-7 countries gross domestic expenditure on R&D (Million USD)
 ```{r}
 gdexp_rnd %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>%
   filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
          MEASURE == "MLN_USD") %>%
   ggplot() +
@@ -92,7 +92,7 @@ gdexp_rnd %>%
 G-7 countries gross domestic expenditure on R&D (% GDP)
 ```{r}
 gdexp_rnd %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     # LOCATION %in% c( "FRA", "DEU", "USA", "GBR"),
@@ -109,6 +109,150 @@ gdexp_rnd %>%
     y = "Expenditure (% of GDP) \n"
   ) 
 ```
+
+
+##################################################################################################################
+##################################################################################################################
+
+__Check with GDP-derived expenditure in USD__
+
+OECD_Gross_Domestic_Product_GDP
+
+Read data
+```{r}
+gdp <- read_csv(here("raw_data/OECD_Gross_Domestic_Product_GDP_JHios.csv")) 
+
+glimpse(gdp)
+```
+
+Check for NA's
+```{r}
+gdp %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+gdp %>% 
+  # distinct(LOCATION)
+  distinct(INDICATOR) # GDP
+  # distinct(SUBJECT) # TOT
+  # distinct(MEASURE) # MLN_USD, USD_CAP
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, E, P, B, D
+```
+
+
+
+
+```{r}
+gdp %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "MLN_USD"
+    ) %>%
+  ggplot() +
+  aes(x = TIME, y = Value, group = LOCATION, color = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country GDP") +
+  labs(
+    x = "\n Year",
+    y = "GDP ($MM) \n"
+  ) +
+  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+```
+
+
+```{r}
+gdexp_rnd_test <- gdexp_rnd %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "PC_GDP"
+  ) 
+```
+
+```{r}
+gdp_light <- gdp %>%
+  filter(MEASURE == "MLN_USD") %>%
+  select(LOCATION, TIME, Value) %>%
+  rename(gdp_mln_usd = Value)
+
+
+gdexp_rnd_test <- gdexp_rnd %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    MEASURE == "PC_GDP"
+  ) %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, MEASURE, `Flag Codes`)) %>%
+  rename(gdexp_rnd_pc_gdp = Value) %>% 
+  left_join(gdp_light, by = c("LOCATION", "TIME")) %>%
+  mutate(
+    Value_mln_usd = gdexp_rnd_pc_gdp * gdp_mln_usd / 100
+  ) %>%
+  select(LOCATION, TIME, Value_mln_usd)
+
+gdexp_rnd_test
+```
+
+
+G-7 Cross country R&D ($MM)
+```{r}
+gdexp_rnd_test %>%
+  filter(
+    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")) %>%
+  ggplot() +
+  aes(x = TIME, y = Value_mln_usd, colour = LOCATION) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "G-7 Cross country R&D Test!!!"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "R&D ($MM) \n"
+  ) 
+```
+
+
+```{r}
+
+gdexp_rnd_uk <- gdexp_rnd  %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>%
+  filter(
+    LOCATION %in% c("GBR"),
+    # LOCATION %in% c( "FRA", "DEU", "USA", "GBR"),
+    MEASURE == "PC_GDP"
+    ) 
+
+
+gdexp_rnd_testuk <- gdexp_rnd_test  %>%
+  filter(
+    LOCATION %in% c("GBR")
+    ) 
+
+
+ggplot() +
+  aes(x = gdexp_rnd_testuk$Value_mln_usd, y = gdexp_rnd_uk$Value) +
+   geom_point() +
+  # scale_colour_gradient()
+  # scale_colour_gradient(low = "gray0", high = "gray100")
+  # geom_point(color = "steelblue") +
+  # geom_text(
+  #   aes(label = TIME),
+  #   nudge_x = 1.5,
+  #   nudge_y = 0,
+  #   size = 2.5
+  # ) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
 
 
 #################################################################################################################################
@@ -147,7 +291,7 @@ infr_inv %>%
 G-7 Cross country infrastructure investment (Euros)
 ```{r}
 infr_inv %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  select(-c(INDICATOR, FREQUENCY, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     # SUBJECT == "RAIL",
@@ -171,7 +315,7 @@ infr_inv %>%
 G-7 Cross country infrastructure investment (% of GDP)
 ```{r}
 infr_inv %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  select(-c(INDICATOR, FREQUENCY, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     SUBJECT == "INLAND",
@@ -225,7 +369,7 @@ gdp %>%
 
 ```{r}
 gdp %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     MEASURE == "MLN_USD"
@@ -252,7 +396,7 @@ gdp_light <- gdp %>%
 
 
 inv_inland_usd <- infr_inv %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     SUBJECT == "INLAND",
@@ -340,7 +484,7 @@ DWELLING: dwellings (excluding land)
 G-7 Cross country investment by Asset (% GFCF)
 ```{r}
 inv_asset %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
+  select(-c(INDICATOR, FREQUENCY, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     # SUBJECT == "OTHMACHINEQT",
@@ -403,7 +547,7 @@ QGRWTH: Quarterly growth rate (%)
 
 ```{r}
 gfcf %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
+  select(-c(INDICATOR, FREQUENCY, SUBJECT, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     MEASURE == "MLN_USD"
@@ -505,7 +649,7 @@ PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
 PRY_TRY: PRimarY to TeRtiarY
 ```{r}
 edu_exp %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  select(-c(INDICATOR, FREQUENCY, MEASURE, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     SUBJECT == "TRY"
@@ -529,7 +673,7 @@ edu_exp %>%
 
 ```{r}
 edu_exp %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  select(-c(INDICATOR, FREQUENCY, MEASURE, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     SUBJECT == "PRY_TRY"
@@ -554,7 +698,7 @@ edu_exp %>%
 
 ```{r}
 edu_exp %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  select(-c(INDICATOR, FREQUENCY, MEASURE, `Flag Codes`)) %>%
   filter(
     LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     SUBJECT == "PRY_NTRY"
@@ -579,7 +723,7 @@ edu_exp %>%
 
 ```{r}
 edu_exp %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  select(-c(INDICATOR, FREQUENCY, MEASURE, `Flag Codes`)) %>%
   filter(LOCATION %in% c("GBR")) %>%
   ggplot() +
   aes(x = TIME, y = Value, colour = SUBJECT) +
@@ -612,7 +756,7 @@ edu_exp_usd <- edu_exp %>%
 
 ```{r}
 edu_exp_usd %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
+  select(-c(INDICATOR, FREQUENCY, MEASURE, `Flag Codes`)) %>%
   filter(LOCATION %in% c("GBR")) %>%
   ggplot() +
   aes(x = TIME, y = value_mmusd, colour = SUBJECT) +
@@ -633,7 +777,7 @@ edu_exp_usd %>%
 #################################################################################################################################
 
 
-__Modelling Dataset__
+__Modelling Dataset (REVIEW ONCE AGAIN)__
 
 
 ```{r}
