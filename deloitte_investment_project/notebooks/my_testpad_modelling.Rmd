@@ -119,7 +119,7 @@ gdexp_rnd %>%
   ) 
 ```
 
-G-7 gross domestic expenditure on R&D (% GDP) data
+G-7 gross domestic expenditure on R&D (MLN USD) data
 ```{r}
 gdexp_rnd_g7 <- gdexp_rnd %>%
   filter(location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
@@ -543,6 +543,7 @@ productivity <- gdp_phw_g7 %>%
 glimpse(productivity)
 ```
 
+Trim data
 ```{r}
 prod_uk_trim <- productivity %>% 
   filter(
@@ -578,7 +579,7 @@ alias(lm(gdp_phw_usd ~ ., data = prod_uk_trim))
 ```
 
 
-Call libraries for liner regression modelling 
+Call libraries for linear regression modelling 
 ```{r}
 library(GGally)
 library(ggfortify)
