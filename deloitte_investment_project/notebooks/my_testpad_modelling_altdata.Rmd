@@ -573,6 +573,7 @@ productivity <- gdp_phw_g7 %>%
 glimpse(productivity)
 ```
 
+Trim UK data
 ```{r}
 prod_uk_trim <- productivity %>% 
   filter(
@@ -608,23 +609,171 @@ prod_uk_trim <- productivity %>%
 
 
 
+Check for aliases
+```{r}
+alias(lm(gdp_phw_usd ~ ., data = prod_uk_trim))
+```
+
+
+Call libraries for linear regression modelling 
+```{r}
+library(GGally)
+library(ggfortify)
+library(modelr)
+```
+
+
+Check for correlations in data
+```{r}
+ggpairs(prod_uk_trim)
+```
+
+#################################################################################################################################
+
+Simple linear regression
+
+Response: gdp_phw_usd
+
+Predictors (tentative):
+- dwelling
+- infrastruct
+- intelprop_bil_usd
+
+
+```{r}
+prod_uk_trim %>%
+  ggplot(aes(x = dwelling_bil_usd, y = gdp_phw_usd)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+Goodness-of-fit diagnostics
+```{r}
+model_1 <- lm(gdp_phw_usd ~ dwelling_bil_usd, data = prod_uk_trim)
+
+autoplot(model_1) #diagnostics
+```
+
+```{r}
+summary(model_1)
+```
+
+#################################################################################################################################
+
+Check of second candidate predictor 
+Goodness-of-fit diagnostics
+```{r}
+model_1b <- lm(gdp_phw_usd ~ infrastuct_bil_usd, data = prod_uk_trim)
+
+autoplot(model_1b) #diagnostics
+```
+```{r}
+summary(model_1b)
+```
+#################################################################################################################################
+
+Check of third candidate predictor 
+Goodness-of-fit diagnostics
+```{r}
+model_1c <- lm(gdp_phw_usd ~ intelprop_bil_usd, data = prod_uk_trim)
+
+autoplot(model_1c) #diagnostics
+```
+
+```{r}
+summary(model_1c)
+```
+
+Based on the above results we can stick to `dwelling_bil_usd` and model_1
+
+
+#################################################################################################################################
+
+- Adding a second predictor to the model
+
+Calculate residuals
+```{r}
+prod_uk_remaining_resid <- prod_uk_trim %>%
+  add_residuals(model_1) %>% 
+  select(-c(gdp_phw_usd, dwelling_bil_usd))
+
+
+prod_uk_remaining_resid %>%
+  ggpairs()
+```
+
+It seems that `cultasset_bil_usd` is a good candidate for a second predictor followed by `infrastuct_bil_usd` and `ict_bil_usd`
+
+#################################################################################################################################
+
+
+Model with `cultasset_bil_usd` (model_2a)
+```{r}
+model_2a <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd, data = prod_uk_trim)
+
+autoplot(model_2a) #diagnostics
+```
+
+```{r}
+summary(model_2a)
+```
+
+The `cultasset_bil_usd`  regression coefficient is not statistically significant 
+
+
+#################################################################################################################################
+
+Model with `inland_bil_usd` (model_2b)
+```{r}
+model_2b <- lm(gdp_phw_usd ~ dwelling_bil_usd + infrastuct_bil_usd, data = prod_uk_trim)
+
+autoplot(model_2b) #diagnostics
+```
+
+```{r}
+summary(model_2b)
+```
+
+Including regressor `infrastuct_bil_usd` is not improving at all the predictive power of the model and the regression coeffs are not looking good.
+
+#################################################################################################################################
+
+Model with `ict_bil_usd` (model_2c)
+```{r}
+model_2c <- lm(gdp_phw_usd ~ dwelling_bil_usd + ict_bil_usd, data = prod_uk_trim)
+
+autoplot(model_2c) #diagnostics
+```
+
+
+```{r}
+summary(model_2c)
+```
+Including regressor `ict_bil_usd` is not improving at all the predictive power of the model and the regression coeffs are not looking good.
+
+#################################################################################################################################
+
+Let's see if adding an interaction makes any improvement in our model (model_2a).
+
+Check for including in the model  potential interactions between predictors
+```{r}
+coplot(gdp_phw_usd ~ dwelling_bil_usd | cultasset_bil_usd,
+       rows = 1,
+       panel = function(x, y, ...){
+         points(x, y)
+         abline(lm(y ~ x), col = "blue")
+       },
+       data = prod_uk_trim)
+```
 
 
 
+gdp_phw_usd ~ dwelling_bil_usd | cultasset_bil_usd
 
+################################################################################
 
-
-
-
-
-
-
-
-
-
-
-
-
+Model :
+gdp_phw_usd ~ ict_bil_usd + cultasset_bil_usd + infrastuct_bil_usd + 
+    intelprop_bil_usd + transpeqt_bil_usd + dwelling_bil_usd
 
 
 
