@@ -752,6 +752,8 @@ Including regressor `ict_bil_usd` is not improving at all the predictive power o
 
 #################################################################################################################################
 
+- Adding a third predictor to the model
+
 Let's see if adding an interaction makes any improvement in our model (model_2a).
 
 Check for including in the model  potential interactions between predictors
@@ -764,16 +766,459 @@ coplot(gdp_phw_usd ~ dwelling_bil_usd | cultasset_bil_usd,
        },
        data = prod_uk_trim)
 ```
+Not so strong evidence that interaction term `dwelling_bil_usd:cultasset_bil_usd` will contribute significantly
+
+Let's try it though to see how it goes
+#################################################################################################################################
+
+Model with interaction term `dwelling_bil_usd:cultasset_bil_usd` included (model_3a)
+```{r}
+model_3a <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd + 
+                 dwelling_bil_usd:cultasset_bil_usd, data = prod_uk_trim)
+
+autoplot(model_3a) #diagnostics
+```
+
+```{r}
+summary(model_3a)
+```
+Adding the interaction term had a significant impact on the model performance!!!
+
+
+#################################################################################################################################
+
+- Adding a fourth predictor to the model
+
+Calculate residuals
+```{r}
+prod_uk_remaining_resid <- prod_uk_trim %>%
+  add_residuals(model_3a) %>% 
+  select(-c(gdp_phw_usd, dwelling_bil_usd, cultasset_bil_usd))
+
+
+prod_uk_remaining_resid %>%
+  ggpairs()
+```
+
+It seems that `ict_bil_usd` is a good candidate for a fourth predictor followed by `infrastuct_bil_usd`
+
+
+#################################################################################################################################
+
+Model with `ict_bil_usd` (model_4a)
+```{r}
+model_4a <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd + 
+                 dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd,
+               data = prod_uk_trim)
+
+autoplot(model_4a) #diagnostics
+```
+
+
+```{r}
+summary(model_4a)
+```
+#################################################################################################################################
+
+
+Model with `infrastuct_bil_usd` (model_4b)
+```{r}
+model_4b <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd + 
+                 dwelling_bil_usd:cultasset_bil_usd + infrastuct_bil_usd,
+               data = prod_uk_trim)
+
+autoplot(model_4b) #diagnostics
+```
 
 
 
-gdp_phw_usd ~ dwelling_bil_usd | cultasset_bil_usd
+```{r}
+summary(model_4b)
+```
+
+We carry on with model_4a as it is marginally better
+
+
+#################################################################################################################################
+
+- Adding a fifth predictor to the model
+
+Calculate residuals
+```{r}
+prod_uk_remaining_resid <- prod_uk_trim %>%
+  add_residuals(model_4a) %>% 
+  select(-c(gdp_phw_usd, dwelling_bil_usd, cultasset_bil_usd, ict_bil_usd))
+
+
+prod_uk_remaining_resid %>%
+  ggpairs()
+```
+
+It seems that `transpeqt_bil_usd` is a good candidate for a fifth predictor,`ifrastruct_bil_usd` is not so likely  
+
+#################################################################################################################################
+
+Model with `transpeqt_bil_usd` (model_5a)
+```{r}
+model_5a <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd + 
+                 dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd +
+                 transpeqt_bil_usd, data = prod_uk_trim)
+
+autoplot(model_5a) #diagnostics
+```
+
+
+```{r}
+summary(model_5a)
+```
+#################################################################################################################################
+
+Model with `ifrastruct_bil_usd` (model_5b)
+```{r}
+model_5b <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd + 
+                 dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd +
+                 infrastuct_bil_usd, data = prod_uk_trim)
+
+autoplot(model_5b) #diagnostics
+```
+
+
+```{r}
+summary(model_5b)
+```
+
+We carry on with model_5b as it is better than model_5a
+
+#################################################################################################################################
+
+- Adding a sixth predictor to the model
+
+Calculate residuals
+```{r}
+prod_uk_remaining_resid <- prod_uk_trim %>%
+  add_residuals(model_5b) %>% 
+  select(-c(gdp_phw_usd, dwelling_bil_usd, cultasset_bil_usd, ict_bil_usd, infrastuct_bil_usd))
+
+
+prod_uk_remaining_resid %>%
+  ggpairs()
+```
+
+Candidates for including in the model in order of importance are: `intelprop_bil_usd` and `transpeqt_bil_usd`
+
+#################################################################################################################################
+
+Model with `intelprop_bil_usd` (model_6a)
+```{r}
+model_6a <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd + 
+                 dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd +
+                 infrastuct_bil_usd +intelprop_bil_usd, data = prod_uk_trim)
+
+autoplot(model_6a) #diagnostics
+```
+
+
+```{r}
+summary(model_6a)
+```
+
+#################################################################################################################################
+
+Model with `intelprop_bil_usd` (model_6b)
+```{r}
+model_6b <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd + 
+                 dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd +
+                 infrastuct_bil_usd + transpeqt_bil_usd, data = prod_uk_trim)
+
+autoplot(model_6b) #diagnostics
+```
+
+
+```{r}
+summary(model_6b)
+```
+
+Check with ANOVA if it is worth including term `intelprop_bil_usd` (model_6a) in the model
+
+```{r}
+anova(model_5b, model_6a)
+```
+ANOVA results don't justify the addition of `intelprop_bil_usd` so we stay with model_5b
+
+
+#################################################################################################################################
+
+- Adding an interaction term in the model
+
+Let's see if adding an interaction makes any improvement in our model (model_5b).
+
+Check for including in the model  potential interactions between the predictors below
++ dwelling_bil_usd
++ cultasset_bil_usd 
++ ict_bil_usd
++ infrastuct_bil_usd
+
+
+```{r}
+coplot(gdp_phw_usd ~ dwelling_bil_usd | ict_bil_usd,
+       rows = 1,
+       panel = function(x, y, ...){
+         points(x, y)
+         abline(lm(y ~ x), col = "blue")
+       },
+       data = prod_uk_trim)
+```
+```{r}
+coplot(gdp_phw_usd ~ dwelling_bil_usd | infrastuct_bil_usd,
+       rows = 1,
+       panel = function(x, y, ...){
+         points(x, y)
+         abline(lm(y ~ x), col = "blue")
+       },
+       data = prod_uk_trim)
+```
+
+```{r}
+coplot(gdp_phw_usd ~ cultasset_bil_usd | ict_bil_usd,
+       rows = 1,
+       panel = function(x, y, ...){
+         points(x, y)
+         abline(lm(y ~ x), col = "blue")
+       },
+       data = prod_uk_trim)
+```
+
+```{r}
+coplot(gdp_phw_usd ~ cultasset_bil_usd | infrastuct_bil_usd,
+       rows = 1,
+       panel = function(x, y, ...){
+         points(x, y)
+         abline(lm(y ~ x), col = "blue")
+       },
+       data = prod_uk_trim)
+```
+
+```{r}
+coplot(gdp_phw_usd ~ ict_bil_usd | infrastuct_bil_usd,
+       rows = 1,
+       panel = function(x, y, ...){
+         points(x, y)
+         abline(lm(y ~ x), col = "blue")
+       },
+       data = prod_uk_trim)
+```
+The best candidate is likely to be: 
++ `cultasset_bil_usd:ict_bil_usd`
++ `cultasset_bil_usd:infrastuct_bil_usd`
++ `ict_bil_usd:infrastuct_bil_usd`
+
+#################################################################################################################################
+
+Model with `cultasset_bil_usd:ict_bil_usd` (model_6c)
+```{r}
+model_6c <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd +
+                 dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd + 
+                 infrastuct_bil_usd + cultasset_bil_usd:ict_bil_usd, 
+               data = prod_uk_trim)
+
+autoplot(model_6c) #diagnostics
+```
+
+
+```{r}
+summary(model_6c)
+```
+#################################################################################################################################
+
+Model with `cultasset_bil_usd:ict_bil_usd` (model_6d)
+```{r}
+model_6d <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd +
+                 dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd + 
+                 infrastuct_bil_usd + cultasset_bil_usd:infrastuct_bil_usd, 
+               data = prod_uk_trim)
+
+autoplot(model_6d) #diagnostics
+```
+
+
+```{r}
+summary(model_6d)
+```
+
+#################################################################################################################################
+
+Model with `ict_bil_usd:infrastuct_bil_usd` (model_6e)
+```{r}
+model_6e <- lm(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd +
+                 dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd + 
+                 infrastuct_bil_usd + ict_bil_usd:infrastuct_bil_usd, 
+               data = prod_uk_trim)
+
+autoplot(model_6e) #diagnostics
+```
+
+
+
+```{r}
+summary(model_6e)
+```
+
+
+Check with ANOVA if the interaction terms are worth including in the model
+
+```{r}
+anova(model_5b, model_6c)
+```
+
+```{r}
+anova(model_5b, model_6d)
+```
+
+
+```{r}
+anova(model_5b, model_6e)
+```
+
+The model_6e is the best calculated so far
+
+#################################################################################################################################
+
+- Check if it is worth adding a seventh predictor to the model
+
+Calculate residuals
+```{r}
+prod_uk_remaining_resid <- prod_uk_trim %>%
+  add_residuals(model_6e) %>% 
+  select(-c(gdp_phw_usd, dwelling_bil_usd, cultasset_bil_usd, ict_bil_usd, infrastuct_bil_usd))
+
+
+prod_uk_remaining_resid %>%
+  ggpairs()
+```
+The residuals have very low correlation. The search can stop at this point.
 
 ################################################################################
 
-Model :
-gdp_phw_usd ~ ict_bil_usd + cultasset_bil_usd + infrastuct_bil_usd + 
-    intelprop_bil_usd + transpeqt_bil_usd + dwelling_bil_usd
+Checking of relative importance of model terms
+```{r}
+library(relaimpo)
+
+calc.relimp(model_6e, type = "lmg", rela = TRUE)
+
+```
+
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Automated modelling__
+
+```{r}
+library(glmulti)
+glmulti_fit <- glmulti(
+  gdp_phw_usd ~ ., 
+  data = prod_uk_trim,
+  level = 2, # 2 = include pairwise interactions, 1 = main effects only (main effect = no pairwise interactions)
+  minsize = 0, # no min size of model
+  maxsize = 6, # -1 = no max size of model
+  marginality = TRUE, # marginality here means the same as 'strongly hierarchical' interactions, i.e. include pairwise interactions only if both predictors present in the model as main effects.
+  method = "g", # the problem is too large for exhaustive search, so search using a genetic algorithm
+  crit = bic, # criteria for model selection is BIC value (lower is better)
+  plotty = FALSE, # don't plot models as function runs
+  report = TRUE, # do produce reports as function runs
+  confsetsize = 100, # return best 100 solutions
+  fitfunction = lm # fit using the `lm` function
+)
+```
+
+```{r}
+# here is the best model (lowest BIC) from the glmulti run above
+mod_interact <- lm(gdp_phw_usd ~ 1 + cultasset_bil_usd + infrastuct_bil_usd +
+                     intelprop_bil_usd + dwelling_bil_usd +
+                     infrastuct_bil_usd:cultasset_bil_usd +
+                     dwelling_bil_usd:infrastuct_bil_usd, 
+                   data = prod_uk_trim)
+
+summary(mod_interact)
+```
+
+```{r}
+# let's see diagnostic plots
+par(mfrow = c(2, 2))
+plot(mod_interact)
+```
+
+
+```{r}
+calc.relimp(mod_interact, type = "lmg", rela = TRUE)
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+
+__K-fold cross validation__
+
+Cross validation of manually selected model
+```{r}
+library(caret)
+# set up options for train function below
+cv_10_fold <- trainControl(method = "cv", # cross-validation
+                           number = 10, # 10-fold
+                           savePredictions = TRUE) # save all predictions
+
+model_6e_kfold <- train(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd +
+                          dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd + 
+                          infrastuct_bil_usd + ict_bil_usd:infrastuct_bil_usd,
+                        data = prod_uk_trim,
+                        trControl = cv_10_fold, # use options defined above
+                        method = 'lm')
+```
+
+```{r}
+model_6e_kfold$resample
+```
+
+
+```{r}
+tibble(
+  model = "manually selected model_6e",
+  RMSE = mean(model_6e_kfold$resample$RMSE),
+  Rsquared = mean(model_6e_kfold$resample$Rsquared)
+)
+```
+
+
+Cross validation of automatically selected model
+
+```{r}
+model_auto_kfold <- train(gdp_phw_usd ~ cultasset_bil_usd + infrastuct_bil_usd +
+                          intelprop_bil_usd + dwelling_bil_usd +
+                          infrastuct_bil_usd:cultasset_bil_usd +
+                          dwelling_bil_usd:infrastuct_bil_usd,
+                        data = prod_uk_trim,
+                        trControl = cv_10_fold, # use options defined above
+                        method = 'lm')
+```
+
+
+```{r}
+model_auto_kfold$resample
+```
+
+```{r}
+tibble(
+  model = "automatically selected model",
+  RMSE = mean(model_auto_kfold$resample$RMSE),
+  Rsquared = mean(model_auto_kfold$resample$Rsquared)
+)
+```
+
+
+
+
+
 
 
 
