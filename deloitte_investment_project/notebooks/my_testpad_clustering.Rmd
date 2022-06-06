@@ -392,6 +392,73 @@ gdp_g7 <- gdp %>%
   rename(gdp_mln_usd = value)
 ```
 
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+__OECD Hrs worked__
+
+OECD_Hours_Worked
+
+Read data
+```{r}
+hrswrkd <- read_csv(here("raw_data/OECD_Hours_Worked_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(hrswrkd)
+```
+
+Check for NA's
+```{r}
+hrswrkd %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+hrswrkd %>% 
+  # distinct(location)
+  # distinct(indicator) #
+  # distinct(SUBJECT) # 
+  # distinct(measure) # HR_WKD
+  # distinct(FREQUENCY) #
+  # distinct(`Flag Codes`) #
+```
+
+View data
+```{r}
+hrswrkd %>%
+  select(-c(indicator, subject, frequency, flag_codes)) %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "HR_WKD"
+    ) %>%
+  ggplot() +
+  aes(x = time, y = value, group = location, color = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country Hours Worked") +
+  labs(
+    x = "\n Year",
+    y = "Hours Worked (hr) \n"
+  ) +
+  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+```
+
+
+
+Hours Worked (hrs)
+```{r}
+hrswrkd_g7 <- hrswrkd %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "HR_WKD"
+  ) %>% 
+  select(location, time, value) %>%
+  rename(hrs_wrkd = value)
+```
 
 
 #################################################################################################################################
@@ -407,7 +474,8 @@ productivity_data <- gdp_phw_g7 %>%
   left_join(edu_exp_g7, by = c("location", "time")) %>% 
   left_join(inv_asset_g7, by = c("location", "time")) %>% 
   left_join(gdp_g7, by = c("location", "time")) %>% 
-  left_join(gfcf_g7, by = c("location", "time"))
+  left_join(gfcf_g7, by = c("location", "time")) %>% 
+  left_join(hrswrkd_g7, by = c("location", "time"))
 
 glimpse(productivity_data)
 ```
@@ -422,6 +490,43 @@ JPN	2018 : replace NA with median of other countries for 2018 ict_pc_gfcf
 CAN	2018 : replace NA with median of other countries for 2018 cultasset_pc_gfcf
 USA	2018 : replace NA with median of other countries for 2018 cultasset_pc_gfcf
 
+```{r}
+productivity_data <- productivity_data %>% 
+  mutate(
+    ict_pc_gfcf = coalesce(ict_pc_gfcf, median(ict_pc_gfcf, na.rm = TRUE)),
+    cultasset_pc_gfcf = coalesce(cultasset_pc_gfcf, median(cultasset_pc_gfcf, na.rm = TRUE))
+  )
+```
+
+
+```{r}
+productivity_data <- productivity_data %>% 
+  mutate(
+    try_phw_usd = try_pc_gdp * gdp_phw_usd / 100,
+    pry_ntry_phw_usd = pry_ntry_pc_gdp * gdp_phw_usd / 100,
+    pry_try_phw_usd = pry_try_pc_gdp * gdp_phw_usd / 100,
+    ict_phw_usd = ict_pc_gfcf * gfcf_mln_usd / hrs_wrkd / 100,
+    dwelling_phw_usd = dwelling_pc_gfcf * gfcf_mln_usd / hrs_wrkd / 100,
+    infrastuct_phw_usd = infrastuct_pc_gfcf * gfcf_mln_usd / hrs_wrkd / 100,
+    cultasset_phw_usd = cultasset_pc_gfcf * gfcf_mln_usd / hrs_wrkd / 100,
+    transpeqt_phw_usd = transpeqt_pc_gfcf * gfcf_mln_usd / hrs_wrkd / 100,
+    intelprop_phw_usd = intelprop_pc_gfcf * gfcf_mln_usd / hrs_wrkd / 100
+  ) %>% 
+  select(
+    location,
+    time,
+    gdp_phw_usd,
+    try_phw_usd, 
+    pry_ntry_phw_usd, 
+    pry_try_phw_usd, 
+    ict_phw_usd, 
+    dwelling_phw_usd, 
+    infrastuct_phw_usd, 
+    cultasset_phw_usd,
+    transpeqt_phw_usd,
+    intelprop_phw_usd
+  )
+```
 
 
 Prepare data for dendrogram
@@ -429,11 +534,7 @@ Prepare data for dendrogram
 productivity_data <- productivity_data %>% 
   filter(time == 2018) %>%
   select(-time) %>% 
-  column_to_rownames("location") %>% 
-  mutate(
-    ict_pc_gfcf = coalesce(ict_pc_gfcf, median(ict_pc_gfcf, na.rm = TRUE)),
-    cultasset_pc_gfcf = coalesce(cultasset_pc_gfcf, median(cultasset_pc_gfcf, na.rm = TRUE))
-  )
+  column_to_rownames("location")
 ```
 
 Standardise data
@@ -493,7 +594,7 @@ fviz_dist(diss_matrix_gdp_phw)
 
 Build dendrogram
 ```{r}
-clusters_gdp_phw <- diss_matrix %>%
+clusters_gdp_phw <- diss_matrix_gdp_phw %>%
                  hclust(method = "complete")
 ```
 
@@ -502,40 +603,447 @@ clusters_gdp_phw %>%
   plot(cex = 0.5, hang = -5)
 ```
 
+
 #################################################################################################################################
 
-Take productivity ICT
+Take investments on TRY
 ```{r}
-diss_matrix_try_pc_gdp <- productivity_data_scale %>%
-              select(try_pc_gdp) %>%
+diss_matrix_try_phw_usd <- productivity_data_scale %>%
+              select(try_phw_usd) %>%
               dist(method = "euclidean") 
 ```
 
 Create a dissimilarity matrix showing distances
 ```{r}
-fviz_dist(diss_matrix_try_pc_gdp)
+fviz_dist(diss_matrix_try_phw_usd)
 ```
 Bild dendrogram
 ```{r}
-clusters_try_pc_gdp <- diss_matrix %>%
+clusters_try_phw_usd <- diss_matrix_try_phw_usd %>%
                  hclust(method = "complete")
 ```
 
 ```{r}
-clusters_try_pc_gdp %>%
+clusters_try_phw_usd %>%
   plot(cex = 0.5, hang = -5)
+```
+#################################################################################################################################
+
+Take pinestments on PRY_NTRY
+```{r}
+diss_matrix_pry_ntry_phw_usd <- productivity_data_scale %>%
+              select(pry_ntry_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_pry_ntry_phw_usd)
+```
+
+Bild dendrogram
+```{r}
+clusters_pry_ntry_phw_usd <- diss_matrix_pry_ntry_phw_usd %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_pry_ntry_phw_usd %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+#################################################################################################################################
+
+Take investments on PRY_TRY
+```{r}
+diss_matrix_pry_try_phw_usd <- productivity_data_scale %>%
+              select(pry_try_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_pry_try_phw_usd)
+```
+
+Bild dendrogram
+```{r}
+clusters_pry_try_phw_usd <- diss_matrix_pry_try_phw_usd %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_pry_try_phw_usd %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+#################################################################################################################################
+
+Take investments on ICT
+```{r}
+diss_matrix_ict_phw_usd <- productivity_data_scale %>%
+              select(ict_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_ict_phw_usd)
 ```
 
 
 
+Bild dendrogram
+```{r}
+clusters_ict_phw_usd <- diss_matrix_ict_phw_usd %>%
+                 hclust(method = "complete")
+```
 
-ict_pc_gfcf = OTHMACHINEQT,
-cultasset_pc_gfcf = CULTASSET,
-infrastuct_pc_gfcf = OTHBUILDING,
-intelprop_pc_gfcf = FIXASSET,
-transpeqt_pc_gfcf = TRANSPEQT,
-dwelling_pc_gfcf = DWELLING
- 
+```{r}
+clusters_ict_phw_usd %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+#################################################################################################################################
+
+Take investments on Dwelling
+```{r}
+diss_matrix_dwelling_phw_usd <- productivity_data_scale %>%
+              select(dwelling_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_dwelling_phw_usd)
+```
+  
+Bild dendrogram
+```{r}
+clusters_dwelling_phw_usd <- diss_matrix_dwelling_phw_usd %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_dwelling_phw_usd %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+#################################################################################################################################
+
+Take investments on Infrastructure
+```{r}
+diss_matrix_infrastuct_phw_usd <- productivity_data_scale %>%
+              select(infrastuct_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_infrastuct_phw_usd)
+```
+
+Bild dendrogram
+```{r}
+clusters_infrastuct_phw_usd <- diss_matrix_infrastuct_phw_usd %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_infrastuct_phw_usd %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+
+#################################################################################################################################
+
+Take investments on Cultasset
+```{r}
+diss_matrix_cultasset_phw_usd <- productivity_data_scale %>%
+              select(cultasset_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_cultasset_phw_usd)
+```
+
+Bild dendrogram
+```{r}
+clusters_cultasset_phw_usd <- diss_matrix_cultasset_phw_usd %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_cultasset_phw_usd %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+#################################################################################################################################
+
+Take investments on Transpeqt
+```{r}
+diss_matrix_transpeqt_phw_usd <- productivity_data_scale %>%
+              select(transpeqt_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_transpeqt_phw_usd)
+```  
+
+Bild dendrogram
+```{r}
+clusters_transpeqt_phw_usd <- diss_matrix_transpeqt_phw_usd %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_transpeqt_phw_usd %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+
+#################################################################################################################################
+
+Take investments on intelprop
+```{r}
+diss_matrix_intelprop_phw_usd <- productivity_data_scale %>%
+              select(intelprop_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_intelprop_phw_usd)
+```  
+
+Bild dendrogram
+```{r}
+clusters_intelprop_phw_usd <- diss_matrix_intelprop_phw_usd %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_intelprop_phw_usd %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Compare productivity by industry in UK and EU Countries__
+
+Load Data
+```{r}
+productivity_phw <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 1 R-proc")
+productivity_growth <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 2 R-proc")
+
+
+glimpse(productivity_phw)
+glimpse(productivity_growth)
+```
+
+
+
+Check for NA values
+```{r}
+productivity_phw %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+productivity_growth %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
+Pivot data to long format
+```{r}
+tidy_productivity_phw <- productivity_phw %>%
+  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Output_per_hour") 
+
+tidy_productivity_growth <- productivity_growth %>%
+  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Labour_Productivity_Growth") 
+
+
+tidy_productivity_phw
+tidy_productivity_growth
+```
+
+```{r}
+tidy_productivity_phw %>% 
+  filter(
+    # `NACE Industry` == "Agriculture, forestry and fishing"
+    # `NACE Industry` == "Industry (except construction)"
+    # `NACE Industry` == "Construction"
+    # `NACE Industry` == "Wholesale and retail trade, transport, accommodation and food service activities"
+    `NACE Industry` == "Information and communication"
+    # `NACE Industry` == "Financial and insurance activities"
+    # `NACE Industry` == "Professional, scientific and technical activities; administrative and support service activities"
+    # `NACE Industry` == "Public administration, defence, education, human health and social work activities"
+    # `NACE Industry` == "Arts, entertainment and recreation; other service activities"
+  ) %>% 
+  ggplot() +
+  aes(
+    x = reorder(Country, Output_per_hour), 
+    y = Output_per_hour,
+    fill = reorder(Country, Output_per_hour) == "United Kingdom"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
+  ) +
+  ggtitle(
+    "Output per hour by industry .....",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "Output per hour (€)"
+  ) 
+```
+
+
+```{r}
+tidy_productivity_growth %>% 
+  filter(
+    # `NACE Industry` == "Agriculture, forestry and fishing"
+    # `NACE Industry` == "Industry (except construction)"
+    # `NACE Industry` == "Construction"
+    # `NACE Industry` == "Wholesale and retail trade, transport, accommodation and food service activities"
+    `NACE Industry` == "Information and communication"
+    # `NACE Industry` == "Financial and insurance activities"
+    # `NACE Industry` == "Professional, scientific and technical activities; administrative and support service activities"
+    # `NACE Industry` == "Public administration, defence, education, human health and social work activities"
+    # `NACE Industry` == "Arts, entertainment and recreation; other service activities"
+  ) %>%  
+  ggplot() +
+  aes(
+    x = reorder(Country, Labour_Productivity_Growth), 
+    y = Labour_Productivity_Growth,
+    fill = reorder(Country, Labour_Productivity_Growth) == "United Kingdom"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6,angle = 45, vjust = 1, hjust = 1)
+    ) +
+  ggtitle(
+    "Labour Productivity Growth by industry ..... ",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "Labour Productivity Growth (%)"
+  ) 
+```
+
+Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
+```{r}
+tidy_productivity_phw %>% 
+  filter(
+    Country %in% c("United Kingdom", "France", "Germany")
+  ) %>% 
+  ggplot() +
+  aes(
+    x = `A*10 (excl L)`, 
+    y = Output_per_hour,
+    fill = Country
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Output per hour by industry",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "\n NACE Industry", 
+    y = "Output per hour (€)"
+  ) 
+```
+```{r}
+tidy_productivity_phw %>% 
+  distinct(`A*10 (excl L)`, `NACE Industry`)
+```
+
+
+```{r}
+tidy_productivity_growth %>% 
+  filter(
+    Country %in% c("United Kingdom", "France", "Germany")
+  ) %>% 
+  ggplot() +
+  aes(
+    x = `A*10 (excl L)`, 
+    y = Labour_Productivity_Growth,
+    fill = Country
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Labour Productivity Growth by industry",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "\n NACE Industry", 
+    y = "Labour Productivity Growth (%)"
+  ) 
+```
+
+
+
+Comparison with most productive countries in Europe (2017): UK, Ireland, Norway
+```{r}
+tidy_productivity_phw %>% 
+  filter(
+    Country %in% c("United Kingdom", "Ireland", "Norway")
+  ) %>% 
+  ggplot() +
+  aes(
+    x = `A*10 (excl L)`, 
+    y = Output_per_hour,
+    fill = Country
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Output per hour by industry",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "\n NACE Industry", 
+    y = "Output per hour (€)"
+  ) 
+```
+
+
+Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
+Output per hour by industry 2014-16
+
+
+```{r}
+productivity_phw %>% 
+  select(France, `United Kingdom`, Germany, Spain, Italy) %>% 
+  summarise(
+    sum_France = sum(France),
+    sum_UK = sum(`United Kingdom`),
+    sum_Germany = sum(Germany),
+    sum_Spain = sum(Spain),
+    sum_Italy = sum(Italy)
+  )
+  
+```
 
 
 
