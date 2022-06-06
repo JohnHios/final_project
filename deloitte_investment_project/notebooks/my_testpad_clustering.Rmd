@@ -1,0 +1,545 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+Call Libraries
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+
+__Labour_Productivity-OECD_Countries__
+
+Read data
+```{r}
+gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(gdp_phw)
+```
+
+Check for NA values
+```{r}
+gdp_phw %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+```{r}
+gdp_phw %>% 
+  distinct(location)
+  # distinct(INDICATOR) # GFCFASSET
+  # distinct(subject) # OTHMACHINEQT, CULTASSET, OTHBUILDING, FIXASSET, TRANSPEQT, DWELLING
+  # distinct(MEASURE) # PC_GFCF
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, E, B
+```
+
+
+View data
+```{r}
+gdp_phw %>% 
+  select(-c(indicator, subject, frequency, flag_codes)) %>% 
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "USD") %>% 
+  ggplot() +
+  aes(x = time, y = value, colour = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "GDP per hour worked",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per hour worked ($) \n"
+  ) 
+  
+```
+
+G-7 GDP per hour worked data
+```{r}
+gdp_phw_g7 <- gdp_phw %>% 
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "USD"
+  ) %>% 
+  select(-c(indicator, frequency, measure, subject, flag_codes)) %>% 
+  rename(gdp_phw_usd = value) 
+  
+```
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+OECD Investment by Asset
+
+Read data
+```{r}
+inv_asset <- read_csv(here("raw_data/OECD_Investment_by_Asset_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(inv_asset)
+```
+
+
+Check for NA's
+```{r}
+inv_asset %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
+```{r}
+inv_asset %>% 
+  distinct(location)
+  # distinct(INDICATOR) # GFCFASSET
+  # distinct(subject) # OTHMACHINEQT, CULTASSET, OTHBUILDING, FIXASSET, TRANSPEQT, DWELLING
+  # distinct(MEASURE) # PC_GFCF
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, E, B
+```
+
+
+OTHMACHINEQT: Information and Communication Technology (ICT) equipment (computer software and databases, telecommunications equipment and computer hardware)
+
+CULTASSET: cultivated biological resources (managed forests, livestock raised for milk production, etc.)
+
+OTHBUILDING: other buildings and structures (roads, bridges, airfields, dams, etc.)
+
+FIXASSET: intellectual property products (such as R&D, mineral exploration, software and databases, and literary and artistic originals, etc.)
+
+TRANSPEQT: transport equipment (ships, trains, aircraft, etc.)
+
+DWELLING: dwellings (excluding land)
+
+
+G-7 Cross country investment by Asset (% GFCF)
+```{r}
+inv_asset %>%
+  select(-c(indicator, frequency, flag_codes)) %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    # subject== "OTHMACHINEQT",
+    # subject == "CULTASSET",
+    # subject == "OTHBUILDING",
+    subject == "FIXASSET",
+    # subject == "TRANSPEQT",
+    # subject == "DWELLING"
+  ) %>%
+  ggplot() +
+  aes(x = time, y = value, colour = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country investment by Asset") +
+  labs(
+    x = "\n Year", 
+    y = "Investment (% GFCF) \n"
+  ) 
+```
+
+
+
+G-7 investment by Asset (% GFCF)
+```{r}
+inv_asset_g7 <- inv_asset %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")
+    ) %>% 
+  select(-c(indicator, frequency, measure, flag_codes)) %>% 
+  pivot_wider(names_from = subject, values_from = value) %>% 
+  rename(
+    ict_pc_gfcf = OTHMACHINEQT,
+    cultasset_pc_gfcf = CULTASSET,
+    infrastuct_pc_gfcf = OTHBUILDING,
+    intelprop_pc_gfcf = FIXASSET,
+    transpeqt_pc_gfcf = TRANSPEQT,
+    dwelling_pc_gfcf = DWELLING
+  ) %>% 
+  arrange(location, time)
+```
+
+
+
+
+##################################################################################################################################
+
+
+OECD Investment GFCF
+
+
+Read data
+```{r}
+gfcf <- read_csv(here("raw_data/OECD_Investment_GFCF_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(gfcf)
+```
+
+```{r}
+gfcf <- gfcf %>%
+  mutate(time = as.numeric(time))
+```
+
+
+Check for NA's
+```{r}
+gfcf %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+The timestamps missing relate to the Annual growth index (AGRWTH) - not affecting the scope of this analysis 
+
+```{r}
+gfcf %>% 
+  distinct(location)
+  # distinct(INDICATOR) # GFCF
+  # distinct(SUBJECT) # TOT
+  # distinct(measure) # AGRWTH, MLN_USD, QGRWTH
+  # distinct(FREQUENCY) #A, Q
+  # distinct(`Flag Codes`) # NA, E, P, B, D
+```
+
+AGRWTH: Annual growth (%)
+MLN_USD: Million US Dollars
+QGRWTH: Quarterly growth rate (%)
+
+```{r}
+gfcf %>%
+  select(-c(indicator, frequency, subject, flag_codes)) %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "MLN_USD"
+    ) %>%
+  ggplot() +
+  aes(x = time, y = value, color = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country investment by Asset") +
+  labs(
+    x = "\n Year", 
+    y = "GFCF ($MM) \n"
+  ) +
+  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+```
+
+
+GFCF data (mln USD)
+```{r}
+gfcf_g7 <- gfcf %>% 
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "MLN_USD"
+  ) %>% 
+  select(location, time, value) %>% 
+  rename(gfcf_mln_usd = value)
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+OECD Education Spending Expenditure
+
+
+Read data
+```{r}
+edu_exp <- read_csv(here("raw_data/OECD_Public_Spending_on_Education_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(edu_exp)
+```
+
+
+
+Check for NA's
+```{r}
+edu_exp %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+```{r}
+edu_exp %>% 
+  distinct(location)
+  # distinct(INDICATOR) # 
+  # distinct(SUBJECT) # 
+  # distinct(measure) # 
+  # distinct(FREQUENCY) #
+  # distinct(`Flag Codes`) #
+```
+
+
+
+UK education expenditure (% GDP)
+TRY : TeRtiarY
+PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
+PRY_TRY: PRimarY to TeRtiarY
+
+```{r}
+edu_exp %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(location %in% c("GBR")) %>%
+  ggplot() +
+  aes(x = time, y = value, colour = subject) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("UK education expenditure") +
+  labs(
+    x = "\n Year", 
+    y = "GDP (%) \n"
+  ) 
+
+```
+
+G-7 expenditure on education (% GDP)
+```{r}
+edu_exp_g7 <- edu_exp %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")
+    ) %>% 
+  select(-c(indicator, frequency, measure, flag_codes)) %>% 
+  pivot_wider(names_from = subject, values_from = value) %>% 
+  rename(
+    try_pc_gdp = TRY,
+    pry_ntry_pc_gdp = PRY_NTRY,
+    pry_try_pc_gdp = PRY_TRY
+  ) %>%
+  arrange(location, time)
+```
+
+
+#################################################################################################################################
+
+__GDP-derived expenditure in USD__
+
+OECD_Gross_Domestic_Product_GDP
+
+Read data
+```{r}
+gdp <- read_csv(here("raw_data/OECD_Gross_Domestic_Product_GDP_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(gdp)
+```
+
+Check for NA's
+```{r}
+gdp %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+gdp %>% 
+  distinct(location)
+  # distinct(indicator) # GDP
+  # distinct(SUBJECT) # TOT
+  # distinct(MEASURE) # MLN_USD, USD_CAP
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, E, P, B, D
+```
+
+View data
+```{r}
+gdp %>%
+  select(-c(indicator, subject, frequency, flag_codes)) %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "MLN_USD"
+    ) %>%
+  ggplot() +
+  aes(x = time, y = value, group = location, color = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country GDP") +
+  labs(
+    x = "\n Year",
+    y = "GDP ($MM) \n"
+  ) +
+  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+```
+
+
+
+GDP data (mln USD)
+```{r}
+gdp_g7 <- gdp %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "MLN_USD"
+  ) %>% 
+  select(location, time, value) %>%
+  rename(gdp_mln_usd = value)
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Data for clustering__
+
+
+```{r}
+productivity_data <- gdp_phw_g7 %>% 
+  left_join(edu_exp_g7, by = c("location", "time")) %>% 
+  left_join(inv_asset_g7, by = c("location", "time")) %>% 
+  left_join(gdp_g7, by = c("location", "time")) %>% 
+  left_join(gfcf_g7, by = c("location", "time"))
+
+glimpse(productivity_data)
+```
+
+
+```{r}
+productivity_data %>% 
+  filter(time == 2018)
+```
+
+JPN	2018 : replace NA with median of other countries for 2018 ict_pc_gfcf
+CAN	2018 : replace NA with median of other countries for 2018 cultasset_pc_gfcf
+USA	2018 : replace NA with median of other countries for 2018 cultasset_pc_gfcf
+
+
+
+Prepare data for dendrogram
+```{r}
+productivity_data <- productivity_data %>% 
+  filter(time == 2018) %>%
+  select(-time) %>% 
+  column_to_rownames("location") %>% 
+  mutate(
+    ict_pc_gfcf = coalesce(ict_pc_gfcf, median(ict_pc_gfcf, na.rm = TRUE)),
+    cultasset_pc_gfcf = coalesce(cultasset_pc_gfcf, median(cultasset_pc_gfcf, na.rm = TRUE))
+  )
+```
+
+Standardise data
+```{r}
+productivity_data_scale <- productivity_data %>% 
+  mutate(across(where(is.numeric), scale))
+
+productivity_data_scale
+```
+Check data if mean==0 and std==1
+```{r}
+productivity_data_scale %>%
+  pivot_longer(cols = everything(),
+               names_to = "type", 
+               values_to = "value") %>% #convert data to long format
+  group_by(type) %>%
+  summarise(mean = round(mean(value)), 
+            sd = sd(value))
+```
+
+Check if variables are correlated
+```{r}
+GGally::ggcorr(productivity_data_scale,
+    label = TRUE,
+    label_size = 3, 
+    label_round = 2, 
+    label_alpha = TRUE,
+    hjust = 1,
+    layout.exp = 0.5
+  )
+```
+
+
+
+Call libraries
+```{r}
+library(cluster)
+library(factoextra)
+library(dendextend)
+library(corrplot)
+```
+
+
+#################################################################################################################################
+
+Take productivity GDP pwh
+```{r}
+diss_matrix_gdp_phw <- productivity_data_scale %>%
+              select(gdp_phw_usd) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_gdp_phw)
+```
+
+Build dendrogram
+```{r}
+clusters_gdp_phw <- diss_matrix %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_gdp_phw %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+#################################################################################################################################
+
+Take productivity ICT
+```{r}
+diss_matrix_try_pc_gdp <- productivity_data_scale %>%
+              select(try_pc_gdp) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_try_pc_gdp)
+```
+Bild dendrogram
+```{r}
+clusters_try_pc_gdp <- diss_matrix %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_try_pc_gdp %>%
+  plot(cex = 0.5, hang = -5)
+```
+
+
+
+
+ict_pc_gfcf = OTHMACHINEQT,
+cultasset_pc_gfcf = CULTASSET,
+infrastuct_pc_gfcf = OTHBUILDING,
+intelprop_pc_gfcf = FIXASSET,
+transpeqt_pc_gfcf = TRANSPEQT,
+dwelling_pc_gfcf = DWELLING
+ 
+
+
+
+
+
+
+
