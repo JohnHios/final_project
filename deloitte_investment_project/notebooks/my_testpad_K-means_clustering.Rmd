@@ -153,7 +153,7 @@ prod_industry_data_scale %>%
 Clustering with K-means
 
 ```{r}
-set.seed(1234)
+# set.seed(1234)
 
 clust_industry_data_scale <- kmeans(prod_industry_data_scale, 
                         centers = 4, 
@@ -249,7 +249,7 @@ Methods #2 and #3 indicate k=2 clusters is sufficient
 clusterings %>% 
   unnest(cols = c(augmented)) %>% 
   filter(k == 2) %>% 
-  ggplot(aes(x = gdp_phw_usd, y = sector_k, colour = .cluster, label = .rownames)) +
+  ggplot(aes(x = gdp_phw_usd, y = sector_a, colour = .cluster, label = .rownames)) +
   geom_point(aes(color = .cluster)) +
   geom_text(hjust = 0, vjust = - 0.5, size = 3) +
   scale_colour_brewer(palette = "Dark2") 
@@ -260,7 +260,7 @@ clusterings %>%
 clusterings %>% 
   unnest(cols = c(augmented)) %>% 
   filter(k == 2) %>% 
-  ggplot(aes(x = sector_j, y = sector_b_e, colour = .cluster, label = .rownames)) +
+  ggplot(aes(x = sector_j, y = sector_k, colour = .cluster, label = .rownames)) +
   geom_point(aes(color = .cluster)) +
   geom_text(hjust = 0, vjust = - 0.5, size = 3) +
   scale_colour_brewer(palette = "Dark2") 
@@ -274,6 +274,14 @@ prod_industry_phw %>%
 ```
 
 
+```{r}
+clusterings %>% 
+  group_by(augmented) %>%
+  summarise(mean(gdp_phw_usd), mean(sector_a), mean(sector_b_e), 
+            mean(sector_f), mean(sector_g_i), mean(sector_j),
+            mean(sector_k), mean(sector_m_n), mean(sector_o_q),
+            mean(sector_r_u))
+```
 
 
 
