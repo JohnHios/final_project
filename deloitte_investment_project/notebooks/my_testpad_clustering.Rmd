@@ -418,7 +418,7 @@ hrswrkd %>%
 
 ```{r}
 hrswrkd %>% 
-  # distinct(location)
+  distinct(location)
   # distinct(indicator) #
   # distinct(SUBJECT) # 
   # distinct(measure) # HR_WKD
@@ -466,7 +466,7 @@ hrswrkd_g7 <- hrswrkd %>%
 #################################################################################################################################
 
 
-__Data for clustering__
+__OECD data for clustering__
 
 
 ```{r}
@@ -617,7 +617,7 @@ Create a dissimilarity matrix showing distances
 ```{r}
 fviz_dist(diss_matrix_try_phw_usd)
 ```
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_try_phw_usd <- diss_matrix_try_phw_usd %>%
                  hclust(method = "complete")
@@ -641,7 +641,7 @@ Create a dissimilarity matrix showing distances
 fviz_dist(diss_matrix_pry_ntry_phw_usd)
 ```
 
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_pry_ntry_phw_usd <- diss_matrix_pry_ntry_phw_usd %>%
                  hclust(method = "complete")
@@ -666,7 +666,7 @@ Create a dissimilarity matrix showing distances
 fviz_dist(diss_matrix_pry_try_phw_usd)
 ```
 
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_pry_try_phw_usd <- diss_matrix_pry_try_phw_usd %>%
                  hclust(method = "complete")
@@ -693,7 +693,7 @@ fviz_dist(diss_matrix_ict_phw_usd)
 
 
 
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_ict_phw_usd <- diss_matrix_ict_phw_usd %>%
                  hclust(method = "complete")
@@ -718,7 +718,7 @@ Create a dissimilarity matrix showing distances
 fviz_dist(diss_matrix_dwelling_phw_usd)
 ```
   
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_dwelling_phw_usd <- diss_matrix_dwelling_phw_usd %>%
                  hclust(method = "complete")
@@ -743,7 +743,7 @@ Create a dissimilarity matrix showing distances
 fviz_dist(diss_matrix_infrastuct_phw_usd)
 ```
 
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_infrastuct_phw_usd <- diss_matrix_infrastuct_phw_usd %>%
                  hclust(method = "complete")
@@ -769,7 +769,7 @@ Create a dissimilarity matrix showing distances
 fviz_dist(diss_matrix_cultasset_phw_usd)
 ```
 
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_cultasset_phw_usd <- diss_matrix_cultasset_phw_usd %>%
                  hclust(method = "complete")
@@ -794,7 +794,7 @@ Create a dissimilarity matrix showing distances
 fviz_dist(diss_matrix_transpeqt_phw_usd)
 ```  
 
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_transpeqt_phw_usd <- diss_matrix_transpeqt_phw_usd %>%
                  hclust(method = "complete")
@@ -820,7 +820,7 @@ Create a dissimilarity matrix showing distances
 fviz_dist(diss_matrix_intelprop_phw_usd)
 ```  
 
-Bild dendrogram
+Build dendrogram
 ```{r}
 clusters_intelprop_phw_usd <- diss_matrix_intelprop_phw_usd %>%
                  hclust(method = "complete")
@@ -839,215 +839,355 @@ clusters_intelprop_phw_usd %>%
 
 __Compare productivity by industry in UK and EU Countries__
 
+Call library
+```{r}
+library(readxl)
+```
+
+
 Load Data
 ```{r}
-productivity_phw <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 1 R-proc")
-productivity_growth <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 2 R-proc")
+prod_industry_phw <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 1 R-proc")
+prod_industry_growth <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 2 R-proc")
 
 
-glimpse(productivity_phw)
-glimpse(productivity_growth)
+glimpse(prod_industry_phw)
+glimpse(prod_industry_growth)
 ```
 
 
 
 Check for NA values
 ```{r}
-productivity_phw %>% 
+prod_industry_phw %>% 
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 ```
 
 
 ```{r}
-productivity_growth %>% 
+prod_industry_growth %>% 
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 ```
 
 
 
-Pivot data to long format
+#################################################################################################################################
+
+
+Transpose tibbles and clean names
 ```{r}
-tidy_productivity_phw <- productivity_phw %>%
-  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Output_per_hour") 
-
-tidy_productivity_growth <- productivity_growth %>%
-  pivot_longer(-c(`A*10 (excl L)`, `NACE Industry`), names_to = "Country", values_to = "Labour_Productivity_Growth") 
-
-
-tidy_productivity_phw
-tidy_productivity_growth
-```
-
-```{r}
-tidy_productivity_phw %>% 
-  filter(
-    # `NACE Industry` == "Agriculture, forestry and fishing"
-    # `NACE Industry` == "Industry (except construction)"
-    # `NACE Industry` == "Construction"
-    # `NACE Industry` == "Wholesale and retail trade, transport, accommodation and food service activities"
-    `NACE Industry` == "Information and communication"
-    # `NACE Industry` == "Financial and insurance activities"
-    # `NACE Industry` == "Professional, scientific and technical activities; administrative and support service activities"
-    # `NACE Industry` == "Public administration, defence, education, human health and social work activities"
-    # `NACE Industry` == "Arts, entertainment and recreation; other service activities"
-  ) %>% 
-  ggplot() +
-  aes(
-    x = reorder(Country, Output_per_hour), 
-    y = Output_per_hour,
-    fill = reorder(Country, Output_per_hour) == "United Kingdom"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-  ) +
-  ggtitle(
-    "Output per hour by industry .....",
-    subtitle =  "(Years: 2014 - 2016)"
-  ) +
-  labs(
-    x = "Country", 
-    y = "Output per hour (€)"
-  ) 
-```
-
-
-```{r}
-tidy_productivity_growth %>% 
-  filter(
-    # `NACE Industry` == "Agriculture, forestry and fishing"
-    # `NACE Industry` == "Industry (except construction)"
-    # `NACE Industry` == "Construction"
-    # `NACE Industry` == "Wholesale and retail trade, transport, accommodation and food service activities"
-    `NACE Industry` == "Information and communication"
-    # `NACE Industry` == "Financial and insurance activities"
-    # `NACE Industry` == "Professional, scientific and technical activities; administrative and support service activities"
-    # `NACE Industry` == "Public administration, defence, education, human health and social work activities"
-    # `NACE Industry` == "Arts, entertainment and recreation; other service activities"
-  ) %>%  
-  ggplot() +
-  aes(
-    x = reorder(Country, Labour_Productivity_Growth), 
-    y = Labour_Productivity_Growth,
-    fill = reorder(Country, Labour_Productivity_Growth) == "United Kingdom"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6,angle = 45, vjust = 1, hjust = 1)
-    ) +
-  ggtitle(
-    "Labour Productivity Growth by industry ..... ",
-    subtitle =  "(Years: 2014 - 2016)"
-  ) +
-  labs(
-    x = "Country", 
-    y = "Labour Productivity Growth (%)"
-  ) 
-```
-
-Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
-```{r}
-tidy_productivity_phw %>% 
-  filter(
-    Country %in% c("United Kingdom", "France", "Germany")
-  ) %>% 
-  ggplot() +
-  aes(
-    x = `A*10 (excl L)`, 
-    y = Output_per_hour,
-    fill = Country
-    ) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2") +
-  ggtitle(
-    "Output per hour by industry",
-    subtitle =  "(Years: 2014 - 2016)"
-  ) +
-  labs(
-    x = "\n NACE Industry", 
-    y = "Output per hour (€)"
-  ) 
-```
-```{r}
-tidy_productivity_phw %>% 
-  distinct(`A*10 (excl L)`, `NACE Industry`)
-```
-
-
-```{r}
-tidy_productivity_growth %>% 
-  filter(
-    Country %in% c("United Kingdom", "France", "Germany")
-  ) %>% 
-  ggplot() +
-  aes(
-    x = `A*10 (excl L)`, 
-    y = Labour_Productivity_Growth,
-    fill = Country
-    ) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2") +
-  ggtitle(
-    "Labour Productivity Growth by industry",
-    subtitle =  "(Years: 2014 - 2016)"
-  ) +
-  labs(
-    x = "\n NACE Industry", 
-    y = "Labour Productivity Growth (%)"
-  ) 
-```
-
-
-
-Comparison with most productive countries in Europe (2017): UK, Ireland, Norway
-```{r}
-tidy_productivity_phw %>% 
-  filter(
-    Country %in% c("United Kingdom", "Ireland", "Norway")
-  ) %>% 
-  ggplot() +
-  aes(
-    x = `A*10 (excl L)`, 
-    y = Output_per_hour,
-    fill = Country
-    ) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2") +
-  ggtitle(
-    "Output per hour by industry",
-    subtitle =  "(Years: 2014 - 2016)"
-  ) +
-  labs(
-    x = "\n NACE Industry", 
-    y = "Output per hour (€)"
-  ) 
-```
-
-
-Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
-Output per hour by industry 2014-16
-
-
-```{r}
-productivity_phw %>% 
-  select(France, `United Kingdom`, Germany, Spain, Italy) %>% 
-  summarise(
-    sum_France = sum(France),
-    sum_UK = sum(`United Kingdom`),
-    sum_Germany = sum(Germany),
-    sum_Spain = sum(Spain),
-    sum_Italy = sum(Italy)
-  )
+prod_industry_phw_data <- prod_industry_phw %>%
+  select(-`NACE Industry`) %>% 
+  pivot_longer(-`A*10 (excl L)`, names_to = "Country", values_to = "Output_per_hour") %>% 
+  pivot_wider(names_from = "A*10 (excl L)", values_from = "Output_per_hour") %>% 
+  arrange(Country) %>% 
+  clean_names()
   
+
+prod_industry_growth_data <- prod_industry_growth %>%
+  select(-`NACE Industry`) %>% 
+  pivot_longer(-`A*10 (excl L)`, names_to = "Country", values_to = "Labour_Productivity_Growth") %>%  
+  pivot_wider(names_from = "A*10 (excl L)", values_from = "Labour_Productivity_Growth") %>% 
+  arrange(Country)%>% 
+  clean_names()
+
+
+prod_industry_phw_data
+prod_industry_growth_data
+```
+
+
+Prepare data for dendrogram
+```{r}
+prod_industry_phw_data <- prod_industry_phw_data %>% 
+  filter(
+    country %in% c("Denmark", "France", "Germany", "Ireland", "Italy", "Luxembourg", 
+                   "Netherlands", "Norway", "Sweden", "United Kingdom")
+  ) %>% 
+  column_to_rownames("country")
+
+prod_industry_phw_data
+```
+
+Standardise data
+```{r}
+prod_industry_data_scale <- prod_industry_phw_data %>% 
+  mutate(across(where(is.numeric), scale))
+
+prod_industry_data_scale
+```
+
+Check data if mean==0 and std==1
+```{r}
+prod_industry_data_scale %>%
+  pivot_longer(cols = everything(),
+               names_to = "type", 
+               values_to = "value") %>% #convert data to long format
+  group_by(type) %>%
+  summarise(mean = round(mean(value)), 
+            sd = sd(value))
+```
+
+Check if variables are correlated
+```{r}
+GGally::ggcorr(prod_industry_data_scale,
+    label = TRUE,
+    label_size = 3, 
+    label_round = 2, 
+    label_alpha = TRUE,
+    hjust = 1,
+    layout.exp = 0.5
+  )
 ```
 
 
 
+Call libraries
+```{r}
+library(cluster)
+library(factoextra)
+library(dendextend)
+library(corrplot)
+```
+
+
+#################################################################################################################################
+
+Take productivity A
+```{r}
+diss_matrix_a <- prod_industry_data_scale %>%
+              select(a) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_a)
+```
+
+Build dendrogram
+```{r}
+clusters_a <- diss_matrix_a %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_a %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+#################################################################################################################################
+
+Take productivity B-E
+```{r}
+diss_matrix_b_e <- prod_industry_data_scale %>%
+              select(b_e) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_b_e)
+```
+
+Build dendrogram
+```{r}
+clusters_b_e <- diss_matrix_b_e %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_b_e %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+
+#################################################################################################################################
+
+Take productivity f
+```{r}
+diss_matrix_f <- prod_industry_data_scale %>%
+              select(f) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_f)
+```
+
+Build dendrogram
+```{r}
+clusters_f <- diss_matrix_f %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_f %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+
+#################################################################################################################################
+
+Take productivity G-I
+```{r}
+diss_matrix_g_i <- prod_industry_data_scale %>%
+              select(g_i) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_g_i)
+```
+
+Build dendrogram
+```{r}
+clusters_g_i <- diss_matrix_g_i %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_g_i %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+#################################################################################################################################
+
+Take productivity J
+```{r}
+diss_matrix_j <- prod_industry_data_scale %>%
+              select(j) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_j)
+```
+
+Build dendrogram
+```{r}
+clusters_j <- diss_matrix_j %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_j %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+
+#################################################################################################################################
+
+Take productivity K
+```{r}
+diss_matrix_k <- prod_industry_data_scale %>%
+              select(k) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_k)
+```
+
+Build dendrogram
+```{r}
+clusters_k <- diss_matrix_k %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_k %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+
+#################################################################################################################################
+
+Take productivity M-N
+```{r}
+diss_matrix_m_n <- prod_industry_data_scale %>%
+              select(m_n) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_m_n)
+```
+
+Build dendrogram
+```{r}
+clusters_m_n <- diss_matrix_m_n %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_m_n %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+
+#################################################################################################################################
+
+Take productivity O-Q
+```{r}
+diss_matrix_o_q <- prod_industry_data_scale %>%
+              select(o_q) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_o_q)
+```
+
+Build dendrogram
+```{r}
+clusters_o_q <- diss_matrix_o_q %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_o_q %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+#################################################################################################################################
+
+Take productivity R-U
+```{r}
+diss_matrix_r_u <- prod_industry_data_scale %>%
+              select(r_u) %>%
+              dist(method = "euclidean") 
+```
+
+Create a dissimilarity matrix showing distances
+```{r}
+fviz_dist(diss_matrix_r_u)
+```
+
+Build dendrogram
+```{r}
+clusters_r_u <- diss_matrix_r_u %>%
+                 hclust(method = "complete")
+```
+
+```{r}
+clusters_r_u %>%
+  plot(cex = 0.75, hang = -5)
+```
+
+#################################################################################################################################
 
 
 
-
+```{r}
+prod_industry_phw %>% 
+  select(`A*10 (excl L)`, `NACE Industry`)
+```

@@ -1,0 +1,282 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+Call Libraries
+```{r}
+library(janitor)
+library(fastDummies)
+library(tidyverse)
+library(here)
+library(readxl)
+```
+
+
+
+__Compare productivity by industry in UK and EU Countries__
+
+
+Load Data
+```{r}
+prod_industry_phw <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 1 R-proc")
+prod_industry_growth <- read_excel(here("raw_data/International_Labour_Productivity-Europe.xls"), sheet = "Table 2 R-proc")
+
+
+glimpse(prod_industry_phw)
+glimpse(prod_industry_growth)
+```
+
+
+
+Check for NA values
+```{r}
+prod_industry_phw %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+prod_industry_growth %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
+#################################################################################################################################
+
+
+Transpose tibbles and clean names
+```{r}
+prod_industry_phw_data <- prod_industry_phw %>%
+  mutate(`A*10 (excl L)` = str_c("sector_", `A*10 (excl L)`)) %>% 
+  select(-`NACE Industry`) %>% 
+  pivot_longer(-`A*10 (excl L)`, names_to = "Country", values_to = "Output_per_hour") %>% 
+  pivot_wider(names_from = "A*10 (excl L)", values_from = "Output_per_hour") %>% 
+  arrange(Country) %>% 
+  clean_names()
+  
+
+prod_industry_growth_data <- prod_industry_growth %>%
+  mutate(`A*10 (excl L)` = str_c("sector_", `A*10 (excl L)`)) %>% 
+  select(-`NACE Industry`) %>% 
+  pivot_longer(-`A*10 (excl L)`, names_to = "Country", values_to = "Labour_Productivity_Growth") %>%  
+  pivot_wider(names_from = "A*10 (excl L)", values_from = "Labour_Productivity_Growth") %>% 
+  arrange(Country)%>% 
+  clean_names()
+
+
+prod_industry_phw_data
+prod_industry_growth_data
+```
+
+#################################################################################################################################
+
+Read data
+```{r}
+gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(gdp_phw)
+```
+```{r}
+gdp_phw_27 <- gdp_phw%>% 
+  filter(
+    location %in% c("AUT", "BEL", "BGR", "HRV", "CZE", "DNK", "EST", "FIN", "FRA",
+                 "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", "LUX", "NLD",
+                 "NOR", "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE", "CHE",
+                 "GBR"),
+    time == 2016,
+    measure == "USD"
+  ) %>% 
+  select(location, value) %>% 
+  arrange(location) %>% 
+  rename(gdp_phw_usd = value) %>% 
+  mutate(country = c("Austria", "Belgium", "Bulgaria", "Switzerland", "Czech Republic",
+                     "Germany", "Denmark", "Spain", "Estonia", "Finland", 
+                     "France", "United Kingdom", "Greece", "Croatia", "Hungary",
+                     "Ireland", "Italy", "Lithuania", "Luxembourg", "Latvia", 
+                     "Netherlands", "Norway", "Poland", "Portugal", "Romania", 
+                     "Slovakia", "Slovenia",  "Sweden"
+                      )) %>% 
+  select(-location)
+
+```
+
+Add GDP phw data
+```{r}
+prod_industry_phw_data <- prod_industry_phw_data  %>% 
+  left_join(gdp_phw_27, by = "country" ) %>% 
+  filter(country != "Cyprus")
+
+
+```
+
+
+
+
+#################################################################################################################################
+
+
+
+Prepare data for K-means clustering
+```{r}
+prod_industry_phw_data <- prod_industry_phw_data %>% 
+  column_to_rownames("country")
+
+prod_industry_phw_data
+```
+
+Standardise data
+```{r}
+prod_industry_data_scale <- prod_industry_phw_data %>% 
+  mutate(across(where(is.numeric), scale))
+
+prod_industry_data_scale
+```
+
+Check data if mean==0 and std==1
+```{r}
+prod_industry_data_scale %>%
+  pivot_longer(cols = everything(),
+               names_to = "type", 
+               values_to = "value") %>% #convert data to long format
+  group_by(type) %>%
+  summarise(mean = round(mean(value)), 
+            sd = sd(value))
+```
+
+
+Clustering with K-means
+
+```{r}
+set.seed(1234)
+
+clust_industry_data_scale <- kmeans(prod_industry_data_scale, 
+                        centers = 4, 
+                        nstart = 25)
+
+clust_industry_data_scale
+```
+
+```{r}
+library(broom)
+
+tidy(clust_industry_data_scale, 
+     col.names = colnames(prod_industry_data_scale))
+```
+
+
+
+```{r}
+augment(clust_industry_data_scale, prod_industry_phw_data)
+```
+
+
+Clustering Metrics
+
+```{r}
+glance(clust_industry_data_scale)
+```
+
+
+```{r}
+library(broom)
+
+# Set min & max number of clusters want to look at 
+max_k <- 15 
+
+k_clusters <- tibble(k = 1:max_k) %>%
+  mutate(
+    kclust = map(k, ~ kmeans(prod_industry_data_scale, .x, nstart = 25)), 
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, prod_industry_phw_data)
+  )
+
+k_clusters
+```
+
+```{r}
+clusterings <- k_clusters %>% 
+  unnest(c(glanced))
+
+clusterings
+```
+
+Choosing the number of clusters
+
+__Elbow method__
+
+```{r}
+ggplot(clusterings, aes(x = k, y = tot.withinss)) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks = seq(1,20, by = 1))
+```
+
+If you want to use a function to do the plot above, use this:
+```{r}
+library(factoextra)
+
+fviz_nbclust(prod_industry_data_scale,
+             kmeans,
+             method = "wss",
+             nstart = 25)
+```
+
+
+__Silhouette coefficient__
+```{r}
+fviz_nbclust(prod_industry_data_scale, kmeans, method = "silhouette", nstart = 25)
+```
+
+
+__Gap statistic__
+```{r}
+fviz_nbclust(prod_industry_data_scale, kmeans, method = "gap_stat", nstart = 100) #would put nstart=25 if had more computing power
+```
+
+
+
+
+Methods #2 and #3 indicate k=2 clusters is sufficient
+
+```{r}
+clusterings %>% 
+  unnest(cols = c(augmented)) %>% 
+  filter(k == 2) %>% 
+  ggplot(aes(x = gdp_phw_usd, y = sector_k, colour = .cluster, label = .rownames)) +
+  geom_point(aes(color = .cluster)) +
+  geom_text(hjust = 0, vjust = - 0.5, size = 3) +
+  scale_colour_brewer(palette = "Dark2") 
+```
+
+
+```{r}
+clusterings %>% 
+  unnest(cols = c(augmented)) %>% 
+  filter(k == 2) %>% 
+  ggplot(aes(x = sector_j, y = sector_b_e, colour = .cluster, label = .rownames)) +
+  geom_point(aes(color = .cluster)) +
+  geom_text(hjust = 0, vjust = - 0.5, size = 3) +
+  scale_colour_brewer(palette = "Dark2") 
+```
+
+#################################################################################################################################
+
+```{r}
+prod_industry_phw %>% 
+  select(`A*10 (excl L)`, `NACE Industry`)
+```
+
+
+
+
+
+
+
+
