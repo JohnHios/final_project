@@ -9,6 +9,7 @@ Call Libraries
 library(tidyverse)
 library(janitor)
 library(here)
+library(lubridate)
 ```
 
 
@@ -21,6 +22,13 @@ gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>%
 
 glimpse(gdp_phw)
 ```
+
+Change time in datetime format
+```{r}
+gdp_phw <- gdp_phw %>%
+  mutate(time = make_datetime(time)) 
+```
+
 
 Check for NA values
 ```{r}
@@ -66,6 +74,67 @@ gdp_phw_g7 <- gdp_phw %>%
 ```
 
 
+```{r}
+gdp_phw %>% 
+  mutate(time = year(time)) %>% 
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "USD",
+    time == 2020
+    ) %>%  
+  select(-c(indicator, frequency, measure, subject, time, flag_codes)) %>%  
+  ggplot() +
+  aes(
+    x = reorder(location, value), 
+    y = value,
+    fill = reorder(location, value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1) ) +
+  ggtitle(
+    "GDP per hour worked (Year 2020)",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "GDP per hour worked ($)\n"
+  ) 
+  
+```
+
+
+```{r}
+gdp_phw %>% 
+  mutate(time = year(time)) %>% 
+  filter(
+    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "IDX2015",
+    time == 2020
+    ) %>%  
+  select(-c(indicator, frequency, measure, subject, time, flag_codes)) %>%  
+  ggplot() +
+  aes(
+    x = reorder(location, value), 
+    y = value,
+    fill = reorder(location, value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
+    ) +
+  ggtitle(
+    "GDP per hour worked (Year 2020)",
+    subtitle =  "indicator is measured in USD (index 2015 = 100)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "GDP per hour worked ($)\n"
+  ) 
+```
+
 #################################################################################################################################
 #################################################################################################################################
 #################################################################################################################################
@@ -80,6 +149,14 @@ gdexp_rnd <- read_csv(here("raw_data/OECD_Gross_Domestic_Spending_on_R&D_JHios.c
 
 glimpse(gdexp_rnd)
 ```
+
+Change time in datetime format
+```{r}
+gdexp_rnd <- gdexp_rnd %>%
+  mutate(time = make_datetime(time)) 
+```
+
+
 
 G-7 countries gross domestic expenditure on R&D (Million USD)
 ```{r}
@@ -146,6 +223,13 @@ infr_inv <- read_csv(here("raw_data/OECD_Infrastructure_Investment_JHios.csv")) 
 
 glimpse(infr_inv)
 ```
+
+Change time in datetime format
+```{r}
+infr_inv <- infr_inv %>%
+  mutate(time = make_datetime(time)) 
+```
+
 
 
 Check for NA's
@@ -222,6 +306,14 @@ gdp <- read_csv(here("raw_data/OECD_Gross_Domestic_Product_GDP_JHios.csv")) %>%
 glimpse(gdp)
 ```
 
+Change time in datetime format
+```{r}
+gdp <- gdp %>%
+  mutate(time = make_datetime(time)) 
+```
+
+
+
 Check for NA's
 ```{r}
 gdp %>% 
@@ -257,8 +349,7 @@ gdp %>%
   labs(
     x = "\n Year",
     y = "GDP ($MM) \n"
-  ) +
-  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+  ) 
 ```
 
 
@@ -366,6 +457,11 @@ edu_exp <- read_csv(here("raw_data/OECD_Public_Spending_on_Education_JHios.csv")
 glimpse(edu_exp)
 ```
 
+Change time in datetime format
+```{r}
+edu_exp <- edu_exp %>%
+  mutate(time = make_datetime(time)) 
+```
 
 
 Check for NA's
@@ -546,6 +642,7 @@ glimpse(productivity)
 Trim data
 ```{r}
 prod_uk_trim <- productivity %>% 
+  mutate(time = year(time)) %>% 
   filter(
     location == "GBR",
     time >= 1995 & time <=2019
@@ -797,6 +894,11 @@ tibble(
 
 
 __Automated modelling__
+
+```{r}
+library(leaps)
+```
+
 
 ```{r}
 regsubsets_exhaustive <- regsubsets(gdp_phw_usd ~ ., data = prod_uk_trim, nvmax = 5, method = "exhaustive")

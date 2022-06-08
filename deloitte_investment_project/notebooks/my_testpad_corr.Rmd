@@ -9,6 +9,7 @@ library(tidyverse)
 library(janitor)
 library(here)
 library(readxl)
+library(lubridate)
 ```
 
 
@@ -20,6 +21,13 @@ gdp_phw_OECD <- read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv")
 
 glimpse(gdp_phw_OECD)
 ```
+
+Change TIME in datetime format
+```{r}
+gdp_phw_OECD <- gdp_phw_OECD %>%
+  mutate(time = make_datetime(TIME)) 
+```
+
 
 
 ```{r}
@@ -62,6 +70,12 @@ Read data
 gdexp_rd <- read_excel(here("raw_data/Cross_country_Gross_Domestic_Spending_on_R&D.xls")) 
 
 glimpse(gdexp_rd)
+```
+
+Change TIME in datetime format
+```{r}
+gdexp_rd <- gdexp_rd %>%
+  mutate(time = make_datetime(TIME)) 
 ```
 
 G-7 countries gross domestic expenditure on R&D (Million USD)
@@ -119,6 +133,12 @@ Read data
 infrastructure_investment <- read_excel(here("raw_data/Cross_country_infrastructure_investment.xls")) 
 
 glimpse(infrastructure_investment)
+```
+
+Change TIME in datetime format
+```{r}
+infrastructure_investment <- infrastructure_investment %>%
+  mutate(time = make_datetime(TIME)) 
 ```
 
 
@@ -186,6 +206,14 @@ education_expenditure <- read_excel(here("raw_data/OECD_Tertiary_Education_Expen
 
 glimpse(education_expenditure)
 ```
+
+Change TIME in datetime format
+```{r}
+education_expenditure <- education_expenditure %>%
+  mutate(time = make_datetime(TIME)) 
+```
+
+
 ```{r}
 education_expenditure %>% 
   filter(LOCATION == "GBR")

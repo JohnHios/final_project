@@ -11,6 +11,7 @@ library(fastDummies)
 library(tidyverse)
 library(here)
 library(readxl)
+library(lubridate)
 ```
 
 
@@ -27,8 +28,6 @@ prod_industry_growth <- read_excel(here("raw_data/International_Labour_Productiv
 glimpse(prod_industry_phw)
 glimpse(prod_industry_growth)
 ```
-
-
 
 Check for NA values
 ```{r}
@@ -82,8 +81,17 @@ gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>%
 
 glimpse(gdp_phw)
 ```
+
+Change time in datetime format
 ```{r}
-gdp_phw_27 <- gdp_phw%>% 
+gdp_phw <- gdp_phw %>%
+  mutate(time = make_datetime(time)) 
+```
+
+
+```{r}
+gdp_phw_27 <- gdp_phw %>% 
+  mutate(time = year(time)) %>% 
   filter(
     location %in% c("AUT", "BEL", "BGR", "HRV", "CZE", "DNK", "EST", "FIN", "FRA",
                  "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", "LUX", "NLD",
@@ -156,7 +164,7 @@ Clustering with K-means
 # set.seed(1234)
 
 clust_industry_data_scale <- kmeans(prod_industry_data_scale, 
-                        centers = 4, 
+                        centers = 2, 
                         nstart = 25)
 
 clust_industry_data_scale
@@ -172,7 +180,7 @@ tidy(clust_industry_data_scale,
 
 
 ```{r}
-augment(clust_industry_data_scale, prod_industry_phw_data)
+cluster <- augment(clust_industry_data_scale, prod_industry_phw_data)
 ```
 
 
@@ -243,27 +251,36 @@ fviz_nbclust(prod_industry_data_scale, kmeans, method = "gap_stat", nstart = 100
 
 
 
-Methods #2 and #3 indicate k=2 clusters is sufficient
-
+Methods #2 and #3 indicate k=2 clusters is sufficient, but the value of tot.withinss is higher than betweenss.
+This is not good - we should be looking for k=5 as indicated by the local minimum in method #3
 ```{r}
 clusterings %>% 
   unnest(cols = c(augmented)) %>% 
-  filter(k == 2) %>% 
-  ggplot(aes(x = gdp_phw_usd, y = sector_a, colour = .cluster, label = .rownames)) +
+  filter(k == 5) %>% 
+  ggplot(aes(x = gdp_phw_usd, y = sector_k, colour = .cluster, label = .rownames)) +
   geom_point(aes(color = .cluster)) +
   geom_text(hjust = 0, vjust = - 0.5, size = 3) +
-  scale_colour_brewer(palette = "Dark2") 
+  scale_colour_brewer(palette = "Dark2") +
+  
 ```
 
 
 ```{r}
 clusterings %>% 
   unnest(cols = c(augmented)) %>% 
-  filter(k == 2) %>% 
+  filter(k == 5) %>% 
   ggplot(aes(x = sector_j, y = sector_k, colour = .cluster, label = .rownames)) +
   geom_point(aes(color = .cluster)) +
   geom_text(hjust = 0, vjust = - 0.5, size = 3) +
   scale_colour_brewer(palette = "Dark2") 
+  # ggtitle(
+  #   "G-7 countries education expenditure",
+  #   subtitle = "Primary to tertiary education"
+  # ) +
+  # labs(
+  #   x = "\n Year", 
+  #   y = "GDP (%) \n"
+  # ) 
 ```
 
 #################################################################################################################################
@@ -275,14 +292,26 @@ prod_industry_phw %>%
 
 
 ```{r}
-clusterings %>% 
-  group_by(augmented) %>%
+cluster %>% 
+  group_by(.cluster) %>%
   summarise(mean(gdp_phw_usd), mean(sector_a), mean(sector_b_e), 
             mean(sector_f), mean(sector_g_i), mean(sector_j),
             mean(sector_k), mean(sector_m_n), mean(sector_o_q),
             mean(sector_r_u))
 ```
 
+
+
+```{r}
+clusterings %>% 
+  unnest(augmented) %>% 
+  filter(k == 2) %>% 
+  group_by(.cluster) %>%
+  summarise(mean(gdp_phw_usd), mean(sector_a), mean(sector_b_e), 
+            mean(sector_f), mean(sector_g_i), mean(sector_j),
+            mean(sector_k), mean(sector_m_n), mean(sector_o_q),
+            mean(sector_r_u))
+```
 
 
 

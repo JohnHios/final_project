@@ -9,6 +9,7 @@ Call Libraries
 library(tidyverse)
 library(janitor)
 library(here)
+library(lubridate)
 ```
 
 
@@ -20,6 +21,12 @@ gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>%
   clean_names()
 
 glimpse(gdp_phw)
+```
+
+Change time in datetime format
+```{r}
+gdp_phw <- gdp_phw %>%
+  mutate(time = make_datetime(time)) 
 ```
 
 Check for NA values
@@ -94,6 +101,12 @@ inv_asset <- read_csv(here("raw_data/OECD_Investment_by_Asset_JHios.csv")) %>%
   clean_names()
 
 glimpse(inv_asset)
+```
+
+Change time in datetime format
+```{r}
+inv_asset  <- inv_asset  %>%
+  mutate(time = make_datetime(time)) 
 ```
 
 
@@ -199,9 +212,10 @@ gfcf <- read_csv(here("raw_data/OECD_Investment_GFCF_JHios.csv")) %>%
 glimpse(gfcf)
 ```
 
+Change time in datetime format
 ```{r}
 gfcf <- gfcf %>%
-  mutate(time = as.numeric(time))
+  mutate(time = make_datetime(time)) 
 ```
 
 
@@ -283,7 +297,11 @@ edu_exp <- read_csv(here("raw_data/OECD_Public_Spending_on_Education_JHios.csv")
 glimpse(edu_exp)
 ```
 
-
+Change time in datetime format
+```{r}
+edu_exp <- edu_exp %>%
+  mutate(time = make_datetime(time)) 
+```
 
 Check for NA's
 ```{r}
@@ -361,6 +379,12 @@ gdp <- read_csv(here("raw_data/OECD_Gross_Domestic_Product_GDP_JHios.csv")) %>%
 glimpse(gdp)
 ```
 
+Change time in datetime format
+```{r}
+gdp <- gdp %>%
+  mutate(time = make_datetime(time)) 
+```
+
 Check for NA's
 ```{r}
 gdp %>% 
@@ -433,6 +457,12 @@ hrswrkd <- read_csv(here("raw_data/OECD_Hours_Worked_JHios.csv")) %>%
   clean_names()
 
 glimpse(hrswrkd)
+```
+
+Change time in datetime format
+```{r}
+hrswrkd <- hrswrkd %>%
+  mutate(time = make_datetime(time)) 
 ```
 
 Check for NA's
@@ -515,11 +545,13 @@ glimpse(productivity_data)
 
 ```{r}
 productivity_data %>% 
+  mutate(time = year(time)) %>% 
   filter(time == 2018)
 ```
 Drop european countries that don't have data for 2018
 ```{r}
 productivity_data %>% 
+  mutate(time = year(time)) %>% 
   filter(time == 2018) %>% 
   drop_na()
 ```
@@ -529,6 +561,7 @@ The loss of data is not significant
 
 ```{r}
 productivity_data <- productivity_data %>% 
+  mutate(time = year(time)) %>% 
   filter(time == 2018) %>% 
   drop_na() %>% 
   mutate(
@@ -559,7 +592,8 @@ productivity_data <- productivity_data %>%
 ```
 #################################################################################################################################
 
-Prepare data for dendrogram
+
+Prepare data for K-means clustering
 ```{r}
 productivity_data <- productivity_data %>% 
   select(-time) %>% 
@@ -587,7 +621,6 @@ productivity_data_scale %>%
 
 
 Clustering with K-means
-
 ```{r}
 set.seed(340717)
 
@@ -672,23 +705,50 @@ fviz_nbclust(productivity_data_scale, kmeans, method = "silhouette", nstart = 25
 
 __Gap statistic__
 ```{r}
-fviz_nbclust(productivity_data_scale, kmeans, method = "gap_stat", nstart = 100) #would put nstart=25 if had more computing power
+fviz_nbclust(productivity_data_scale, kmeans, method = "gap_stat", nstart = 100) 
 ```
 
 
 Method #2 indicates k=4 clusters and method #3 indicates k=9 clusters.
 
-Let's see if k=4is sufficient
+Let's see if k=4 is sufficient
 
 ```{r}
 clusterings %>% 
   unnest(cols = c(augmented)) %>% 
   filter(k == 4) %>% 
-  ggplot(aes(x = gdp_phw_usd, y = ict_phw_usd, colour = .cluster, label = .rownames)) +
-  geom_point(aes(color = .cluster)) +
-  geom_text(hjust = 0, vjust = - 0.5, size = 3) +
-  scale_colour_brewer(palette = "Dark2") 
+  ggplot(aes(x = gdp_phw_usd, y = try_phw_usd, colour = .cluster, label = .rownames)) +
+  geom_point(aes(color = .cluster), size = 2.5) +
+  geom_text(hjust = 0, vjust = - 0.75, size = 3) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "Relationship between Productivity and Education expenditure",
+    subtitle = "(Year 2018)"
+  ) +
+  labs(
+    x = "GDP per hours worked ($)", 
+    y = "Tertiary education expenditure per hours worked ($) \n"
+  ) 
 ```
+
+```{r}
+clusterings %>% 
+  unnest(cols = c(augmented)) %>% 
+  filter(k == 4) %>% 
+  ggplot(aes(x = gdp_phw_usd, y = intelprop_phw_usd, colour = .cluster, label = .rownames)) +
+  geom_point(aes(color = .cluster), size = 2.5) +
+  geom_text(hjust = 0, vjust = - 0.75, size = 3) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "Relationship between Productivity and Intellectual property products",
+    subtitle = "(Year 2018)"
+  ) +
+  labs(
+    x = "GDP per hours worked ($)", 
+    y = "Intellectual property investment per hours worked ($) \n"
+  ) 
+```
+
 
 ```{r}
 productivity_data %>% 
@@ -701,27 +761,47 @@ clusterings %>%
   unnest(cols = c(augmented)) %>% 
   filter(k == 4) %>% 
   ggplot(aes(x = ict_phw_usd, y = intelprop_phw_usd, colour = .cluster, label = .rownames)) +
-  geom_point(aes(color = .cluster)) +
-  geom_text(hjust = 0, vjust = - 0.5, size = 3) +
+  geom_point(aes(color = .cluster), size = 2.5) +
+  geom_text(hjust = 0, vjust = - 0.75, size = 3) +
   scale_colour_brewer(palette = "Dark2") 
 ```
 
 
 
+What are the average scores for each investment factor/asset split by cluster?
+```{r}
+clusterings %>% 
+  unnest(augmented) %>% 
+  filter(k == 4) %>% 
+  group_by(.cluster) %>%
+  summarise(mean(gdp_phw_usd), mean(try_phw_usd), mean(pry_ntry_phw_usd), 
+            mean(pry_try_phw_usd), mean(ict_phw_usd), mean(dwelling_phw_usd),
+            mean(infrastuct_phw_usd), mean(cultasset_phw_usd), mean(transpeqt_phw_usd),
+            mean(intelprop_phw_usd))
+```
 
 
+__Compare how the UK does (cluster 3) against France and Germany in cluster 4__
 
+Get row that corresponds to cluster 4
+```{r}
+cluster_4_fradeu <- clusterings %>% 
+  unnest(augmented) %>% 
+  filter(k == 4) %>% 
+  group_by(.cluster) %>%
+  summarise(mean(gdp_phw_usd), mean(try_phw_usd), mean(pry_ntry_phw_usd), 
+            mean(pry_try_phw_usd), mean(ict_phw_usd), mean(dwelling_phw_usd),
+            mean(infrastuct_phw_usd), mean(cultasset_phw_usd), mean(transpeqt_phw_usd),
+            mean(intelprop_phw_usd)) %>% 
+  filter(.cluster %in% c(4)) 
+  
+cluster_4_fradeu
+```
 
-
-
-
-
-
-
-
-
-
-
+Calculate percentage difference of UK from the center of cluster 4
+```{r}
+100*(cluster_4_fradeu[1,2:11]-productivity_data["GBR", 1:10])/cluster_4_fradeu[1,2:11] 
+```
 
 
 

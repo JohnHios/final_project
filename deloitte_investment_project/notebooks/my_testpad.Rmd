@@ -9,6 +9,7 @@ library(tidyverse)
 library(janitor)
 library(here)
 library(readxl)
+library(lubridate)
 ```
 
 ```{r}
@@ -46,6 +47,22 @@ glimpse(gdp_pw_current)
 glimpse(gdp_phw_const)
 glimpse(gdp_pw_const)
 ```
+
+Change Year in datetime format
+```{r}
+gdp_phw_current <- gdp_phw_current %>%
+  mutate(Year = make_datetime(Year)) 
+
+gdp_pw_current <- gdp_pw_current %>%
+  mutate(Year = make_datetime(Year)) 
+
+gdp_phw_const <- gdp_phw_const %>%
+  mutate(Year = make_datetime(Year)) 
+
+gdp_pw_const <- gdp_pw_const %>%
+  mutate(Year = make_datetime(Year)) 
+```
+
 
 Check for NA values
 ```{r}
@@ -178,6 +195,13 @@ gdp_phw_OECD <- read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv")
 glimpse(gdp_phw_OECD)
 ```
 
+Change TIME in datetime format
+```{r}
+gdp_phw_OECD <- gdp_phw_OECD %>%
+  mutate(TIME = make_datetime(TIME)) 
+```
+
+
 Check for NA values
 ```{r}
 gdp_phw_OECD %>% 
@@ -245,7 +269,8 @@ gdp_phw_OECD %>%
 
 
 ```{r}
-gdp_phw_OECD %>%
+gdp_phw_OECD %>% 
+  mutate(TIME = year(TIME)) %>% 
   filter(
     # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     MEASURE == "USD",
@@ -275,7 +300,8 @@ gdp_phw_OECD %>%
 
 
 ```{r}
-gdp_phw_OECD %>%
+gdp_phw_OECD %>% 
+  mutate(TIME = year(TIME)) %>% 
   filter(
     # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     MEASURE == "IDX2010",
@@ -319,7 +345,6 @@ productivity_growth <- read_excel(here("raw_data/International_Labour_Productivi
 glimpse(productivity_phw)
 glimpse(productivity_growth)
 ```
-
 
 
 Check for NA values
@@ -740,6 +765,13 @@ infrastructure_investment <- read_excel(here("raw_data/Cross_country_infrastruct
 glimpse(infrastructure_investment)
 ```
 
+Change TIME in datetime format
+```{r}
+infrastructure_investment <- infrastructure_investment %>%
+  mutate(TIME = make_datetime(TIME)) 
+```
+
+
 ```{r}
 infrastructure_investment %>% 
   # distinct(LOCATION)
@@ -946,6 +978,13 @@ gdexp_rd <- read_excel(here("raw_data/Cross_country_Gross_Domestic_Spending_on_R
 
 glimpse(gdexp_rd)
 ```
+
+Change TIME in datetime format
+```{r}
+gdexp_rd <- gdexp_rd %>%
+  mutate(TIME = make_datetime(TIME)) 
+```
+
 
 ```{r}
 gdexp_rd %>% 
@@ -1187,6 +1226,11 @@ adult_education <- read_excel(here("raw_data/OECD_Adult_Education_Levels.xlsx"))
 glimpse(adult_education)
 ```
 
+Change TIME in datetime format
+```{r}
+adult_education <- adult_education %>%
+  mutate(TIME = make_datetime(TIME)) 
+```
 
 Check for NA's
 ```{r}
@@ -1230,6 +1274,7 @@ adult_education %>%
 
 ```{r}
 adult_education %>%
+ mutate(TIME = year(TIME)) %>% 
   filter(
     TIME == 2017
     ) %>%  
@@ -1337,6 +1382,7 @@ tidy_overqualified_workers <- overqualified_workers_clean %>%
     names_to = "year",
     values_to = "percentage"
   )  %>% 
+   mutate(year = make_datetime(year)) %>% 
   clean_names()
 
 
@@ -1345,7 +1391,8 @@ tidy_underqualified_workers <- underqualified_workers_clean %>%
     cols = -Country,
     names_to = "year",
     values_to = "percentage"
-  )  %>% 
+  )  %>%  
+  mutate(year = make_datetime(year)) %>% 
   clean_names()
 
 
@@ -1354,7 +1401,8 @@ tidy_qualified_workers <- qualified_workers_clean %>%
     cols = -Country,
     names_to = "year",
     values_to = "percentage"
-  )  %>% 
+  )  %>%  
+  mutate(year = make_datetime(year)) %>% 
   clean_names()
 
 
@@ -1424,7 +1472,9 @@ tidy_qualified_workers %>%
 Comparison with all countries in Europe
 ```{r}
 tidy_overqualified_workers %>%
+  mutate(year = year(year)) %>% 
   filter(
+    country != c("Malta"),
     year == 2013
     ) %>%  
   ggplot() +
@@ -1450,7 +1500,9 @@ tidy_overqualified_workers %>%
 
 ```{r}
 tidy_underqualified_workers %>%
+  mutate(year = year(year)) %>% 
   filter(
+    country != c("Malta"),
     year == 2013
     ) %>%  
   ggplot() +
@@ -1477,7 +1529,9 @@ tidy_underqualified_workers %>%
 
 ```{r}
 tidy_qualified_workers %>%
+  mutate(year = year(year)) %>% 
   filter(
+    country != c("Malta"),
     year == 2013
     ) %>%  
   ggplot() +
@@ -1517,6 +1571,12 @@ education_expenditure <- read_excel(here("raw_data/OECD_Tertiary_Education_Expen
 
 glimpse(education_expenditure)
 ```
+Change TIME in datetime format
+```{r}
+education_expenditure <- education_expenditure %>%
+  mutate(TIME = make_datetime(TIME)) 
+```
+
 ```{r}
 education_expenditure %>% 
   filter(LOCATION == "GBR")
@@ -1768,6 +1828,11 @@ mfp <- read_excel(here("raw_data/Multifactor_Productivity-OECD_Countries.xls"))
 glimpse(mfp)
 ```
 
+Change TIME in datetime format
+```{r}
+mfp <- mfp %>%
+  mutate(TIME = make_datetime(TIME)) 
+```
 
 Check for NA's
 ```{r}
@@ -1780,7 +1845,7 @@ mfp %>%
 ```{r}
 mfp %>% 
   # distinct(LOCATION)
-  # distinct(INDICATOR) # MFP
+   distinct(INDICATOR) # MFP
   # distinct(SUBJECT) # TOT
   # distinct(MEASURE) # AGRWTH, IDX2010
   # distinct(FREQUENCY) #A

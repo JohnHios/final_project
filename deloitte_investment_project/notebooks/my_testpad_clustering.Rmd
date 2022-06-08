@@ -9,6 +9,7 @@ Call Libraries
 library(tidyverse)
 library(janitor)
 library(here)
+library(lubridate)
 ```
 
 
@@ -21,6 +22,12 @@ gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>%
 
 glimpse(gdp_phw)
 ```
+Change time in datetime format
+```{r}
+gdp_phw <- gdp_phw %>%
+  mutate(time = make_datetime(time)) 
+```
+
 
 Check for NA values
 ```{r}
@@ -88,6 +95,12 @@ inv_asset <- read_csv(here("raw_data/OECD_Investment_by_Asset_JHios.csv")) %>%
   clean_names()
 
 glimpse(inv_asset)
+```
+
+Change time in datetime format
+```{r}
+inv_asset <- inv_asset %>%
+  mutate(time = make_datetime(time)) 
 ```
 
 
@@ -187,10 +200,12 @@ gfcf <- read_csv(here("raw_data/OECD_Investment_GFCF_JHios.csv")) %>%
 glimpse(gfcf)
 ```
 
+Change time in datetime format
 ```{r}
 gfcf <- gfcf %>%
-  mutate(time = as.numeric(time))
+  mutate(time = make_datetime(time)) 
 ```
+
 
 
 Check for NA's
@@ -231,8 +246,7 @@ gfcf %>%
   labs(
     x = "\n Year", 
     y = "GFCF ($MM) \n"
-  ) +
-  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+  ) 
 ```
 
 
@@ -265,6 +279,11 @@ edu_exp <- read_csv(here("raw_data/OECD_Public_Spending_on_Education_JHios.csv")
 glimpse(edu_exp)
 ```
 
+Change time in datetime format
+```{r}
+edu_exp <- edu_exp %>%
+  mutate(time = make_datetime(time)) 
+```
 
 
 Check for NA's
@@ -340,6 +359,13 @@ gdp <- read_csv(here("raw_data/OECD_Gross_Domestic_Product_GDP_JHios.csv")) %>%
 glimpse(gdp)
 ```
 
+Change time in datetime format
+```{r}
+gdp <- gdp %>%
+  mutate(time = make_datetime(time)) 
+```
+
+
 Check for NA's
 ```{r}
 gdp %>% 
@@ -375,8 +401,7 @@ gdp %>%
   labs(
     x = "\n Year",
     y = "GDP ($MM) \n"
-  ) +
-  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+  )
 ```
 
 
@@ -407,6 +432,13 @@ hrswrkd <- read_csv(here("raw_data/OECD_Hours_Worked_JHios.csv")) %>%
 
 glimpse(hrswrkd)
 ```
+
+Change time in datetime format
+```{r}
+hrswrkd <- hrswrkd %>%
+  mutate(time = make_datetime(time)) 
+```
+
 
 Check for NA's
 ```{r}
@@ -443,8 +475,7 @@ hrswrkd %>%
   labs(
     x = "\n Year",
     y = "Hours Worked (hr) \n"
-  ) +
-  scale_x_continuous(breaks = seq(from = 1960, to = 2020, by = 10))
+  ) 
 ```
 
 
@@ -483,6 +514,7 @@ glimpse(productivity_data)
 
 ```{r}
 productivity_data %>% 
+  mutate(time = year(time)) %>% 
   filter(time == 2018)
 ```
 
@@ -534,6 +566,7 @@ productivity_data <- productivity_data %>%
 Prepare data for dendrogram
 ```{r}
 productivity_data <- productivity_data %>% 
+  mutate(time = year(time)) %>% 
   filter(time == 2018) %>%
   select(-time) %>% 
   column_to_rownames("location")
@@ -856,8 +889,6 @@ prod_industry_growth <- read_excel(here("raw_data/International_Labour_Productiv
 glimpse(prod_industry_phw)
 glimpse(prod_industry_growth)
 ```
-
-
 
 Check for NA values
 ```{r}
