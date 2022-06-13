@@ -1142,7 +1142,7 @@ glmulti_fit <- glmulti(
   data = prod_uk_trim,
   level = 2, # 2 = include pairwise interactions, 1 = main effects only (main effect = no pairwise interactions)
   minsize = 0, # no min size of model
-  maxsize = 7, # -1 = no max size of model
+  maxsize = 6, # -1 = no max size of model
   marginality = TRUE, # marginality here means the same as 'strongly hierarchical' interactions, i.e. include pairwise interactions only if both predictors present in the model as main effects.
   method = "g", # the problem is too large for exhaustive search, so search using a genetic algorithm
   crit = bic, # criteria for model selection is BIC value (lower is better)
@@ -1163,83 +1163,67 @@ glmulti_fit@objects[1]
 
 
 # if you want to see the other models
-# weightable(glmulti_fit)
+weightable(glmulti_fit)
 ```
 
-
 ```{r}
-# here is the best model (lowest BIC) from the glmulti run above
-mod_autoJH <- lm(gdp_phw_usd ~ 1 + cultasset_bil_usd + 
-                   infrastuct_bil_usd + intelprop_bil_usd + dwelling_bil_usd +
-                   infrastuct_bil_usd:cultasset_bil_usd + 
-                   intelprop_bil_usd:infrastuct_bil_usd + 
-                   dwelling_bil_usd:infrastuct_bil_usd, 
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto1 <- lm(gdp_phw_usd ~ 1 + cultasset_bil_usd + infrastuct_bil_usd +
+                 intelprop_bil_usd + dwelling_bil_usd + 
+                 infrastuct_bil_usd:cultasset_bil_usd + 
+                 dwelling_bil_usd:infrastuct_bil_usd,
                    data = prod_uk_trim)
 
-summary(mod_autoJH)
-```
-
-
-```{r}
-# here is the best model (lowest BIC) from the glmulti run above
-mod_auto <- lm(gdp_phw_usd ~ 1 + cultasset_bil_usd + infrastuct_bil_usd +
-                     intelprop_bil_usd + dwelling_bil_usd +
-                     infrastuct_bil_usd:cultasset_bil_usd +
-                     dwelling_bil_usd:infrastuct_bil_usd, 
-                   data = prod_uk_trim)
-
-summary(mod_auto)
+summary(mod_auto1)
 ```
 
 ```{r}
 # let's see diagnostic plots
-autoplot(mod_auto)
+autoplot(mod_auto1)
 ```
-#################################################################################################################################
-Run ANOVA test to compare current 6-predictor model (mod_auto) with 5-predictor model (model_reduced) by removing `cultasset_bil_usd`
+The diagnostic plots don't look that great, and the `cultasset_bil_usd` coefficient is not statistically significant
+
+Let's check what the other models calculated by the gmulti algorithm are like
+
 
 ```{r}
-# here is the best model (lowest BIC) from the glmulti run above
-mod_reduced_1 <- lm(gdp_phw_usd ~ 1 + infrastuct_bil_usd +
-                     intelprop_bil_usd + dwelling_bil_usd +
-                     infrastuct_bil_usd:cultasset_bil_usd +
-                     dwelling_bil_usd:infrastuct_bil_usd, 
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto2 <- lm(gdp_phw_usd ~ 1 + infrastuct_bil_usd + intelprop_bil_usd +
+                dwelling_bil_usd + dwelling_bil_usd:infrastuct_bil_usd,
                    data = prod_uk_trim)
 
-summary(mod_reduced_1)
+summary(mod_auto2)
 ```
-
 
 ```{r}
 # let's see diagnostic plots
-autoplot(mod_reduced_1)
+autoplot(mod_auto2)
 ```
 
-Check model parsimony with ANOVA
 
 ```{r}
-anova(mod_reduced_1, mod_auto)
-```
-
-#################################################################################################################################
-
-Run ANOVA test to compare current 6-predictor model (mod_auto) with 5-predictor model (model_reduced) by removing `infrastuct_bil_usd:cultasset_bil_usd`
-
-```{r}
-# here is the best model (lowest BIC) from the glmulti run above
-mod_reduced_2 <- lm(gdp_phw_usd ~ 1 + cultasset_bil_usd + infrastuct_bil_usd +
-                     intelprop_bil_usd + dwelling_bil_usd +
-                     dwelling_bil_usd:infrastuct_bil_usd, 
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto3 <- lm(gdp_phw_usd ~ 1 + ict_bil_usd + cultasset_bil_usd +
+                  infrastuct_bil_usd + dwelling_bil_usd + 
+                  cultasset_bil_usd:ict_bil_usd + dwelling_bil_usd:infrastuct_bil_usd,
                    data = prod_uk_trim)
 
-summary(mod_reduced_2)
+summary(mod_auto3)
 ```
+
+```{r}
+# let's see diagnostic plots
+autoplot(mod_auto3)
+```
+The diagnostic plots don't look that great, although all predictor coefficients are statistically significant
+
+model_auto2 is a good trade-off between accuracy and model parsimony
 
 #################################################################################################################################
 
 
 ```{r}
-calc.relimp(mod_reduced, type = "lmg", rela = TRUE)
+calc.relimp(mod_auto2, type = "lmg", rela = TRUE)
 ```
 
 
@@ -1252,6 +1236,7 @@ __K-fold cross validation__
 Cross validation of manually selected model
 ```{r}
 library(caret)
+set.seed(765977)
 # set up options for train function below
 cv_10_fold <- trainControl(method = "cv", # cross-validation
                            number = 10, # 10-fold
@@ -1279,16 +1264,15 @@ tibble(
 ```
 
 
-Cross validation of automatically selected model
+Cross validation of automatically selected model following some manipulation (mod_auto2)
 
 ```{r}
-model_reduced_kfold <- train(gdp_phw_usd ~ infrastuct_bil_usd +
-                          intelprop_bil_usd + dwelling_bil_usd +
-                          infrastuct_bil_usd:cultasset_bil_usd +
-                          dwelling_bil_usd:infrastuct_bil_usd,
-                        data = prod_uk_trim,
-                        trControl = cv_10_fold, # use options defined above
-                        method = 'lm')
+model_reduced_kfold <- train(gdp_phw_usd ~ 1 + infrastuct_bil_usd +
+                               intelprop_bil_usd + dwelling_bil_usd + 
+                               dwelling_bil_usd:infrastuct_bil_usd,
+                             data = prod_uk_trim,
+                             trControl = cv_10_fold, # use options defined above
+                             method = 'lm')
 ```
 
 
