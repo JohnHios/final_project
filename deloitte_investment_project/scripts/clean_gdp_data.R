@@ -43,3 +43,21 @@ gdp %>%
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 
+
+#-----------------------------------------------------------------------
+# 4. Select lines and columns for analysis.
+
+gdp <- gdp %>%
+  filter(measure == "MLN_USD") %>%
+  select(location, time, value) 
+
+
+#-----------------------------------------------------------------------
+# 5. Rename variables accordingly.
+
+gdp <- gdp  %>% 
+  rename(
+    country = location,
+    year = time,
+    gdp_mln_usd = value
+  )

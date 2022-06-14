@@ -1,0 +1,244 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+<br>
+__Library calls__
+```{r}
+library(here)
+```
+
+<br>
+__Read cleaned data__
+```{r}
+source(here("scripts/clean_gdp_phw_data.R"))
+source(here("scripts/clean_inv_asset_data.R"))
+source(here("scripts/clean_gfcf_data.R"))
+source(here("scripts/clean_edu_exp_data.R"))
+source(here("scripts/clean_gdp_data.R"))
+source(here("scripts/clean_productivity_phw_data.R"))
+```
+
+<br>
+__View GDP per hour worked data (productivity)__
+
+```{r}
+gdp_phw %>% 
+  select(-c(indicator, subject, frequency, flag_codes)) %>% 
+  filter(
+    country %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "USD") %>% 
+  ggplot() +
+  aes(x = year, y = value, colour = country) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "GDP per hour worked",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "GDP per hour worked ($) \n",
+    colour = "Country"
+  ) 
+  
+```
+
+
+
+```{r}
+gdp_phw %>% 
+  mutate(year = year(year)) %>% 
+  filter(
+    measure == "USD",
+    year == 2020
+    ) %>%  
+  select(-c(indicator, frequency, measure, subject, year, flag_codes)) %>%  
+  ggplot() +
+  aes(
+    x = reorder(country, value), 
+    y = value,
+    fill = reorder(country, value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1) ) +
+  ggtitle(
+    "GDP per hour worked (Year 2020)",
+    subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "GDP per hour worked ($)\n"
+  ) 
+  
+```
+
+
+```{r}
+gdp_phw %>% 
+  mutate(year = year(year)) %>% 
+  filter(
+    measure == "IDX2015",
+    year == 2020
+    ) %>%  
+  select(-c(indicator, frequency, measure, subject, year, flag_codes)) %>%  
+  ggplot() +
+  aes(
+    x = reorder(country, value), 
+    y = value,
+    fill = reorder(country, value) == "GBR"
+    ) +
+  geom_col() +
+  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
+  theme(
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
+    ) +
+  ggtitle(
+    "GDP per hour worked (Year 2020)",
+    subtitle =  "indicator is measured in USD (index 2015 = 100)"
+  ) +
+  labs(
+    x = "Country", 
+    y = "GDP per hour worked ($)\n"
+  ) 
+```
+
+<br>
+__View Investment by asset data__
+
+```{r}
+gfcf %>%
+  filter(
+    country %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")
+    ) %>%
+  ggplot() +
+  aes(x = year, y = gfcf_mln_usd, color = country) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country Investment (aka Gross Fixed Capital Formation)") +
+  labs(
+    x = "\n Year", 
+    y = "GFCF ($MM) \n",
+    colour = "Country"
+  ) 
+```
+
+
+Join investment by asset with GFCF data
+```{r}
+inv_asset_usd <- inv_asset %>% 
+  arrange(country, subject, year) %>% 
+  left_join(gfcf, by = c("country", "year")) %>% 
+  mutate(
+    value_mln_usd = value * gfcf_mln_usd / 100
+  )
+
+```
+
+
+```{r}
+inv_asset_usd %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(country == "GBR") %>%
+  ggplot() +
+  aes(x = year, y = value_mln_usd, colour = subject) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("UK investment by asset") +
+  labs(
+    x = "\n Year", 
+    y = "Investment ($MM) \n",
+    colour = "Asset"
+  ) 
+
+```
+
+OTHMACHINEQT: Information and Communication Technology (ICT) equipment (computer software and databases, telecommunications equipment and computer hardware)
+
+CULTASSET: cultivated biological resources (managed forests, livestock raised for milk production, etc.)
+
+OTHBUILDING: other buildings and structures (roads, bridges, airfields, dams, etc.)
+
+FIXASSET: intellectual property products (such as R&D, mineral exploration, software and databases, and literary and artistic originals, etc.)
+
+TRANSPEQT: transport equipment (ships, trains, aircraft, etc.)
+
+DWELLING: dwellings (excluding land)
+
+
+<br>
+__OECD Education Spending Expenditure__
+
+```{r}
+edu_exp %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(country == "GBR") %>%
+  ggplot() +
+  aes(x = year, y = value, colour = subject) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") 
+  ggtitle("UK public spending on education") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure (% of GDP) \n",
+    colour = "Education type"
+  ) 
+
+```
+TRY : TeRtiarY
+PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
+PRY_TRY: PRimarY to TeRtiarY
+
+
+
+<br>
+__Comparison of productivity by industry in UK and EU Countries__
+
+```{r}
+productivity_phw %>% 
+  filter(
+    Country %in% c("United Kingdom", "France", "Germany")
+  ) %>% 
+  ggplot() +
+  aes(
+    x = `A*10 (excl L)`, 
+    y = Output_per_hour,
+    fill = Country
+    ) +
+  geom_col(position = "dodge") +
+  scale_fill_brewer(palette = "Dark2") +
+  ggtitle(
+    "Productivity by industry",
+    subtitle =  "(Years: 2014 - 2016)"
+  ) +
+  labs(
+    x = "\n NACE Industry", 
+    y = "Output per hour (€)"
+  ) 
+```
+
+
+```{r}
+productivity_phw %>% 
+  distinct(`A*10 (excl L)`, `NACE Industry`)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

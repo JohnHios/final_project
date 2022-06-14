@@ -1,0 +1,443 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+<br>
+__Library calls__
+```{r}
+library(here)
+```
+
+
+<br>
+__Read cleaned data__
+```{r}
+source(here("scripts/clean_gdp_phw_data.R"))
+source(here("scripts/clean_inv_asset_data.R"))
+source(here("scripts/clean_gfcf_data.R"))
+source(here("scripts/clean_edu_exp_data.R"))
+source(here("scripts/clean_gdp_data.R"))
+source(here("scripts/clean_hrs_wrkd_data.R"))
+```
+
+
+__Labour_Productivity-OECD_Countries__
+
+GDP per hour worked data (European countries)
+```{r}
+gdp_phw_europe <- gdp_phw %>% 
+  filter(
+    country %in% c("AUT", "BEL", "BGR", "HRV", "CZE", "DNK", "EST", "FIN", 
+                   "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", 
+                   "LUX", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "SVN", 
+                   "ESP", "SWE", "CHE", "GBR"),
+    measure == "USD"
+  ) %>% 
+  select(-c(indicator, frequency, measure, subject, flag_codes)) %>% 
+  rename(gdp_phw_usd = value) 
+  
+```
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+__OECD Investment by Asset__
+
+
+Investment by Asset (% GFCF) for European countries
+```{r}
+inv_asset_europe <- inv_asset %>%
+  filter(
+    country %in% c("AUT", "BEL", "BGR", "HRV", "CZE", "DNK", "EST", "FIN", 
+                   "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", 
+                   "LUX", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "SVN", 
+                   "ESP", "SWE", "CHE", "GBR")
+  ) %>% 
+  select(-c(indicator, frequency, measure, flag_codes)) %>% 
+  pivot_wider(names_from = subject, values_from = value) %>% 
+  rename(
+    ict_pc_gfcf = OTHMACHINEQT,
+    cultasset_pc_gfcf = CULTASSET,
+    infrastuct_pc_gfcf = OTHBUILDING,
+    intelprop_pc_gfcf = FIXASSET,
+    transpeqt_pc_gfcf = TRANSPEQT,
+    dwelling_pc_gfcf = DWELLING
+  ) %>% 
+  arrange(country, year)
+```
+
+
+
+
+##################################################################################################################################
+
+
+OECD Investment GFCF
+
+GFCF data (mln USD)
+```{r}
+gfcf_europe <- gfcf %>% 
+  filter(
+    country %in% c("AUT", "BEL", "BGR", "HRV", "CZE", "DNK", "EST", "FIN", 
+                   "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", 
+                   "LUX", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "SVN", 
+                   "ESP", "SWE", "CHE", "GBR")
+  )
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__ECD Education Spending Expenditure__
+
+Expenditure on education (% GDP)
+```{r}
+edu_exp_europe <- edu_exp %>%
+  filter(
+    country %in% c("AUT", "BEL", "BGR", "HRV", "CZE", "DNK", "EST", "FIN", 
+                   "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", 
+                   "LUX", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "SVN", 
+                   "ESP", "SWE", "CHE", "GBR")
+    ) %>% 
+  select(-c(indicator, frequency, measure, flag_codes)) %>% 
+  pivot_wider(names_from = subject, values_from = value) %>% 
+  rename(
+    try_pc_gdp = TRY,
+    pry_ntry_pc_gdp = PRY_NTRY,
+    pry_try_pc_gdp = PRY_TRY
+  ) %>%
+  arrange(country, year)
+```
+
+
+#################################################################################################################################
+
+__GDP-derived expenditure in USD__
+
+OECD_Gross_Domestic_Product_GDP
+
+GDP data (mln USD)
+```{r}
+gdp_europe <- gdp %>%
+  filter(
+    country %in% c("AUT", "BEL", "BGR", "HRV", "CZE", "DNK", "EST", "FIN", 
+                   "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", 
+                   "LUX", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "SVN", 
+                   "ESP", "SWE", "CHE", "GBR")
+  ) 
+```
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+__OECD Hrs worked__
+
+Hours Worked (hrs)
+```{r}
+hrs_wrkd_europe <- hrs_wrkd %>%
+  filter(
+    country %in% c("AUT", "BEL", "BGR", "HRV", "CZE", "DNK", "EST", "FIN", 
+                   "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", 
+                   "LUX", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "SVN", 
+                   "ESP", "SWE", "CHE", "GBR")
+  )
+```
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__OECD data for clustering__
+
+
+```{r}
+productivity_data <- gdp_phw_europe %>% 
+  left_join(edu_exp_europe, by = c("country", "year")) %>% 
+  left_join(inv_asset_europe, by = c("country", "year")) %>% 
+  left_join(gdp_europe, by = c("country", "year")) %>% 
+  left_join(gfcf_europe, by = c("country", "year")) %>% 
+  left_join(hrs_wrkd_europe, by = c("country", "year"))
+
+glimpse(productivity_data)
+```
+
+
+```{r}
+productivity_data %>% 
+  mutate(year = year(year)) %>% 
+  filter(year == 2018)
+```
+Drop european countries that don't have data for 2018
+```{r}
+productivity_data %>% 
+  mutate(year = year(year)) %>% 
+  filter(year == 2018) %>% 
+  drop_na()
+```
+The loss of data is not significant
+
+
+
+```{r}
+productivity_data <- productivity_data %>% 
+  mutate(year = year(year)) %>% 
+  filter(year == 2018) %>% 
+  drop_na() %>% 
+  mutate(
+    try_phw_usd = try_pc_gdp * gdp_phw_usd / 100,
+    pry_ntry_phw_usd = pry_ntry_pc_gdp * gdp_phw_usd / 100,
+    pry_try_phw_usd = pry_try_pc_gdp * gdp_phw_usd / 100,
+    ict_phw_usd = ict_pc_gfcf * gfcf_mln_usd / hr_wkd / 100,
+    dwelling_phw_usd = dwelling_pc_gfcf * gfcf_mln_usd / hr_wkd / 100,
+    infrastuct_phw_usd = infrastuct_pc_gfcf * gfcf_mln_usd / hr_wkd / 100,
+    cultasset_phw_usd = cultasset_pc_gfcf * gfcf_mln_usd / hr_wkd / 100,
+    transpeqt_phw_usd = transpeqt_pc_gfcf * gfcf_mln_usd / hr_wkd / 100,
+    intelprop_phw_usd = intelprop_pc_gfcf * gfcf_mln_usd / hr_wkd / 100
+  ) %>% 
+  select(
+    country,
+    year,
+    gdp_phw_usd,
+    try_phw_usd, 
+    pry_ntry_phw_usd, 
+    pry_try_phw_usd, 
+    ict_phw_usd, 
+    dwelling_phw_usd, 
+    infrastuct_phw_usd, 
+    cultasset_phw_usd,
+    transpeqt_phw_usd,
+    intelprop_phw_usd
+  )
+```
+#################################################################################################################################
+
+
+Prepare data for K-means clustering
+```{r}
+productivity_data <- productivity_data %>% 
+  select(-year) %>% 
+  column_to_rownames("country")
+```
+
+Standardise data
+```{r}
+productivity_data_scale <- productivity_data %>% 
+  mutate(across(where(is.numeric), scale))
+
+productivity_data_scale
+```
+
+Check data if mean == 0 and std == 1
+```{r}
+productivity_data_scale %>%
+  pivot_longer(cols = everything(),
+               names_to = "type", 
+               values_to = "value") %>% #convert data to long format
+  group_by(type) %>%
+  summarise(mean = round(mean(value)), 
+            sd = sd(value))
+```
+
+
+Clustering with K-means
+```{r}
+set.seed(340717)
+
+clust_data_scale <- kmeans(productivity_data_scale, 
+                        centers = 4, 
+                        nstart = 25)
+
+clust_data_scale
+```
+
+```{r}
+library(broom)
+
+tidy(clust_data_scale, 
+     col.names = colnames(productivity_data_scale))
+```
+
+```{r}
+augment(clust_data_scale, productivity_data)
+```
+
+
+Clustering Metrics
+
+```{r}
+glance(clust_data_scale)
+```
+
+
+```{r}
+library(broom)
+
+# Set min & max number of clusters want to look at 
+max_k <- 15 
+
+k_clusters <- tibble(k = 1:max_k) %>%
+  mutate(
+    kclust = map(k, ~ kmeans(productivity_data_scale, .x, nstart = 25)), 
+    tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+    augmented = map(kclust, augment, productivity_data)
+  )
+
+k_clusters
+```
+
+```{r}
+clusterings <- k_clusters %>% 
+  unnest(c(glanced))
+
+clusterings
+```
+
+
+Choosing the number of clusters
+
+__Elbow method__
+
+```{r}
+ggplot(clusterings, aes(x = k, y = tot.withinss)) +
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks = seq(1,20, by = 1))
+```
+
+If you want to use a function to do the plot above, use this:
+```{r}
+library(factoextra)
+
+fviz_nbclust(productivity_data_scale,
+             kmeans,
+             method = "wss",
+             nstart = 25)
+```
+
+
+__Silhouette coefficient__
+```{r}
+fviz_nbclust(productivity_data_scale, kmeans, method = "silhouette", nstart = 25)
+```
+
+
+__Gap statistic__
+```{r}
+fviz_nbclust(productivity_data_scale, kmeans, method = "gap_stat", nstart = 100) 
+```
+
+
+Method #2 indicates k=4 clusters and method #3 indicates k=9 clusters. For 20 data points, k=4 is a sensible choice.  
+
+Let's see if k=4 is sufficient
+
+```{r}
+clusterings %>% 
+  unnest(cols = c(augmented)) %>% 
+  filter(k == 4) %>% 
+  ggplot(aes(x = gdp_phw_usd, y = try_phw_usd, colour = .cluster, label = .rownames)) +
+  geom_point(aes(color = .cluster), size = 2.5) +
+  geom_text(hjust = 0, vjust = - 0.75, size = 3) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "Relationship between Productivity and Education expenditure",
+    subtitle = "(Year 2018)"
+  ) +
+  labs(
+    x = "GDP per hours worked ($)", 
+    y = "Tertiary education expenditure per hours worked ($) \n",
+    colour = "Cluster"
+  ) 
+```
+
+```{r}
+clusterings %>% 
+  unnest(cols = c(augmented)) %>% 
+  filter(k == 4) %>% 
+  ggplot(aes(x = gdp_phw_usd, y = intelprop_phw_usd, colour = .cluster, label = .rownames)) +
+  geom_point(aes(color = .cluster), size = 2.5) +
+  geom_text(hjust = 0, vjust = - 0.75, size = 3) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "Relationship between Productivity and Intellectual property products",
+    subtitle = "(Year 2018)"
+  ) +
+  labs(
+    x = "GDP per hours worked ($)", 
+    y = "Intellectual property investment per hours worked ($) \n",
+    colour = "Cluster"
+  ) 
+```
+
+
+```{r}
+productivity_data %>% 
+  names()
+```
+
+
+What are the average scores for each investment factor/asset split by cluster?
+```{r}
+clusterings %>% 
+  unnest(augmented) %>% 
+  filter(k == 4) %>% 
+  group_by(.cluster) %>%
+  summarise(mean(gdp_phw_usd), mean(try_phw_usd), mean(pry_ntry_phw_usd), 
+            mean(pry_try_phw_usd), mean(ict_phw_usd), mean(dwelling_phw_usd),
+            mean(infrastuct_phw_usd), mean(cultasset_phw_usd), mean(transpeqt_phw_usd),
+            mean(intelprop_phw_usd))
+```
+
+
+__Compare how the UK does (cluster 3) against France and Germany in cluster 4__
+
+Get row that corresponds to cluster 4
+```{r}
+cluster_4_fradeu <- clusterings %>% 
+  unnest(augmented) %>% 
+  filter(k == 4) %>% 
+  group_by(.cluster) %>%
+  summarise(mean(gdp_phw_usd), mean(try_phw_usd), mean(pry_ntry_phw_usd), 
+            mean(pry_try_phw_usd), mean(ict_phw_usd), mean(dwelling_phw_usd),
+            mean(infrastuct_phw_usd), mean(cultasset_phw_usd), mean(transpeqt_phw_usd),
+            mean(intelprop_phw_usd)) %>% 
+  filter(.cluster %in% c(4)) 
+  
+cluster_4_fradeu
+```
+
+Calculate percentage difference of UK from the center of cluster 4
+```{r}
+100*(cluster_4_fradeu[1,2:11]-productivity_data["GBR", 1:10])/cluster_4_fradeu[1,2:11] 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

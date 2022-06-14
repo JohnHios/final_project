@@ -43,3 +43,12 @@ inv_asset %>%
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 
+
+#-----------------------------------------------------------------------
+# 4. Rename variables accordingly.
+
+inv_asset <- inv_asset %>% 
+  rename(
+    country = location,
+    year = time
+  )

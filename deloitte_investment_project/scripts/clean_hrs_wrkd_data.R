@@ -1,8 +1,8 @@
 #-----------------------------------------------------------------------
 #=======================================================================
-#----- File Name: clean_gdp_phw_data
+#----- File Name: clean_hrs_wrkd_data
 #----- Description: Cleaning data script that returns a tibble
-#----- Output: gdp_phw
+#----- Output: hrs_wrkd
 #----- Created Date: 14/06/2022
 #----- Created By: John Hios
 #-----------------------------------------------------------------------
@@ -26,29 +26,38 @@ library(lubridate)
 #-----------------------------------------------------------------------
 # 1. Read csv data and change names of variables to follow our naming standards.
 
-gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>% 
-  clean_names() 
+hrs_wrkd <- read_csv(here("raw_data/OECD_Hours_Worked_JHios.csv")) %>% 
+  clean_names()
 
 #-----------------------------------------------------------------------
 # 2. Convert time in datetime format.
 
-gdp_phw <- gdp_phw %>%
+hrs_wrkd <- hrs_wrkd %>%
   mutate(time = make_datetime(time)) 
 
 
 #-----------------------------------------------------------------------
 # 3. Check for missing values.
 
-gdp_phw %>% 
+hrs_wrkd %>% 
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 
 
 #-----------------------------------------------------------------------
-# 4. Rename variables accordingly.
+# 4. Select lines and columns for analysis.
 
-gdp_phw <- gdp_phw %>% 
+hrs_wrkd <- hrs_wrkd %>% 
+  filter(measure == "HR_WKD") %>% 
+  select(location, time, value)
+
+
+#-----------------------------------------------------------------------
+# 5. Rename variables accordingly.
+
+hrs_wrkd <- hrs_wrkd %>% 
   rename(
     country = location,
-    year = time
+    year = time,
+    hr_wkd = value
   )

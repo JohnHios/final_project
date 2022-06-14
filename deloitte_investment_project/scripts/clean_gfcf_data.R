@@ -43,3 +43,21 @@ gfcf %>%
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 
+
+#-----------------------------------------------------------------------
+# 4. Select lines and columns for analysis.
+
+gfcf <- gfcf %>% 
+  filter(measure == "MLN_USD") %>% 
+  select(location, time, value) 
+
+
+#-----------------------------------------------------------------------
+# 5. Rename variables accordingly.
+
+gfcf <- gfcf %>% 
+  rename(
+    country = location,
+    year = time,
+    gfcf_mln_usd = value
+  )

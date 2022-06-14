@@ -1,0 +1,372 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+<br>
+__Library calls__
+```{r}
+library(here)
+```
+
+<br>
+__Read cleaned data__
+```{r}
+source(here("scripts/clean_gdp_phw_data.R"))
+source(here("scripts/clean_inv_asset_data.R"))
+source(here("scripts/clean_gfcf_data.R"))
+source(here("scripts/clean_edu_exp_data.R"))
+source(here("scripts/clean_gdp_data.R"))
+```
+
+
+
+G-7 GDP per hour worked data
+```{r}
+gdp_phw_g7 <- gdp_phw %>% 
+  filter(
+    country %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "USD"
+  ) %>% 
+  select(-c(indicator, frequency, measure, subject, flag_codes)) %>% 
+  rename(gdp_phw_usd = value) 
+  
+```
+
+
+G-7 investment by Asset (million USD)
+```{r}
+inv_asset_g7 <- inv_asset %>%
+  filter(
+    country %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")
+    ) %>% 
+  select(-c(indicator, frequency, measure, flag_codes)) %>% 
+  pivot_wider(names_from = subject, values_from = value) %>% 
+  rename(
+    ict = OTHMACHINEQT,
+    cultasset = CULTASSET,
+    infrastuct = OTHBUILDING,
+    intelprop = FIXASSET,
+    transpeqt = TRANSPEQT,
+    dwelling = DWELLING
+  ) %>% 
+  left_join(gfcf, by = c("country", "year")) %>% 
+  mutate(
+    ict_mln_usd = ict * gfcf_mln_usd / 100,
+    cultasset_mln_usd = cultasset * gfcf_mln_usd / 100,
+    infrastuct_mln_usd = infrastuct * gfcf_mln_usd / 100,
+    intelprop_mln_usd = intelprop * gfcf_mln_usd / 100,
+    transpeqt_mln_usd = transpeqt * gfcf_mln_usd / 100,
+    dwelling_mln_usd = dwelling * gfcf_mln_usd / 100
+  ) %>% 
+  select(-gfcf_mln_usd, -ict, -cultasset, -infrastuct, -intelprop, -transpeqt, -dwelling) %>% 
+  arrange(country, year)
+```
+
+
+<br>
+__Data for modelling__
+```{r}
+productivity <- gdp_phw_g7 %>% 
+  left_join(edu_exp_g7, by = c("location", "time")) %>% 
+  left_join(inv_asset_g7, by = c("location", "time")) 
+
+glimpse(productivity)
+```
+
+Trim UK data
+```{r}
+prod_uk_trim <- productivity %>% 
+  mutate(time = year(time)) %>%
+  filter(
+    location == "GBR",
+    time >= 1995 & time <=2019
+  ) %>% 
+  select(
+    gdp_phw_usd, 
+    ict_mil_usd,
+    cultasset_mil_usd,
+    infrastuct_mil_usd,
+    intelprop_mil_usd,
+    transpeqt_mil_usd,
+    dwelling_mil_usd
+  ) %>% 
+  mutate(
+    ict_bil_usd = ict_mil_usd / 1000,
+    cultasset_bil_usd = cultasset_mil_usd / 1000,
+    infrastuct_bil_usd = infrastuct_mil_usd / 1000,
+    intelprop_bil_usd = intelprop_mil_usd / 1000,
+    transpeqt_bil_usd = transpeqt_mil_usd / 1000,
+    dwelling_bil_usd = dwelling_mil_usd / 1000
+  ) %>% 
+  select(
+    -ict_mil_usd,
+    -cultasset_mil_usd,
+    -infrastuct_mil_usd,
+    -intelprop_mil_usd,
+    -transpeqt_mil_usd,
+    -dwelling_mil_usd
+  )
+```
+
+
+
+Check for aliases
+```{r}
+alias(lm(gdp_phw_usd ~ ., data = prod_uk_trim))
+```
+
+
+Call libraries for linear regression modelling 
+```{r}
+library(GGally)
+library(ggfortify)
+library(modelr)
+```
+
+
+Check for correlations in data
+```{r}
+ggpairs(prod_uk_trim)
+```
+
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Automated modelling__
+
+```{r}
+library(glmulti)
+glmulti_fit <- glmulti(
+  gdp_phw_usd ~ ., 
+  data = prod_uk_trim,
+  level = 2, # 2 = include pairwise interactions, 1 = main effects only (main effect = no pairwise interactions)
+  minsize = 0, # no min size of model
+  maxsize = 6, # -1 = no max size of model
+  marginality = TRUE, # marginality here means the same as 'strongly hierarchical' interactions, i.e. include pairwise interactions only if both predictors present in the model as main effects.
+  method = "g", # the problem is too large for exhaustive search, so search using a genetic algorithm
+  crit = bic, # criteria for model selection is BIC value (lower is better)
+  plotty = FALSE, # don't plot models as function runs
+  report = TRUE, # do produce reports as function runs
+  confsetsize = 100, # return best 100 solutions
+  fitfunction = lm # fit using the `lm` function
+)
+```
+Summary of glmulti results
+```{r}
+summary(glmulti_fit)
+```
+
+```{r}
+# here is the best model (lowest BIC) from the glmulti run above
+glmulti_fit@objects[1]
+
+
+# if you want to see the other models
+weightable(glmulti_fit)
+```
+
+```{r}
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto1 <- lm(gdp_phw_usd ~ 1 + cultasset_bil_usd + infrastuct_bil_usd +
+                 intelprop_bil_usd + dwelling_bil_usd + 
+                 infrastuct_bil_usd:cultasset_bil_usd + 
+                 dwelling_bil_usd:infrastuct_bil_usd,
+                   data = prod_uk_trim)
+
+summary(mod_auto1)
+```
+
+```{r}
+# let's see diagnostic plots
+autoplot(mod_auto1)
+```
+The diagnostic plots don't look that great, and the `cultasset_bil_usd` coefficient is not statistically significant
+
+Let's check what the other models calculated by the gmulti algorithm are like
+
+
+```{r}
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto2 <- lm(gdp_phw_usd ~ 1 + infrastuct_bil_usd + intelprop_bil_usd +
+                dwelling_bil_usd + dwelling_bil_usd:infrastuct_bil_usd,
+                   data = prod_uk_trim)
+
+summary(mod_auto2)
+```
+
+```{r}
+# let's see diagnostic plots
+autoplot(mod_auto2)
+```
+
+
+```{r}
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto3 <- lm(gdp_phw_usd ~ 1 + ict_bil_usd + cultasset_bil_usd +
+                  infrastuct_bil_usd + dwelling_bil_usd + 
+                  cultasset_bil_usd:ict_bil_usd + dwelling_bil_usd:infrastuct_bil_usd,
+                   data = prod_uk_trim)
+
+summary(mod_auto3)
+```
+
+```{r}
+# let's see diagnostic plots
+autoplot(mod_auto3)
+```
+The diagnostic plots don't look that great, although all predictor coefficients are statistically significant
+
+model_auto2 is a good trade-off between accuracy and model parsimony
+
+#################################################################################################################################
+
+
+```{r}
+library(relaimpo)
+
+calc.relimp(mod_auto2, type = "lmg", rela = TRUE)
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+
+__K-fold cross validation__
+
+Cross validation of manually selected model
+```{r}
+library(caret)
+set.seed(765977)
+# set up options for train function below
+cv_10_fold <- trainControl(method = "cv", # cross-validation
+                           number = 10, # 10-fold
+                           savePredictions = TRUE) # save all predictions
+
+model_6e_kfold <- train(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd +
+                          dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd + 
+                          infrastuct_bil_usd + ict_bil_usd:infrastuct_bil_usd,
+                        data = prod_uk_trim,
+                        trControl = cv_10_fold, # use options defined above
+                        method = 'lm')
+```
+
+Cross validation of automatically selected model following some manipulation (mod_auto2)
+```{r}
+model_reduced_kfold <- train(gdp_phw_usd ~ 1 + infrastuct_bil_usd +
+                               intelprop_bil_usd + dwelling_bil_usd + 
+                               dwelling_bil_usd:infrastuct_bil_usd,
+                             data = prod_uk_trim,
+                             trControl = cv_10_fold, # use options defined above
+                             method = 'lm')
+```
+
+
+```{r}
+model_reduced_kfold$resample
+```
+
+```{r}
+tibble(
+  model = "automatically selected model, then reduced",
+  RMSE = mean(model_reduced_kfold$resample$RMSE),
+  Rsquared = mean(model_reduced_kfold$resample$Rsquared)
+)
+```
+
+
+
+
+
+
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+
+
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -43,3 +43,12 @@ edu_exp %>%
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 
+
+#-----------------------------------------------------------------------
+# 4. Rename variables accordingly.
+
+edu_exp <- edu_exp  %>% 
+  rename(
+    country = location,
+    year = time
+  )
