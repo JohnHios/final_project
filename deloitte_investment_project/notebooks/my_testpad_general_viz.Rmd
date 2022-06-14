@@ -1704,7 +1704,7 @@ education_expenditure %>%
   ) +
   ggtitle(
     "Education expenditure",
-    subtitle = "Tertiary education (Ye)"
+    subtitle = "Tertiary education"
   ) +
   labs(
     x = "\n Country", 

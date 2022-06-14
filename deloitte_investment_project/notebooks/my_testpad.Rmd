@@ -3,6 +3,7 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+
 Call Libraries
 ```{r}
 library(tidyverse)
@@ -12,283 +13,89 @@ library(readxl)
 library(lubridate)
 ```
 
-```{r}
-# The palette with grey:
-cb_palette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-# The palette with black:
-# cbb_palette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
-# # The palette with all colours:
-cbb_palette <- c("#000000", "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
-# # To use for fills, add
-#   scale_fill_manual(values=cbPalette)
-# 
-# # To use for line and point colors, add
-#   scale_colour_manual(values=cbPalette)
-```
-
-
-__Overview of GDP in UK and G7 Countries__
-
-International_Labour_Productivity-G7
-
-Load Data
-```{r}
-gdp_phw_current <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 1 R-proc") 
-gdp_pw_current <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 2 R-proc") 
-gdp_phw_const <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 3 R-proc") 
-gdp_pw_const <- read_excel(here("raw_data/International_Labour_Productivity-G7.xls"), sheet = "Table 4 R-proc") 
-
-
-glimpse(gdp_phw_current)
-glimpse(gdp_pw_current)
-glimpse(gdp_phw_const)
-glimpse(gdp_pw_const)
-```
-
-Change Year in datetime format
-```{r}
-gdp_phw_current <- gdp_phw_current %>%
-  mutate(Year = make_datetime(Year)) 
-
-gdp_pw_current <- gdp_pw_current %>%
-  mutate(Year = make_datetime(Year)) 
-
-gdp_phw_const <- gdp_phw_const %>%
-  mutate(Year = make_datetime(Year)) 
-
-gdp_pw_const <- gdp_pw_const %>%
-  mutate(Year = make_datetime(Year)) 
-```
-
-
-Check for NA values
-```{r}
-gdp_phw_current %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-```{r}
-gdp_pw_current %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-```{r}
-gdp_phw_const %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-
-```{r}
-gdp_pw_const %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-
-Pivot data to long format
-```{r}
-tidy_gdp_phw_current <- gdp_phw_current %>%
-  pivot_longer(-Year, names_to = "Country", values_to = "GDP_phw") %>%
-  relocate(Year, .after = Country)
-
-tidy_gdp_pw_current <- gdp_pw_current %>%
-  pivot_longer(-Year, names_to = "Country", values_to = "GDP_pw") %>%
-  relocate(Year, .after = Country)
-
-tidy_gdp_phw_const <- gdp_phw_const %>%
-  pivot_longer(-Year, names_to = "Country", values_to = "GDP_phw") %>%
-  relocate(Year, .after = Country)
-
-tidy_gdp_pw_const <- gdp_pw_const %>%
-  pivot_longer(-Year, names_to = "Country", values_to = "GDP_pw") %>%
-  relocate(Year, .after = Country)
-
-  
- 
-tidy_gdp_phw_current
-tidy_gdp_pw_current
-tidy_gdp_phw_const
-tidy_gdp_pw_const
-```
-
-```{r}
-tidy_gdp_phw_current %>% 
-  ggplot() +
-  aes(x = Year, y = GDP_phw, colour = Country) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
-  labs(
-    x = "\n Year", 
-    y = "GDP per hour worked (current) \n"
-  ) 
-```
-
-
-```{r}
-tidy_gdp_pw_current %>% 
-  ggplot() +
-  aes(x = Year, y = GDP_pw, colour = Country) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
-  labs(
-    x = "\n Year", 
-    y = "GDP per worker (current) \n"
-  ) 
-```
-
-
-
-
-
-```{r}
-tidy_gdp_phw_const %>% 
-  ggplot() +
-  aes(x = Year, y = GDP_phw, colour = Country) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
-  labs(
-    x = "\n Year", 
-    y = "GDP per hour worked (constant)\n"
-  ) 
-```
-
-
-```{r}
-tidy_gdp_pw_const %>% 
-  ggplot() +
-  aes(x = Year, y = GDP_pw, colour = Country) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
-  labs(
-    x = "\n Year", 
-    y = "GDP per worker (constant) \n"
-  ) 
-```
-
-
-
-#################################################################################################################################
-#################################################################################################################################
-#################################################################################################################################
-
-
-Labour_Productivity-OECD_Countries
+__Labour_Productivity-OECD_Countries__
 
 Read data
 ```{r}
-gdp_phw_OECD <- read_csv(here("raw_data/Labour_Productivity-OECD_Countries.csv")) 
+gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>% 
+  clean_names() 
 
-glimpse(gdp_phw_OECD)
+glimpse(gdp_phw)
 ```
 
-Change TIME in datetime format
+Change time in datetime format
 ```{r}
-gdp_phw_OECD <- gdp_phw_OECD %>%
-  mutate(TIME = make_datetime(TIME)) 
+gdp_phw <- gdp_phw %>%
+  mutate(time = make_datetime(time)) 
 ```
-
 
 Check for NA values
 ```{r}
-gdp_phw_OECD %>% 
+gdp_phw %>% 
   summarise(across(.cols = everything(),
                    .fns = ~sum(is.na(.x))))
 ```
 
-```{r}
-gdp_phw_OECD %>% 
-  distinct(LOCATION)
-  # distinct(SUBJECT) # TOT
-  # distinct(MEASURE) # USD IDX2010
-  # distinct(FREQUENCY) #A
-  # distinct(`Flag Codes`) # NA	B E
-```
 
+View data
 ```{r}
-gdp_phw_OECD %>% 
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
+gdp_phw %>% 
+  select(-c(indicator, subject, frequency, flag_codes)) %>% 
   filter(
-    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    # LOCATION %in% c("G-7", "EU28", "GBR"),
-    MEASURE == "USD") %>% 
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "USD") %>% 
   ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
+  aes(x = time, y = value, colour = location) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
   ggtitle(
     "GDP per hour worked",
     subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
   ) +
   labs(
     x = "\n Year", 
-    y = "GDP per hour worked ($) \n"
+    y = "GDP per hour worked ($) \n",
+    colour = "Country"
   ) 
   
 ```
 
-
-
+G-7 GDP per hour worked data
 ```{r}
-gdp_phw_OECD %>% 
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
-  filter(LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-         MEASURE == "IDX2010") %>% 
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  # scale_colour_brewer(palette = "Dark2")
-  scale_colour_manual(values = cbb_palette) +
-  ggtitle(
-    "GDP per hour worked",
-    subtitle =  "indicator is measured in USD (index 2010 = 100)"
-  ) +
-  labs(
-    x = "\n Year", 
-    y = "GDP per hour worked ($) \n"
-  ) 
+gdp_phw_g7 <- gdp_phw %>% 
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "USD"
+  ) %>% 
+  select(-c(indicator, frequency, measure, subject, flag_codes)) %>% 
+  rename(gdp_phw_usd = value) 
   
 ```
 
 
 ```{r}
-gdp_phw_OECD %>% 
-  mutate(TIME = year(TIME)) %>% 
+gdp_phw %>% 
+  mutate(time = year(time)) %>% 
   filter(
     # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    MEASURE == "USD",
-    TIME == 2017
+    measure == "USD",
+    time == 2020
     ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  select(-c(indicator, frequency, measure, subject, time, flag_codes)) %>%  
   ggplot() +
   aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
+    x = reorder(location, value), 
+    y = value,
+    fill = reorder(location, value) == "GBR"
     ) +
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1) ) +
   ggtitle(
-    "GDP per hour worked (Year 2017)",
+    "GDP per hour worked (Year 2020)",
     subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
   ) +
   labs(
@@ -300,19 +107,19 @@ gdp_phw_OECD %>%
 
 
 ```{r}
-gdp_phw_OECD %>% 
-  mutate(TIME = year(TIME)) %>% 
+gdp_phw %>% 
+  mutate(time = year(time)) %>% 
   filter(
     # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    MEASURE == "IDX2010",
-    TIME == 2017
+    measure == "IDX2015",
+    time == 2020
     ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
+  select(-c(indicator, frequency, measure, subject, time, flag_codes)) %>%  
   ggplot() +
   aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
+    x = reorder(location, value), 
+    y = value,
+    fill = reorder(location, value) == "GBR"
     ) +
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
@@ -320,14 +127,460 @@ gdp_phw_OECD %>%
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
     ) +
   ggtitle(
-    "GDP per hour worked (Year 2017)",
-    subtitle =  "indicator is measured in USD (index 2010 = 100)"
+    "GDP per hour worked (Year 2020)",
+    subtitle =  "indicator is measured in USD (index 2015 = 100)"
   ) +
   labs(
     x = "Country", 
     y = "GDP per hour worked ($)\n"
   ) 
 ```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+__OECD Investment by Asset__
+
+Read data
+```{r}
+inv_asset <- read_csv(here("raw_data/OECD_Investment_by_Asset_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(inv_asset)
+```
+
+Change time in datetime format
+```{r}
+inv_asset <- inv_asset %>%
+  mutate(time = make_datetime(time)) 
+```
+
+Check for NA's
+```{r}
+inv_asset %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
+```{r}
+inv_asset %>% 
+  # distinct(LOCATION)
+  # distinct(INDICATOR) # GFCFASSET
+  distinct(subject) # OTHMACHINEQT, CULTASSET, OTHBUILDING, FIXASSET, TRANSPEQT, DWELLING
+  # distinct(MEASURE) # PC_GFCF
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, E, B
+```
+
+
+OTHMACHINEQT: Information and Communication Technology (ICT) equipment (computer software and databases, telecommunications equipment and computer hardware)
+
+CULTASSET: cultivated biological resources (managed forests, livestock raised for milk production, etc.)
+
+OTHBUILDING: other buildings and structures (roads, bridges, airfields, dams, etc.)
+
+FIXASSET: intellectual property products (such as R&D, mineral exploration, software and databases, and literary and artistic originals, etc.)
+
+TRANSPEQT: transport equipment (ships, trains, aircraft, etc.)
+
+DWELLING: dwellings (excluding land)
+
+##################################################################################################################################
+
+
+__OECD Investment GFCF__
+
+
+Read data
+```{r}
+gfcf <- read_csv(here("raw_data/OECD_Investment_GFCF_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(gfcf)
+```
+
+Change time in datetime format
+```{r}
+gfcf <- gfcf %>%
+  mutate(time = make_datetime(time)) 
+```
+
+
+Check for NA's
+```{r}
+gfcf %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+The timestamps missing relate to the Annual growth index (AGRWTH) - not affecting the scope of this analysis 
+
+```{r}
+gfcf %>% 
+  # distinct(LOCATION)
+  # distinct(INDICATOR) # GFCF
+  # distinct(SUBJECT) # TOT
+  distinct(measure) # AGRWTH, MLN_USD, QGRWTH
+  # distinct(FREQUENCY) #A, Q
+  # distinct(`Flag Codes`) # NA, E, P, B, D
+```
+
+AGRWTH: Annual growth (%)
+MLN_USD: Million US Dollars
+QGRWTH: Quarterly growth rate (%)
+
+##################################################################################################################################
+
+
+Join investment by asset with GFCF data
+```{r}
+gfcf_light <- gfcf %>% 
+  filter(measure == "MLN_USD") %>% 
+  select(location, time, value) %>% 
+  rename(gfcf = value)
+
+inv_asset_usd <- inv_asset %>% 
+  arrange(location, subject, time) %>% 
+  left_join(gfcf_light, by = c("location", "time")) %>% 
+  mutate(
+    value_mil_usd = value * gfcf / 100
+  )
+
+```
+
+
+OTHMACHINEQT: Information and Communication Technology (ICT) equipment (computer software and databases, telecommunications equipment and computer hardware)
+
+CULTASSET: cultivated biological resources (managed forests, livestock raised for milk production, etc.)
+
+OTHBUILDING: other buildings and structures (roads, bridges, airfields, dams, etc.)
+
+FIXASSET: intellectual property products (such as R&D, mineral exploration, software and databases, and literary and artistic originals, etc.)
+
+TRANSPEQT: transport equipment (ships, trains, aircraft, etc.)
+
+DWELLING: dwellings (excluding land)
+
+
+
+```{r}
+inv_asset_usd %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(location %in% c("GBR")) %>%
+  ggplot() +
+  aes(x = time, y = value_mil_usd, colour = subject) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("UK investment by asset") +
+  labs(
+    x = "\n Year", 
+    y = "Investment ($MM) \n",
+    colour = "Asset"
+  ) 
+
+```
+
+
+G-7 investment by Asset (million USD)
+```{r}
+inv_asset_g7 <- inv_asset %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")
+    ) %>% 
+  select(-c(indicator, frequency, measure, flag_codes)) %>% 
+  pivot_wider(names_from = subject, values_from = value) %>% 
+  rename(
+    ict = OTHMACHINEQT,
+    cultasset = CULTASSET,
+    infrastuct = OTHBUILDING,
+    intelprop = FIXASSET,
+    transpeqt = TRANSPEQT,
+    dwelling = DWELLING
+  ) %>% 
+  left_join(gfcf_light, by = c("location", "time")) %>% 
+  mutate(
+    ict_mil_usd = ict * gfcf / 100,
+    cultasset_mil_usd = cultasset * gfcf / 100,
+    infrastuct_mil_usd = infrastuct * gfcf / 100,
+    intelprop_mil_usd = intelprop * gfcf / 100,
+    transpeqt_mil_usd = transpeqt * gfcf / 100,
+    dwelling_mil_usd = dwelling * gfcf / 100
+  ) %>% 
+  select(-gfcf, -ict, -cultasset, -infrastuct, -intelprop, -transpeqt, -dwelling) %>% 
+  arrange(location, time)
+```
+
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+OECD Education Spending Expenditure
+
+
+Read data
+```{r}
+edu_exp <- read_csv(here("raw_data/OECD_Public_Spending_on_Education_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(edu_exp)
+```
+
+Change time in datetime format
+```{r}
+edu_exp <- edu_exp %>%
+  mutate(time = make_datetime(time)) 
+```
+
+Check for NA's
+```{r}
+edu_exp %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+G-7 countries education expenditure (% GDP)
+TRY : TeRtiarY
+PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
+PRY_TRY: PRimarY to TeRtiarY
+
+View G-7 tertiary education (% GDP)
+```{r}
+edu_exp %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    subject == "TRY"
+    ) %>%
+  ggplot() +
+  aes(x = time, y = value, colour = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries public spending on education",
+    subtitle = "Tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure (% of GDP) \n",
+    colour = "Country"
+  ) 
+```
+
+View G-7 primary to tertiary education (% GDP)
+```{r}
+edu_exp %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    subject == "PRY_TRY"
+    ) %>%
+  ggplot() +
+  aes(x = time, y = value, colour = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries public spending on education",
+    subtitle = "Primary to tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure (% of GDP)\n",
+    colour = "Country"
+  ) 
+
+```
+
+View G-7 primary to post-secondary non-tertiary education (% GDP)
+```{r}
+edu_exp %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    subject == "PRY_NTRY"
+    ) %>%
+  ggplot() +
+  aes(x = time, y = value, colour = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle(
+    "G-7 countries public spending on education",
+    subtitle = "Primary to post-secondary non-tertiary education"
+  ) +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure (% of GDP) \n",
+    colour = "Country"
+  ) 
+
+```
+
+UK education expenditure (% GDP)
+TRY : TeRtiarY
+PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
+PRY_TRY: PRimarY to TeRtiarY
+
+```{r}
+edu_exp %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(location %in% c("GBR")) %>%
+  ggplot() +
+  aes(x = time, y = value, colour = subject) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("UK public spending on education") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure (% of GDP) \n",
+    colour = "Education type"
+  ) 
+
+```
+
+
+#################################################################################################################################
+
+__GDP-derived expenditure in USD__
+
+OECD_Gross_Domestic_Product_GDP
+
+Read data
+```{r}
+gdp <- read_csv(here("raw_data/OECD_Gross_Domestic_Product_GDP_JHios.csv")) %>% 
+  clean_names()
+
+glimpse(gdp)
+```
+
+Change time in datetime format
+```{r}
+gdp <- gdp %>%
+  mutate(time = make_datetime(time)) 
+```
+
+Check for NA's
+```{r}
+gdp %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+```{r}
+gdp %>% 
+  # distinct(LOCATION)
+  distinct(indicator) # GDP
+  # distinct(SUBJECT) # TOT
+  # distinct(MEASURE) # MLN_USD, USD_CAP
+  # distinct(FREQUENCY) #A
+  # distinct(`Flag Codes`) # NA, E, P, B, D
+```
+
+View data
+```{r}
+gdp %>%
+  select(-c(indicator, subject, frequency, flag_codes)) %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
+    measure == "MLN_USD"
+    ) %>%
+  ggplot() +
+  aes(x = time, y = value, group = location, color = location) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("G-7 Cross country GDP") +
+  labs(
+    x = "\n Year",
+    y = "GDP ($MM) \n",
+    colour = "Country"
+  ) 
+```
+
+
+
+
+##################################################################################################################################
+
+
+Join education expenditure with GDP data
+```{r}
+gdp_light <- gdp %>%
+  filter(measure == "MLN_USD") %>%
+  select(location, time, value) %>%
+  rename(gdp = value)
+
+
+edu_exp_usd <- edu_exp %>% 
+  left_join(gdp_light, by = c("location", "time")) %>% 
+  mutate(
+    value_mil_usd = value * gdp / 100
+  )
+
+```
+
+
+```{r}
+edu_exp_usd %>%
+  select(-c(indicator, frequency, measure, flag_codes)) %>%
+  filter(location %in% c("GBR")) %>%
+  ggplot() +
+  aes(x = time, y = value_mil_usd, colour = subject) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  # scale_colour_manual(values = cbb_palette) +
+  ggtitle("UK public spending on education") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure ($MM) \n",
+    colour = "Education type"
+  ) 
+
+```
+
+
+G-7 expenditure on education
+```{r}
+edu_exp_g7 <- edu_exp %>%
+  filter(
+    location %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")
+    ) %>% 
+  select(-c(indicator, frequency, measure, flag_codes)) %>% 
+  pivot_wider(names_from = subject, values_from = value) %>% 
+  rename(
+    try_pc_gdp = TRY,
+    pry_ntry_pc_gdp = PRY_NTRY,
+    pry_try_pc_gdp = PRY_TRY
+  ) %>% 
+  left_join(gdp_light, by = c("location", "time"))%>% 
+  mutate(
+    try_mil_usd = try_pc_gdp * gdp / 100,
+    pry_ntry_mil_usd = pry_ntry_pc_gdp * gdp / 100,
+    pry_try_mil_usd = pry_try_pc_gdp * gdp / 100
+  ) %>% 
+  select(-try_pc_gdp, -pry_ntry_pc_gdp, -pry_try_pc_gdp, -gdp)%>% 
+  arrange(location, time)
+```
+
 
 #################################################################################################################################
 #################################################################################################################################
@@ -376,76 +629,9 @@ tidy_productivity_phw
 tidy_productivity_growth
 ```
 
-```{r}
-tidy_productivity_phw %>% 
-  filter(
-    # `NACE Industry` == "Agriculture, forestry and fishing"
-    # `NACE Industry` == "Industry (except construction)"
-    # `NACE Industry` == "Construction"
-    # `NACE Industry` == "Wholesale and retail trade, transport, accommodation and food service activities"
-    `NACE Industry` == "Information and communication"
-    # `NACE Industry` == "Financial and insurance activities"
-    # `NACE Industry` == "Professional, scientific and technical activities; administrative and support service activities"
-    # `NACE Industry` == "Public administration, defence, education, human health and social work activities"
-    # `NACE Industry` == "Arts, entertainment and recreation; other service activities"
-  ) %>% 
-  ggplot() +
-  aes(
-    x = reorder(Country, Output_per_hour), 
-    y = Output_per_hour,
-    fill = reorder(Country, Output_per_hour) == "United Kingdom"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-  ) +
-  ggtitle(
-    "Output per hour by industry .....",
-    subtitle =  "(Years: 2014 - 2016)"
-  ) +
-  labs(
-    x = "Country", 
-    y = "Output per hour (€)"
-  ) 
-```
 
 
-```{r}
-tidy_productivity_growth %>% 
-  filter(
-    # `NACE Industry` == "Agriculture, forestry and fishing"
-    # `NACE Industry` == "Industry (except construction)"
-    # `NACE Industry` == "Construction"
-    # `NACE Industry` == "Wholesale and retail trade, transport, accommodation and food service activities"
-    `NACE Industry` == "Information and communication"
-    # `NACE Industry` == "Financial and insurance activities"
-    # `NACE Industry` == "Professional, scientific and technical activities; administrative and support service activities"
-    # `NACE Industry` == "Public administration, defence, education, human health and social work activities"
-    # `NACE Industry` == "Arts, entertainment and recreation; other service activities"
-  ) %>%  
-  ggplot() +
-  aes(
-    x = reorder(Country, Labour_Productivity_Growth), 
-    y = Labour_Productivity_Growth,
-    fill = reorder(Country, Labour_Productivity_Growth) == "United Kingdom"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6,angle = 45, vjust = 1, hjust = 1)
-    ) +
-  ggtitle(
-    "Labour Productivity Growth by industry ..... ",
-    subtitle =  "(Years: 2014 - 2016)"
-  ) +
-  labs(
-    x = "Country", 
-    y = "Labour Productivity Growth (%)"
-  ) 
-```
-
-Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
+Comparison of large economies in Europe: UK, France, Germany
 ```{r}
 tidy_productivity_phw %>% 
   filter(
@@ -460,7 +646,7 @@ tidy_productivity_phw %>%
   geom_col(position = "dodge") +
   scale_fill_brewer(palette = "Dark2") +
   ggtitle(
-    "Output per hour by industry",
+    "Productivity by industry",
     subtitle =  "(Years: 2014 - 2016)"
   ) +
   labs(
@@ -488,7 +674,7 @@ tidy_productivity_growth %>%
   geom_col(position = "dodge") +
   scale_fill_brewer(palette = "Dark2") +
   ggtitle(
-    "Labour Productivity Growth by industry",
+    "Productivity by industry",
     subtitle =  "(Years: 2014 - 2016)"
   ) +
   labs(
@@ -499,252 +685,245 @@ tidy_productivity_growth %>%
 
 
 
-Comparison with most productive countries in Europe (2017): UK, Ireland, Norway
+#################################################################################################################################
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Data for modelling__
+
 ```{r}
-tidy_productivity_phw %>% 
-  filter(
-    Country %in% c("United Kingdom", "Ireland", "Norway")
-  ) %>% 
-  ggplot() +
-  aes(
-    x = `A*10 (excl L)`, 
-    y = Output_per_hour,
-    fill = Country
-    ) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2") +
-  ggtitle(
-    "Output per hour by industry",
-    subtitle =  "(Years: 2014 - 2016)"
-  ) +
-  labs(
-    x = "\n NACE Industry", 
-    y = "Output per hour (€)"
-  ) 
+productivity <- gdp_phw_g7 %>% 
+  left_join(edu_exp_g7, by = c("location", "time")) %>% 
+  left_join(inv_asset_g7, by = c("location", "time")) 
+
+glimpse(productivity)
 ```
 
-
-Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
-Output per hour by industry 2014-16
-
-
+Trim UK data
 ```{r}
-productivity_phw %>% 
-  select(France, `United Kingdom`, Germany, Spain, Italy) %>% 
-  summarise(
-    sum_France = sum(France),
-    sum_UK = sum(`United Kingdom`),
-    sum_Germany = sum(Germany),
-    sum_Spain = sum(Spain),
-    sum_Italy = sum(Italy)
+prod_uk_trim <- productivity %>% 
+  mutate(time = year(time)) %>%
+  filter(
+    location == "GBR",
+    time >= 1995 & time <=2019
+  ) %>% 
+  select(
+    gdp_phw_usd, 
+    ict_mil_usd,
+    cultasset_mil_usd,
+    infrastuct_mil_usd,
+    intelprop_mil_usd,
+    transpeqt_mil_usd,
+    dwelling_mil_usd
+  ) %>% 
+  mutate(
+    ict_bil_usd = ict_mil_usd / 1000,
+    cultasset_bil_usd = cultasset_mil_usd / 1000,
+    infrastuct_bil_usd = infrastuct_mil_usd / 1000,
+    intelprop_bil_usd = intelprop_mil_usd / 1000,
+    transpeqt_bil_usd = transpeqt_mil_usd / 1000,
+    dwelling_bil_usd = dwelling_mil_usd / 1000
+  ) %>% 
+  select(
+    -ict_mil_usd,
+    -cultasset_mil_usd,
+    -infrastuct_mil_usd,
+    -intelprop_mil_usd,
+    -transpeqt_mil_usd,
+    -dwelling_mil_usd
   )
-  
-```
-
-########################################################################################################################
-France has a similar GDP with the UK for the past years and the population is similar, hence it is ideal for making one-to-one comparisons.
-Overall, France is doing better than the UK in terms of productivity (GDP per hrs worked or GDP per worker) 
-```{r}
-productivity_phw %>% 
-  select(`A*10 (excl L)`, `NACE Industry`,  `France`, `United Kingdom`) %>% 
-  mutate(
-    France = 100*France/sum(France),
-    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
-  ) %>% 
-  ggplot() +
-  aes(
-    x = France, 
-    y = `United Kingdom`
-    ) +
-  geom_point(color = "steelblue") +
-  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
-  geom_text(
-    aes(label = `A*10 (excl L)`),
-    nudge_x = 0.75,
-    nudge_y = 0,
-    size = 3.5
-  ) +
-  ggtitle(
-    "Differences in industrial output structure",
-    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
-  ) +
-  xlim(0, 25) +
-  ylim(0, 25)
-```
-
-```{r}
-tidy_productivity_phw %>% 
-  distinct(`A*10 (excl L)`, `NACE Industry`)
-```
-
-```{r}
-productivity_phw %>% 
-  select(`A*10 (excl L)`, `NACE Industry`,  `Germany`, `United Kingdom`) %>% 
-  mutate(
-    Germany = 100*Germany/sum(Germany),
-    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
-  ) %>% 
-  ggplot() +
-  aes(
-    x = Germany, 
-    y = `United Kingdom`
-    ) +
-  geom_point(color = "steelblue") +
-  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
-  geom_text(
-    aes(label = `A*10 (excl L)`),
-    nudge_x = 1.0,
-    nudge_y = 0,
-    size = 3.5
-  ) +
-  ggtitle(
-    "Differences in industrial output structure",
-    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
-  ) +
-  xlim(0, 25) +
-  ylim(0, 25)
 ```
 
 
+
+Check for aliases
 ```{r}
-tidy_productivity_phw %>% 
-  distinct(`A*10 (excl L)`, `NACE Industry`)
+alias(lm(gdp_phw_usd ~ ., data = prod_uk_trim))
 ```
 
 
+Call libraries for linear regression modelling 
 ```{r}
-productivity_phw %>% 
-  select(`A*10 (excl L)`, `NACE Industry`,  `Spain`, `United Kingdom`) %>% 
-  mutate(
-    Spain = 100*Spain/sum(Spain),
-    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
-  ) %>%
-  ggplot() +
-  aes(
-    x = Spain, 
-    y = `United Kingdom`
-    ) +
-  geom_point(color = "steelblue") +
-  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
-  geom_text(
-    aes(label = `A*10 (excl L)`),
-    nudge_x = 1.0,
-    nudge_y = 0,
-    size = 3.5
-  ) +
-  ggtitle(
-    "Differences in industrial output structure",
-    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
-  ) +
-  xlim(0, 25) +
-  ylim(0, 25)
+library(GGally)
+library(ggfortify)
+library(modelr)
+```
+
+
+Check for correlations in data
+```{r}
+ggpairs(prod_uk_trim)
+```
+
+#################################################################################################################################
+#################################################################################################################################
+
+
+__Automated modelling__
+
+```{r}
+library(glmulti)
+glmulti_fit <- glmulti(
+  gdp_phw_usd ~ ., 
+  data = prod_uk_trim,
+  level = 2, # 2 = include pairwise interactions, 1 = main effects only (main effect = no pairwise interactions)
+  minsize = 0, # no min size of model
+  maxsize = 6, # -1 = no max size of model
+  marginality = TRUE, # marginality here means the same as 'strongly hierarchical' interactions, i.e. include pairwise interactions only if both predictors present in the model as main effects.
+  method = "g", # the problem is too large for exhaustive search, so search using a genetic algorithm
+  crit = bic, # criteria for model selection is BIC value (lower is better)
+  plotty = FALSE, # don't plot models as function runs
+  report = TRUE, # do produce reports as function runs
+  confsetsize = 100, # return best 100 solutions
+  fitfunction = lm # fit using the `lm` function
+)
+```
+Summary of glmulti results
+```{r}
+summary(glmulti_fit)
 ```
 
 ```{r}
-productivity_phw %>% 
-  select(`A*10 (excl L)`, `NACE Industry`,  `Italy`, `United Kingdom`) %>% 
-  mutate(
-    Italy = 100*Italy/sum(Italy),
-    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
-  ) %>%
-  ggplot() +
-  aes(
-    x = Italy, 
-    y = `United Kingdom`
-    ) +
-  geom_point(color = "steelblue") +
-  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
-  geom_text(
-    aes(label = `A*10 (excl L)`),
-    nudge_x = 1.0,
-    nudge_y = 0,
-    size = 3.5
-  ) +
-  ggtitle(
-    "Differences in industrial output structure",
-    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
-  ) +
-  xlim(0, 25) +
-  ylim(0, 25)
-```
+# here is the best model (lowest BIC) from the glmulti run above
+glmulti_fit@objects[1]
 
 
-
-```{r}
-tidy_productivity_phw %>% 
-  distinct(`A*10 (excl L)`, `NACE Industry`)
-```
-
-Comparison with most productive countries in Europe for 2017: Ireland, Norway
-Output per hour by industry 2014-16
-
-
-```{r}
-productivity_phw %>% 
-  select(`United Kingdom`, Ireland, Norway) %>% 
-  summarise(
-    sum_UK = sum(`United Kingdom`),
-    sum_Ireland = sum(Ireland),
-    sum_Norway = sum(Norway)
-  )
-  
+# if you want to see the other models
+weightable(glmulti_fit)
 ```
 
 ```{r}
-productivity_phw %>% 
-  select(`A*10 (excl L)`, `NACE Industry`,  `Ireland`, `United Kingdom`) %>% 
-  mutate(
-    Ireland = 100*Ireland/sum(Ireland),
-    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
-  ) %>%
-  ggplot() +
-  aes(
-    x = Ireland, 
-    y = `United Kingdom`
-    ) +
-  geom_point(color = "steelblue") +
-  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
-  geom_text(
-    aes(label = `A*10 (excl L)`),
-    nudge_x = 1.0,
-    nudge_y = 0,
-    size = 3.5
-  ) +
-  ggtitle(
-    "Differences in industrial output structure",
-    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
-  ) +
-  xlim(0, 25) +
-  ylim(0, 25)
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto1 <- lm(gdp_phw_usd ~ 1 + cultasset_bil_usd + infrastuct_bil_usd +
+                 intelprop_bil_usd + dwelling_bil_usd + 
+                 infrastuct_bil_usd:cultasset_bil_usd + 
+                 dwelling_bil_usd:infrastuct_bil_usd,
+                   data = prod_uk_trim)
+
+summary(mod_auto1)
 ```
 
 ```{r}
-productivity_phw %>% 
-  select(`A*10 (excl L)`, `NACE Industry`,  `Norway`, `United Kingdom`) %>% 
-  mutate(
-    Norway = 100*Norway/sum(Norway),
-    `United Kingdom` = 100*`United Kingdom`/sum(`United Kingdom`),
-  ) %>%
-  ggplot() +
-  aes(
-    x = Norway, 
-    y = `United Kingdom`
-    ) +
-  geom_point(color = "steelblue") +
-  geom_abline(intercept = 0, slope = 1, size = 1, color = "red") +
-  geom_text(
-    aes(label = `A*10 (excl L)`),
-    nudge_x = 1.0,
-    nudge_y = 0,
-    size = 3.5
-  ) +
-  ggtitle(
-    "Differences in industrial output structure",
-    subtitle =  "(Proportion of Output per hour by industry (%);  Years: 2014 - 2016)"
-  ) +
-  xlim(0, 25) +
-  ylim(0, 25)
+# let's see diagnostic plots
+autoplot(mod_auto1)
 ```
+The diagnostic plots don't look that great, and the `cultasset_bil_usd` coefficient is not statistically significant
+
+Let's check what the other models calculated by the gmulti algorithm are like
+
+
+```{r}
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto2 <- lm(gdp_phw_usd ~ 1 + infrastuct_bil_usd + intelprop_bil_usd +
+                dwelling_bil_usd + dwelling_bil_usd:infrastuct_bil_usd,
+                   data = prod_uk_trim)
+
+summary(mod_auto2)
+```
+
+```{r}
+# let's see diagnostic plots
+autoplot(mod_auto2)
+```
+
+
+```{r}
+# View summary of the best model (lowest BIC) from the glmulti run above
+mod_auto3 <- lm(gdp_phw_usd ~ 1 + ict_bil_usd + cultasset_bil_usd +
+                  infrastuct_bil_usd + dwelling_bil_usd + 
+                  cultasset_bil_usd:ict_bil_usd + dwelling_bil_usd:infrastuct_bil_usd,
+                   data = prod_uk_trim)
+
+summary(mod_auto3)
+```
+
+```{r}
+# let's see diagnostic plots
+autoplot(mod_auto3)
+```
+The diagnostic plots don't look that great, although all predictor coefficients are statistically significant
+
+model_auto2 is a good trade-off between accuracy and model parsimony
+
+#################################################################################################################################
+
+
+```{r}
+library(relaimpo)
+
+calc.relimp(mod_auto2, type = "lmg", rela = TRUE)
+```
+
+
+
+#################################################################################################################################
+#################################################################################################################################
+
+__K-fold cross validation__
+
+Cross validation of manually selected model
+```{r}
+library(caret)
+set.seed(765977)
+# set up options for train function below
+cv_10_fold <- trainControl(method = "cv", # cross-validation
+                           number = 10, # 10-fold
+                           savePredictions = TRUE) # save all predictions
+
+model_6e_kfold <- train(gdp_phw_usd ~ dwelling_bil_usd + cultasset_bil_usd +
+                          dwelling_bil_usd:cultasset_bil_usd + ict_bil_usd + 
+                          infrastuct_bil_usd + ict_bil_usd:infrastuct_bil_usd,
+                        data = prod_uk_trim,
+                        trControl = cv_10_fold, # use options defined above
+                        method = 'lm')
+```
+
+Cross validation of automatically selected model following some manipulation (mod_auto2)
+```{r}
+model_reduced_kfold <- train(gdp_phw_usd ~ 1 + infrastuct_bil_usd +
+                               intelprop_bil_usd + dwelling_bil_usd + 
+                               dwelling_bil_usd:infrastuct_bil_usd,
+                             data = prod_uk_trim,
+                             trControl = cv_10_fold, # use options defined above
+                             method = 'lm')
+```
+
+
+```{r}
+model_reduced_kfold$resample
+```
+
+```{r}
+tibble(
+  model = "automatically selected model, then reduced",
+  RMSE = mean(model_reduced_kfold$resample$RMSE),
+  Rsquared = mean(model_reduced_kfold$resample$Rsquared)
+)
+```
+
+
+
+
+
+
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+##############################################################################################################################
+
+
 
 
 
@@ -753,354 +932,9 @@ productivity_phw %>%
 #################################################################################################################################
 
 
-__Compare investment between UK and other countries__
-
-
-Cross country infrastructure investment
-
-Read data
-```{r}
-infrastructure_investment <- read_excel(here("raw_data/Cross_country_infrastructure_investment.xls")) 
-
-glimpse(infrastructure_investment)
-```
-
-Change TIME in datetime format
-```{r}
-infrastructure_investment <- infrastructure_investment %>%
-  mutate(TIME = make_datetime(TIME)) 
-```
-
-
-```{r}
-infrastructure_investment %>% 
-  # distinct(LOCATION)
-  # distinct(INDICATOR) # INFRAINVEST
-  distinct(SUBJECT) #
-  # distinct(MEASURE) # EUR, PC_GDP
-  # distinct(FREQUENCY) #A
-  # distinct(`Flag Codes`) # NA, B, P, E, M
-```
-
-```{r}
-infrastructure_investment %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-```{r}
-infrastructure_investment %>% 
-  filter(is.na(Value))
-```
-
-G-7 Cross country infrastructure investment (Euros)
-```{r}
-infrastructure_investment %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    # SUBJECT == "RAIL",
-    # SUBJECT == "ROAD",
-    # SUBJECT == "SEA",
-    SUBJECT == "AIR",
-    # SUBJECT == "ROAD",
-    MEASURE == "EUR") %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  ggtitle("G-7 Cross country infrastructure investment") +
-  labs(
-    x = "\n Year", 
-    y = "Investment (€) \n"
-  ) 
-```
-
-G-7 Cross country infrastructure investment (% of GDP)
-```{r}
-infrastructure_investment %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY)) %>%
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    SUBJECT == "INLAND",
-    MEASURE == "PC_GDP") %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  ggtitle(
-    "G-7 Cross country infrastructure investment",
-    subtitle = "(Type: Inland)"
-  ) +
-  labs(
-    x = "\n Year", 
-    y = "Investment (% of GDP) \n"
-  ) 
-```
-
-
-
-
-```{r}
-infrastructure_investment %>%
-  filter(
-    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    SUBJECT == "RAIL",
-    # SUBJECT == "ROAD",
-    # SUBJECT == "SEA",
-    # SUBJECT == "AIR",
-    # SUBJECT == "INLANDWATER",
-    MEASURE == "EUR",
-    TIME == 2016
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
-  ggplot() +
-  aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
-  ) +
-  ggtitle(
-    "Cross country infrastructure investment",
-    subtitle =  "(Rail; Year 2016)"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "Value (€) \n"
-  ) 
-```
-
-
-
-```{r}
-infrastructure_investment %>%
-  filter(
-    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    SUBJECT == "INLAND",
-    MEASURE == "PC_GDP", # "EUR",
-    TIME == 2016
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
-  ggplot() +
-  aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
-  ) +
-  ggtitle(
-    "Cross country infrastructure investment",
-    subtitle =  "(Inland; Year 2016)"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "Value (% of GDP) \n"
-  ) 
-```
-
-
-Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
-```{r}
-infrastructure_investment %>% 
-  filter(
-    LOCATION %in% c("GBR", "FRA", "DEU"),
-    MEASURE == "EUR", #"PC_GDP", # 
-    TIME == 2016
-  ) %>% 
-  ggplot() +
-  aes(
-    x = SUBJECT, 
-    y = Value,
-    fill = LOCATION
-    ) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2") +
-  ggtitle(
-    "Cross country infrastructure investment",
-    subtitle =  "(Year 2016)"
-  ) +
-  labs(
-    x = "\n Infrastructure Type", 
-    y = "Value (€)"
-  ) 
-```
-
-
- 
-
-
-Comparison with most productive countries in Europe (2017): UK, Ireland, Norway
-```{r}
-infrastructure_investment %>% 
-  filter(
-    LOCATION %in% c("GBR", "IRL", "NOR"),
-    MEASURE == "EUR", #"PC_GDP", # 
-    TIME == 2015
-  ) %>% 
-  ggplot() +
-  aes(
-    x = SUBJECT, 
-    y = Value,
-    fill = LOCATION
-    ) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2") +
-  ggtitle(
-    "Cross country infrastructure investment",
-    subtitle =  "(Year 2015)"
-  ) +
-  labs(
-    x = "\n Infrastructure Type", 
-    y = "Value (€)"
-  ) 
-```
-
 #################################################################################################################################
 #################################################################################################################################
 #################################################################################################################################
-
-Cross Country Gross Domestic Spending on R&D
-
-Read data
-```{r}
-gdexp_rd <- read_excel(here("raw_data/Cross_country_Gross_Domestic_Spending_on_R&D.xls")) 
-
-glimpse(gdexp_rd)
-```
-
-Change TIME in datetime format
-```{r}
-gdexp_rd <- gdexp_rd %>%
-  mutate(TIME = make_datetime(TIME)) 
-```
-
-
-```{r}
-gdexp_rd %>% 
-  distinct(LOCATION)
-  # distinct(INDICATOR) # GDEXPRD
-  # distinct(SUBJECT) # TOT
-  # distinct(MEASURE) # MLN_USD, PC_GDP
-  # distinct(FREQUENCY) #A
-  # distinct(`Flag Codes`) # NA
-```
-Check for NA's
-```{r}
-gdexp_rd %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-G-7 countries gross domestic expenditure on R&D (Million USD)
-```{r}
-gdexp_rd %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
-  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-         MEASURE == "MLN_USD") %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  ggtitle("G-7 countries gross domestic expenditure on R&D") +
-  labs(
-    x = "\n Year", 
-    y = "Expenditure ($MM) \n"
-  ) 
-```
-################################################################ KEEP THIS FIGURE!!!!
-G-7 countries gross domestic expenditure on R&D (% GDP)
-```{r}
-gdexp_rd %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>%
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    # LOCATION %in% c( "FRA", "DEU", "USA", "GBR"),
-    MEASURE == "PC_GDP"
-    ) %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  ggtitle("G-7 countries gross domestic expenditure on R&D") +
-  labs(
-    x = "\n Year", 
-    y = "Expenditure (% of GDP) \n"
-  ) 
-```
-
-
-
-```{r}
-gdexp_rd %>%
-  filter(
-    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    MEASURE == "PC_GDP",
-    TIME == 2016
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
-  ggplot() +
-  aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
-  ) +
-  ggtitle(
-    "Cross country gross domestic expenditure on R&D",
-    subtitle =  "(Year 2016)"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "Expenditure (% of GDP) \n"
-  ) 
-```
-
-
-```{r}
-gdexp_rd %>%
-  filter(
-    # LOCATION %in% c("G-7", "EU28", "CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    MEASURE == "MLN_USD",
-    TIME == 2016
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
-  ggplot() +
-  aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
-  ) +
-  ggtitle(
-    "Cross country gross domestic expenditure on R&D",
-    subtitle =  "(Year 2016)"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "Expenditure ($MM) \n"
-  ) 
-```
 
 
 #################################################################################################################################
@@ -1108,806 +942,14 @@ gdexp_rd %>%
 #################################################################################################################################
 
 
-__Comparison of Private Sector In Economy__
-
-Read data
-```{r}
-private_sector <- read_excel(here("raw_data/Private_Sector_In_Economy.xlsx"), sheet = "5.1_Private_sector R-proc") 
-
-glimpse(private_sector)
-```
-
-Check for NA's
-```{r}
-private_sector %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-Remove junk and change data type to numeric in all columns except `Country` and turn ICT variables to millions of USD
-```{r}
-private_sector_clean <- private_sector %>%
-  select(-c(`Businesses registered New 2016`, `Businesses registered Entry density 2016`)) %>% 
-  mutate(
-    across(
-      .cols = where(is.character) & !Country, 
-      .fns = ~as.numeric(.x)
-    )
-  ) %>% 
-  mutate(
-    `ICT $ 2006-11` = `ICT $ 2006-11`/1000000,
-    `ICT $ 2012-17` = `ICT $ 2012-17`/1000000
-  )
-  
-glimpse(private_sector_clean)
-```
-
-
-
-Pivot data to long format
-```{r}
-private_sector_investment <- private_sector_clean %>%
-  select(-c(`Domestic credit % of GDP 2006-11`, `Domestic credit % of GDP 2012-17`)) %>% 
-  pivot_longer(
-    cols = -Country,
-    names_to = "sector",
-    values_to = "mln_usd"
-  ) %>% 
-  mutate(
-    period = str_sub(sector, -7),
-    sector = str_remove(sector, pattern = " \\$.*")
-  ) %>% 
-  relocate(period, .after = sector) %>% 
-  clean_names()
-
-private_sector_investment
-```
-
-```{r}
-domestic_credit_to_private_sector <- private_sector_clean %>%
-  select(`Country`, `Domestic credit % of GDP 2006-11`, `Domestic credit % of GDP 2012-17`) %>% 
-  pivot_longer(
-    cols = -Country,
-    names_to = "period",
-    values_to = "gdp_pc"
-  ) %>% 
-  mutate(
-    period = str_sub(period, -7)
-  ) %>% 
-  clean_names()
-
-domestic_credit_to_private_sector
-```
-
-
-
-```{r}
-private_sector_investment %>% 
-  distinct(country)
-```
-
-
-
-```{r}
-domestic_credit_to_private_sector %>%
-  filter(
-    country %in% c("Canada", "France", "Germany", "Italy", "Japan", "United States", "United Kingdom")
-  ) %>% 
-  ggplot() +
-  aes(x = country, y = gdp_pc, fill  = period) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2") +
-  theme(
-    axis.text.x = element_text(angle = 30, vjust = 0.75)
-  ) +
-  ggtitle("G-7 domestic credit to private sector") +
-  labs(
-    x = "Country", 
-    y = "GDP (%)"
-  ) 
-```
-
-
-
 #################################################################################################################################
 #################################################################################################################################
 #################################################################################################################################
 
 
-__Compare skills and education between UK and other countries__
-
-
-OECD Adult Education Levels
-
-Read data
-```{r}
-adult_education <- read_excel(here("raw_data/OECD_Adult_Education_Levels.xlsx")) 
-
-glimpse(adult_education)
-```
-
-Change TIME in datetime format
-```{r}
-adult_education <- adult_education %>%
-  mutate(TIME = make_datetime(TIME)) 
-```
-
-Check for NA's
-```{r}
-adult_education %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-
-```{r}
-adult_education %>% 
-  distinct(LOCATION)
-  # distinct(INDICATOR) # EDUADULT
-  # distinct(SUBJECT) # TRY
-  # distinct(MEASURE) # PC_25_64
-  # distinct(FREQUENCY) #A
-  # distinct(`Flag Codes`) # NA
-```
-
-
-G-7 countries adult education levels 25-64
-```{r}
-adult_education %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE)) %>%
-  filter(LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")) %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle(
-    "G-7 countries adult education levels",
-    subtitle = "Age group: 25-64 years"
-  ) +
-  labs(
-    x = "\n Year", 
-    y = "Same age group population (%) \n"
-  ) 
-```
-
-```{r}
-adult_education %>%
- mutate(TIME = year(TIME)) %>% 
-  filter(
-    TIME == 2017
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT, MEASURE, TIME)) %>% 
-  ggplot() +
-  aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    ) +
-  ggtitle(
-    "Adult education levels",
-    subtitle = "Age group: 25-64; Year: 2017"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "Same age group population (%) \n"
-  ) 
-```
-
 #################################################################################################################################
 #################################################################################################################################
 #################################################################################################################################
-
-
-OECD Quality of human capital - Better to combine the data sets from the 3 sheets in file below
-
-Read data
-```{r}
-overqualified_workers <- read_excel(here("raw_data/OECD_Quality_of_human_capital.xlsx"), sheet = "Prop Workers Overqualified R-pr") 
-underqualified_workers <- read_excel(here("raw_data/OECD_Quality_of_human_capital.xlsx"), sheet = "Prop Worker Underqualified R-pr") 
-qualified_workers <- read_excel(here("raw_data/OECD_Quality_of_human_capital.xlsx"), sheet = "Prop Workers Well-matched R-pr") 
-
-glimpse(overqualified_workers)
-glimpse(underqualified_workers)
-glimpse(qualified_workers)
-```
-
-Change data type to numeric in all columns except `Country` 
-```{r}
-overqualified_workers_clean <- overqualified_workers %>%
-  mutate(
-    across(
-      .cols = where(is.character) & !Country, 
-      .fns = ~as.numeric(.x)
-    )
-  )
-
-
-underqualified_workers_clean <- underqualified_workers %>%
-  mutate(
-    across(
-      .cols = where(is.character) & !Country, 
-      .fns = ~as.numeric(.x)
-    )
-  )
-
-
-qualified_workers_clean <- qualified_workers %>%
-  mutate(
-    across(
-      .cols = where(is.character) & !Country, 
-      .fns = ~as.numeric(.x)
-    )
-  )
-
-glimpse(overqualified_workers_clean)
-glimpse(underqualified_workers_clean)
-glimpse(qualified_workers_clean)
-```
-
-
-Check for NA's
-```{r}
-overqualified_workers_clean %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-```{r}
-underqualified_workers_clean %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-
-```{r}
-qualified_workers_clean %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-
-
-Pivot data to long format
-```{r}
-tidy_overqualified_workers <- overqualified_workers_clean %>%
-  pivot_longer(
-    cols = -Country,
-    names_to = "year",
-    values_to = "percentage"
-  )  %>% 
-   mutate(year = make_datetime(year)) %>% 
-  clean_names()
-
-
-tidy_underqualified_workers <- underqualified_workers_clean %>%
-  pivot_longer(
-    cols = -Country,
-    names_to = "year",
-    values_to = "percentage"
-  )  %>%  
-  mutate(year = make_datetime(year)) %>% 
-  clean_names()
-
-
-tidy_qualified_workers <- qualified_workers_clean %>%
-  pivot_longer(
-    cols = -Country,
-    names_to = "year",
-    values_to = "percentage"
-  )  %>%  
-  mutate(year = make_datetime(year)) %>% 
-  clean_names()
-
-
-
-tidy_overqualified_workers
-tidy_underqualified_workers
-tidy_qualified_workers
-```
-
-Comparison with large economies in Europe: UK, France, Germany, Italy, Spain (the Netherlands)
-```{r}
-tidy_overqualified_workers %>%
-  filter(
-    country %in% c("France", "Germany", "Italy", "Spain", "United Kingdom")
-  ) %>% 
-  ggplot() +
-  aes(x = year, y = percentage, group = country, colour = country) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle("G-7 countries percentage of overqualified workers") +
-  labs(
-    x = "\n Year", 
-    y = "Percentage (%) \n"
-  ) 
-```
-
-```{r}
-tidy_underqualified_workers %>%
-  filter(
-    country %in% c("France", "Germany", "Italy", "Spain", "United Kingdom")
-  ) %>% 
-  ggplot() +
-  aes(x = year, y = percentage, group = country, colour = country) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle("G-7 countries percentage of underqualified workers") +
-  labs(
-    x = "\n Year", 
-    y = "Percentage (%) \n"
-  ) 
-```
-
-
-```{r}
-tidy_qualified_workers %>%
-  filter(
-    country %in% c("France", "Germany", "Italy", "Spain", "United Kingdom")
-  ) %>% 
-  ggplot() +
-  aes(x = year, y = percentage, group = country, colour = country) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle("G-7 countries percentage of well-matched workers") +
-  labs(
-    x = "\n Year", 
-    y = "Percentage (%) \n"
-  ) 
-```
-
-
-Comparison with all countries in Europe
-```{r}
-tidy_overqualified_workers %>%
-  mutate(year = year(year)) %>% 
-  filter(
-    country != c("Malta"),
-    year == 2013
-    ) %>%  
-  ggplot() +
-  aes(
-    x = reorder(country, percentage), 
-    y = percentage,
-    fill = reorder(country, percentage) == "United Kingdom"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    ) +
-  ggtitle(
-    "Percentage of overqualified workers",
-    subtitle = "(Year 2013)"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "Percentage (%) \n"
-  ) 
-```
-
-```{r}
-tidy_underqualified_workers %>%
-  mutate(year = year(year)) %>% 
-  filter(
-    country != c("Malta"),
-    year == 2013
-    ) %>%  
-  ggplot() +
-  aes(
-    x = reorder(country, percentage), 
-    y = percentage,
-    fill = reorder(country, percentage) == "United Kingdom"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    ) +
-  ggtitle(
-    "Percentage of underqualified workers",
-    subtitle = "(Year 2013)"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "Percentage (%) \n"
-  ) 
-```
-
-
-```{r}
-tidy_qualified_workers %>%
-  mutate(year = year(year)) %>% 
-  filter(
-    country != c("Malta"),
-    year == 2013
-    ) %>%  
-  ggplot() +
-  aes(
-    x = reorder(country, percentage), 
-    y = percentage,
-    fill = reorder(country, percentage) == "United Kingdom"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-    ) +
-  ggtitle(
-    "Percentage of well-matched workers",
-    subtitle = "(Year 2013)"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "Percentage (%) \n"
-  ) 
-```
-
-
-
-#################################################################################################################################
-#################################################################################################################################
-#################################################################################################################################
-
-
-OECD Tertiary Spending Expenditure
-
-
-Read data
-```{r}
-education_expenditure <- read_excel(here("raw_data/OECD_Tertiary_Education_Expenditure.xlsx")) 
-
-glimpse(education_expenditure)
-```
-Change TIME in datetime format
-```{r}
-education_expenditure <- education_expenditure %>%
-  mutate(TIME = make_datetime(TIME)) 
-```
-
-```{r}
-education_expenditure %>% 
-  filter(LOCATION == "GBR")
-```
-
-
-Check for NA's
-```{r}
-education_expenditure %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-
-```{r}
-education_expenditure %>% 
-  # distinct(LOCATION)
-  # distinct(INDICATOR) # EDUPUBEXP
-  # distinct(SUBJECT) # TRY, PRY_NTRY, PRY_TRY
-  # distinct(MEASURE) # PC_GDP
-  # distinct(FREQUENCY) #A
-  distinct(`Flag Codes`) # NA, M
-```
-
-
-G-7 countries education expenditure (GDP percentage)
-TRY : TeRtiarY
-PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
-PRY_TRY: PRimarY to TeRtiarY
-```{r}
-education_expenditure %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    SUBJECT == "TRY"
-    ) %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle(
-    "G-7 countries education expenditure",
-    subtitle = "Tertiary education"
-  ) +
-  labs(
-    x = "\n Year", 
-    y = "GDP (%) \n"
-  ) 
-```
-
-```{r}
-education_expenditure %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    SUBJECT == "PRY_TRY"
-    ) %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle(
-    "G-7 countries education expenditure",
-    subtitle = "Primary to Tertiary education"
-  ) +
-  labs(
-    x = "\n Year", 
-    y = "GDP (%) \n"
-  ) 
-
-```
-
-```{r}
-education_expenditure %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    SUBJECT == "PRY_NTRY"
-    ) %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle(
-    "G-7 countries education expenditure",
-    subtitle = "Primary to post-secondary non-Tertiary education"
-  ) +
-  labs(
-    x = "\n Year", 
-    y = "GDP (%) \n"
-  ) 
-
-```
-
-
-```{r}
-education_expenditure %>%
-  filter(
-    TIME == 2015,
-    SUBJECT == "TRY"
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE, TIME)) %>% 
-  ggplot() +
-  aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-  ) +
-  ggtitle(
-    "Education expenditure",
-    subtitle = "Tertiary education (Ye)"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "GDP (%) \n"
-  ) 
-```
-
-
-
-```{r}
-education_expenditure %>%
-  filter(
-    TIME == 2015,
-    SUBJECT == "PRY_TRY"
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE, TIME)) %>% 
-  ggplot() +
-  aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-  ) +
-  ggtitle(
-    "Education expenditure",
-    subtitle = "Primary to Tertiary education"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "GDP (%) \n"
-  ) 
-```
-
-
-
-```{r}
-education_expenditure %>%
-  filter(
-    TIME == 2015,
-    SUBJECT == "PRY_NTRY"
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE, TIME)) %>% 
-  ggplot() +
-  aes(
-    x = reorder(LOCATION, Value), 
-    y = Value,
-    fill = reorder(LOCATION, Value) == "GBR"
-    ) +
-  geom_col() +
-  scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
-  theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1, hjust = 1)
-  ) +
-  ggtitle(
-    "Education expenditure",
-    subtitle = "Primary to post-secondary non-Tertiary education"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "GDP (%) \n"
-  ) 
-```
-
-
-```{r}
-education_expenditure %>%
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    TIME == 2015
-    ) %>%  
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>% 
-  ggplot() +
-  aes(x = LOCATION, y = Value, fill = SUBJECT) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = "Dark2") +
-  ggtitle(
-    "G-7 countries education expenditure",
-    subtitle = "Year 2015"
-  ) +
-  labs(
-    x = "\n Country", 
-    y = "GDP (%) \n"
-  ) 
-```
-TRY : TeRtiarY
-PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
-PRY_TRY: PRimarY to TeRtiarY
-
-
-
-```{r}
-education_expenditure %>%
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, MEASURE)) %>%
-  filter(LOCATION %in% c("GBR")) %>%
-  ggplot() +
-  aes(x = TIME, y = Value, colour = SUBJECT) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle("UK education expenditure") +
-  labs(
-    x = "\n Year", 
-    y = "GDP (%) \n"
-  ) 
-
-```
-
-
-#################################################################################################################################
-#################################################################################################################################
-#################################################################################################################################
-
-
-
-__Multifactor productivity__
-
-
-Read data
-```{r}
-mfp <- read_excel(here("raw_data/Multifactor_Productivity-OECD_Countries.xls")) 
-
-glimpse(mfp)
-```
-
-Change TIME in datetime format
-```{r}
-mfp <- mfp %>%
-  mutate(TIME = make_datetime(TIME)) 
-```
-
-Check for NA's
-```{r}
-mfp %>% 
-  summarise(across(.cols = everything(),
-                   .fns = ~sum(is.na(.x))))
-```
-
-
-```{r}
-mfp %>% 
-  # distinct(LOCATION)
-   distinct(INDICATOR) # MFP
-  # distinct(SUBJECT) # TOT
-  # distinct(MEASURE) # AGRWTH, IDX2010
-  # distinct(FREQUENCY) #A
-  # distinct(`Flag Codes`) # NA
-```
-
-G-7 countries Multifactor productivity (annual growth rate)
-```{r}
-mfp%>% 
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    MEASURE == "AGRWTH"
-  ) %>% 
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle(
-    "G-7 countries Multifactor productivity",
-    subtitle = "(annual growth rate)"
-  ) +
-  labs(
-    x = "\n Year", 
-    y = "MFP (%)\n"
-  ) 
-  
-```
-
-
-G-7 countries Multifactor productivity (index 2010)
-```{r}
-mfp%>% 
-  select(-c(`Flag Codes`, INDICATOR, FREQUENCY, SUBJECT)) %>% 
-  filter(
-    LOCATION %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    MEASURE == "IDX2010"
-  ) %>% 
-  ggplot() +
-  aes(x = TIME, y = Value, colour = LOCATION) +
-  geom_line(size = 0.75) +
-  geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") +
-  # scale_colour_manual(values = cbb_palette) +
-  ggtitle(
-    "G-7 countries Multifactor productivity",
-    subtitle = "(index 2010 = 100)"
-  ) +
-  labs(
-    x = "\n Year", 
-    y = "MFP \n"
-  ) 
-  
-```
-
-
-
-
-
-
 
 
 
