@@ -23,19 +23,21 @@ source(here("scripts/clean_productivity_phw_data.R"))
 <br>
 __View GDP per hour worked data (productivity)__
 
+View G-7 cross-country GDP per hour worked time-series
 ```{r}
 gdp_phw %>% 
   select(-c(indicator, subject, frequency, flag_codes)) %>% 
   filter(
     country %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
-    measure == "USD") %>% 
+    measure == "USD"
+  ) %>% 
   ggplot() +
   aes(x = year, y = value, colour = country) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   scale_colour_brewer(palette = "Dark2") +
   ggtitle(
-    "GDP per hour worked",
+    "G-7 cross country GDP per hour worked",
     subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
   ) +
   labs(
@@ -47,27 +49,28 @@ gdp_phw %>%
 ```
 
 
-
+View cross country GDP per hour worked for 2020 (constant prices)
 ```{r}
 gdp_phw %>% 
   mutate(year = year(year)) %>% 
   filter(
     measure == "USD",
     year == 2020
-    ) %>%  
+  ) %>%  
   select(-c(indicator, frequency, measure, subject, year, flag_codes)) %>%  
   ggplot() +
   aes(
     x = reorder(country, value), 
     y = value,
     fill = reorder(country, value) == "GBR"
-    ) +
+  ) +
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
-    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1) ) +
+    axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1) 
+  ) +
   ggtitle(
-    "GDP per hour worked (Year 2020)",
+    "Cross country GDP per hour worked (Year 2020)",
     subtitle =  "indicator is measured in USD (constant prices 2010 and PPPs)"
   ) +
   labs(
@@ -77,7 +80,7 @@ gdp_phw %>%
   
 ```
 
-
+View cross country GDP per hour worked for 2020 (2015 index)
 ```{r}
 gdp_phw %>% 
   mutate(year = year(year)) %>% 
@@ -110,6 +113,38 @@ gdp_phw %>%
 <br>
 __View Investment by asset data__
 
+View UK investment by Asset (% GFCF) time-series
+```{r}
+inv_asset %>%
+  select(-c(indicator, frequency, flag_codes)) %>%
+  filter(country == "GBR") %>%
+  ggplot() +
+  aes(x = year, y = value, colour = subject) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("UK investment by Asset") +
+  labs(
+    x = "\n Year", 
+    y = "Investment (% of GFCF) \n",
+    colour = "Asset type"
+  ) 
+```
+
+OTHMACHINEQT: Information and Communication Technology (ICT) equipment (computer software and databases, telecommunications equipment and computer hardware)
+
+CULTASSET: cultivated biological resources (managed forests, livestock raised for milk production, etc.)
+
+OTHBUILDING: other buildings and structures (roads, bridges, airfields, dams, etc.)
+
+FIXASSET: intellectual property products (such as R&D, mineral exploration, software and databases, and literary and artistic originals, etc.)
+
+TRANSPEQT: transport equipment (ships, trains, aircraft, etc.)
+
+DWELLING: dwellings (excluding land)
+
+
+View G-7 cross-country investment time-series
 ```{r}
 gfcf %>%
   filter(
@@ -120,7 +155,10 @@ gfcf %>%
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
   scale_colour_brewer(palette = "Dark2") +
-  ggtitle("G-7 Cross country Investment (aka Gross Fixed Capital Formation)") +
+  ggtitle(
+    "G-7 Cross country Investment (aka Gross Fixed Capital Formation)",
+    subtitle =  "(current prices and current PPPs)"
+  ) +
   labs(
     x = "\n Year", 
     y = "GFCF ($MM) \n",
@@ -141,6 +179,7 @@ inv_asset_usd <- inv_asset %>%
 ```
 
 
+View UK investment by asset time-series
 ```{r}
 inv_asset_usd %>%
   select(-c(indicator, frequency, measure, flag_codes)) %>%
@@ -154,27 +193,18 @@ inv_asset_usd %>%
   labs(
     x = "\n Year", 
     y = "Investment ($MM) \n",
-    colour = "Asset"
+    colour = "Asset type"
   ) 
 
 ```
 
-OTHMACHINEQT: Information and Communication Technology (ICT) equipment (computer software and databases, telecommunications equipment and computer hardware)
 
-CULTASSET: cultivated biological resources (managed forests, livestock raised for milk production, etc.)
-
-OTHBUILDING: other buildings and structures (roads, bridges, airfields, dams, etc.)
-
-FIXASSET: intellectual property products (such as R&D, mineral exploration, software and databases, and literary and artistic originals, etc.)
-
-TRANSPEQT: transport equipment (ships, trains, aircraft, etc.)
-
-DWELLING: dwellings (excluding land)
 
 
 <br>
 __OECD Education Spending Expenditure__
 
+View UK education expenditure (% of GDP) by type time-series
 ```{r}
 edu_exp %>%
   select(-c(indicator, frequency, measure, flag_codes)) %>%
@@ -183,7 +213,7 @@ edu_exp %>%
   aes(x = year, y = value, colour = subject) +
   geom_line(size = 0.75) +
   geom_point(size = 1.5) +
-  scale_colour_brewer(palette = "Dark2") 
+  scale_colour_brewer(palette = "Dark2") +
   ggtitle("UK public spending on education") +
   labs(
     x = "\n Year", 
@@ -192,15 +222,68 @@ edu_exp %>%
   ) 
 
 ```
+
 TRY : TeRtiarY
 PRY_NTRY: PRimarY to post-secondary Non-TeRtiarY
 PRY_TRY: PRimarY to TeRtiarY
+
+
+View G-7 cross-country GDP time-series
+```{r}
+gdp %>%
+  filter(
+    country %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR")
+  ) %>%
+  ggplot() +
+  aes(x = year, y = gdp_mln_usd, color = country) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle(
+    "G-7 Cross country GDP",
+    subtitle =  "(current PPPs)"
+  ) +
+  labs(
+    x = "\n Year",
+    y = "GDP ($MM) \n",
+    colour = "Country"
+  ) 
+```
+Join education expenditure with GDP data
+```{r}
+edu_exp_usd <- edu_exp %>% 
+  left_join(gdp, by = c("country", "year")) %>% 
+  mutate(
+    value_mil_usd = value * gdp_mln_usd / 100
+  )
+
+```
+
+
+View UK expenditure on education time-series
+```{r}
+edu_exp_usd %>%
+  filter(country == "GBR") %>%
+  ggplot() +
+  aes(x = year, y = value_mil_usd, colour = subject) +
+  geom_line(size = 0.75) +
+  geom_point(size = 1.5) +
+  scale_colour_brewer(palette = "Dark2") +
+  ggtitle("UK public spending on education") +
+  labs(
+    x = "\n Year", 
+    y = "Expenditure ($MM) \n",
+    colour = "Education type"
+  ) 
+
+```
 
 
 
 <br>
 __Comparison of productivity by industry in UK and EU Countries__
 
+View productivity by industry for Europe's large economies
 ```{r}
 productivity_phw %>% 
   filter(
