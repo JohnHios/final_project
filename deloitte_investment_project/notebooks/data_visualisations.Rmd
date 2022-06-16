@@ -1,5 +1,7 @@
 ---
-title: "R Notebook"
+title: "Data Visualisations"
+author: "John Hios"
+date: "15/06/2022"
 output: html_notebook
 ---
 
@@ -87,19 +89,19 @@ gdp_phw %>%
   filter(
     measure == "IDX2015",
     year == 2020
-    ) %>%  
+  ) %>%  
   select(-c(indicator, frequency, measure, subject, year, flag_codes)) %>%  
   ggplot() +
   aes(
     x = reorder(country, value), 
     y = value,
     fill = reorder(country, value) == "GBR"
-    ) +
+  ) +
   geom_col() +
   scale_fill_manual(values = c('steelblue', 'red'), guide = "none") +
   theme(
     axis.text.x = element_text(size = 6, angle = 45, vjust = 1.15, hjust = 1)
-    ) +
+  ) +
   ggtitle(
     "GDP per hour worked (Year 2020)",
     subtitle =  "indicator is measured in USD (index 2015 = 100)"
@@ -287,13 +289,13 @@ View productivity by industry for Europe's large economies
 ```{r}
 productivity_phw %>% 
   filter(
-    Country %in% c("United Kingdom", "France", "Germany")
+    country %in% c("United Kingdom", "France", "Germany")
   ) %>% 
   ggplot() +
   aes(
-    x = `A*10 (excl L)`, 
-    y = Output_per_hour,
-    fill = Country
+    x = section, 
+    y = output_per_hour,
+    fill = country
     ) +
   geom_col(position = "dodge") +
   scale_fill_brewer(palette = "Dark2") +
@@ -303,14 +305,15 @@ productivity_phw %>%
   ) +
   labs(
     x = "\n NACE Industry", 
-    y = "Output per hour (€)"
+    y = "Output per hour (€)",
+    fill = "Country" 
   ) 
 ```
 
 
 ```{r}
 productivity_phw %>% 
-  distinct(`A*10 (excl L)`, `NACE Industry`)
+  distinct(section, nace_industry)
 ```
 
 

@@ -54,6 +54,6 @@ productivity_phw <- productivity_phw %>%
 # 4. Change names of variables to follow our naming standards.
 
 productivity_phw <- productivity_phw %>%
-  rename(code = `A*10 (excl L)`) %>% 
+  rename(section = `A*10 (excl L)`) %>% 
   clean_names()
  

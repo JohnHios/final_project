@@ -1,5 +1,7 @@
 ---
-title: "R Notebook"
+title: "K-means Clustering"
+author: "John Hios"
+date: "15/06/2022"
 output: html_notebook
 ---
 
@@ -22,10 +24,10 @@ source(here("scripts/clean_gdp_data.R"))
 source(here("scripts/clean_hrs_wrkd_data.R"))
 ```
 
+<br>
+__OECD data: Labour Productivity__
 
-__Labour_Productivity-OECD_Countries__
-
-GDP per hour worked data (European countries)
+Select the GDP per hour worked data (USD) of European countries
 ```{r}
 gdp_phw_europe <- gdp_phw %>% 
   filter(
@@ -41,14 +43,10 @@ gdp_phw_europe <- gdp_phw %>%
 ```
 
 
-#################################################################################################################################
-#################################################################################################################################
-#################################################################################################################################
+<br>
+__OECD Data: Investment by Asset__
 
-__OECD Investment by Asset__
-
-
-Investment by Asset (% GFCF) for European countries
+Select the Investment by Asset data (% GFCF) of European countries
 ```{r}
 inv_asset_europe <- inv_asset %>%
   filter(
@@ -71,14 +69,10 @@ inv_asset_europe <- inv_asset %>%
 ```
 
 
+<br>
+__OECD Data: Investment (Gross Fixed Capital Formation)__
 
-
-##################################################################################################################################
-
-
-OECD Investment GFCF
-
-GFCF data (mln USD)
+Select the GFCF data (mln USD) of European countries
 ```{r}
 gfcf_europe <- gfcf %>% 
   filter(
@@ -90,15 +84,10 @@ gfcf_europe <- gfcf %>%
 ```
 
 
+<br>
+__OECD Data: Education Spending Expenditure__
 
-#################################################################################################################################
-#################################################################################################################################
-#################################################################################################################################
-
-
-__ECD Education Spending Expenditure__
-
-Expenditure on education (% GDP)
+Select the Expenditure on education data (% GDP) of European countries
 ```{r}
 edu_exp_europe <- edu_exp %>%
   filter(
@@ -118,13 +107,10 @@ edu_exp_europe <- edu_exp %>%
 ```
 
 
-#################################################################################################################################
+<br>
+__OECD Data: Gross Domestic Product (GDP)__
 
-__GDP-derived expenditure in USD__
-
-OECD_Gross_Domestic_Product_GDP
-
-GDP data (mln USD)
+Select the GDP data (mln USD) of European countries
 ```{r}
 gdp_europe <- gdp %>%
   filter(
@@ -135,13 +121,11 @@ gdp_europe <- gdp %>%
   ) 
 ```
 
-#################################################################################################################################
-#################################################################################################################################
-#################################################################################################################################
 
-__OECD Hrs worked__
+<br>
+__OECD Data: Hrs worked__
 
-Hours Worked (hrs)
+Select the Hours Worked data (hrs) of European countries
 ```{r}
 hrs_wrkd_europe <- hrs_wrkd %>%
   filter(
@@ -156,10 +140,10 @@ hrs_wrkd_europe <- hrs_wrkd %>%
 #################################################################################################################################
 #################################################################################################################################
 
+<br>
+__Data for clustering__
 
-__OECD data for clustering__
-
-
+Left join of European country productivity and investment related data
 ```{r}
 productivity_data <- gdp_phw_europe %>% 
   left_join(edu_exp_europe, by = c("country", "year")) %>% 
@@ -171,28 +155,39 @@ productivity_data <- gdp_phw_europe %>%
 glimpse(productivity_data)
 ```
 
-
+View data for clustering - year 2018 is selected because there are no more recent data available for the UK
 ```{r}
 productivity_data %>% 
   mutate(year = year(year)) %>% 
   filter(year == 2018)
 ```
-Drop european countries that don't have data for 2018
+
+Drop European countries that don't have data for year 2018
 ```{r}
 productivity_data %>% 
   mutate(year = year(year)) %>% 
   filter(year == 2018) %>% 
   drop_na()
 ```
-The loss of data is not significant
+The loss of data is not significant - only 8 countries out of 28 were removed from the dataset, therefore the analysis can proceed
 
+
+To obtain a common basis of comparison for the above countries, we normalise all education expenditure and investment data in `USD per hour worked` 
+
+This is a sensible choice since:
+
++ Productivity is measured in GDP (in USD) per hour worked
+
++ Education expenditure is measured as % of GDP
+
++ Investment by asset is measured as % of GFCF, which in turn is measured as % of GDP or in USD
 
 
 ```{r}
-productivity_data <- productivity_data %>% 
-  mutate(year = year(year)) %>% 
-  filter(year == 2018) %>% 
-  drop_na() %>% 
+productivity_data <- productivity_data %>%
+  mutate(year = year(year)) %>%
+  filter(year == 2018) %>%
+  drop_na() %>%
   mutate(
     try_phw_usd = try_pc_gdp * gdp_phw_usd / 100,
     pry_ntry_phw_usd = pry_ntry_pc_gdp * gdp_phw_usd / 100,
@@ -203,24 +198,29 @@ productivity_data <- productivity_data %>%
     cultasset_phw_usd = cultasset_pc_gfcf * gfcf_mln_usd / hr_wkd / 100,
     transpeqt_phw_usd = transpeqt_pc_gfcf * gfcf_mln_usd / hr_wkd / 100,
     intelprop_phw_usd = intelprop_pc_gfcf * gfcf_mln_usd / hr_wkd / 100
-  ) %>% 
+  ) %>%
   select(
     country,
     year,
     gdp_phw_usd,
-    try_phw_usd, 
-    pry_ntry_phw_usd, 
-    pry_try_phw_usd, 
-    ict_phw_usd, 
-    dwelling_phw_usd, 
-    infrastuct_phw_usd, 
+    try_phw_usd,
+    pry_ntry_phw_usd,
+    pry_try_phw_usd,
+    ict_phw_usd,
+    dwelling_phw_usd,
+    infrastuct_phw_usd,
     cultasset_phw_usd,
     transpeqt_phw_usd,
     intelprop_phw_usd
-  )
+)
 ```
-#################################################################################################################################
 
+
+
+
+
+<br>
+__K-means clustering__
 
 Prepare data for K-means clustering
 ```{r}
@@ -249,9 +249,14 @@ productivity_data_scale %>%
 ```
 
 
-Clustering with K-means
+<br>
+__Manual selection of clusters__
+
+Initial guess of 4 clusters (k=4) to group countries
+
+This is based on productivity data and the share of Europe's  Nominal GDP [https://www.wikiwand.com/en/Financial_and_social_rankings_of_sovereign_states_in_Europe]
 ```{r}
-set.seed(340717)
+set.seed(340717) # to reproduce results shown in presentation
 
 clust_data_scale <- kmeans(productivity_data_scale, 
                         centers = 4, 
@@ -273,15 +278,14 @@ augment(clust_data_scale, productivity_data)
 
 
 Clustering Metrics
-
 ```{r}
 glance(clust_data_scale)
 ```
 
+<br>
+__Algorithmic selection of clusters__
 
 ```{r}
-library(broom)
-
 # Set min & max number of clusters want to look at 
 max_k <- 15 
 
@@ -306,7 +310,7 @@ clusterings
 
 Choosing the number of clusters
 
-__Elbow method__
+`Method # 1: Elbow method`
 
 ```{r}
 ggplot(clusterings, aes(x = k, y = tot.withinss)) +
@@ -326,27 +330,29 @@ fviz_nbclust(productivity_data_scale,
 ```
 
 
-__Silhouette coefficient__
+`Method # 2: Silhouette coefficient`
 ```{r}
 fviz_nbclust(productivity_data_scale, kmeans, method = "silhouette", nstart = 25)
 ```
 
 
-__Gap statistic__
+`Method # 3: Gap statistic`
 ```{r}
 fviz_nbclust(productivity_data_scale, kmeans, method = "gap_stat", nstart = 100) 
 ```
 
+<br>
+`Method #2` indicates k=4 clusters and `Method #3` indicates k=9 clusters. For 20 data points, k=4 is a sensible choice.  
 
-Method #2 indicates k=4 clusters and method #3 indicates k=9 clusters. For 20 data points, k=4 is a sensible choice.  
-
-Let's see if k=4 is sufficient
+Check of education expenditure and key investment assets vs productivity for k=4:
 
 ```{r}
 clusterings %>% 
   unnest(cols = c(augmented)) %>% 
   filter(k == 4) %>% 
-  ggplot(aes(x = gdp_phw_usd, y = try_phw_usd, colour = .cluster, label = .rownames)) +
+  ggplot(
+    aes(x = gdp_phw_usd, y = try_phw_usd, colour = .cluster, label = .rownames)
+  ) +
   geom_point(aes(color = .cluster), size = 2.5) +
   geom_text(hjust = 0, vjust = - 0.75, size = 3) +
   scale_colour_brewer(palette = "Dark2") +
@@ -365,7 +371,9 @@ clusterings %>%
 clusterings %>% 
   unnest(cols = c(augmented)) %>% 
   filter(k == 4) %>% 
-  ggplot(aes(x = gdp_phw_usd, y = intelprop_phw_usd, colour = .cluster, label = .rownames)) +
+  ggplot(
+    aes(x = gdp_phw_usd, y = intelprop_phw_usd, colour = .cluster, label = .rownames)
+  ) +
   geom_point(aes(color = .cluster), size = 2.5) +
   geom_text(hjust = 0, vjust = - 0.75, size = 3) +
   scale_colour_brewer(palette = "Dark2") +
@@ -387,7 +395,7 @@ productivity_data %>%
 ```
 
 
-What are the average scores for each investment factor/asset split by cluster?
+Average scores for each investment factor/asset split by cluster:
 ```{r}
 clusterings %>% 
   unnest(augmented) %>% 
@@ -395,12 +403,12 @@ clusterings %>%
   group_by(.cluster) %>%
   summarise(mean(gdp_phw_usd), mean(try_phw_usd), mean(pry_ntry_phw_usd), 
             mean(pry_try_phw_usd), mean(ict_phw_usd), mean(dwelling_phw_usd),
-            mean(infrastuct_phw_usd), mean(cultasset_phw_usd), mean(transpeqt_phw_usd),
-            mean(intelprop_phw_usd))
+            mean(infrastuct_phw_usd), mean(cultasset_phw_usd), 
+            mean(transpeqt_phw_usd), mean(intelprop_phw_usd))
 ```
 
 
-__Compare how the UK does (cluster 3) against France and Germany in cluster 4__
+__Compare how the UK does (cluster 3) against France and Germany (cluster 4)__
 
 Get row that corresponds to cluster 4
 ```{r}
@@ -410,8 +418,8 @@ cluster_4_fradeu <- clusterings %>%
   group_by(.cluster) %>%
   summarise(mean(gdp_phw_usd), mean(try_phw_usd), mean(pry_ntry_phw_usd), 
             mean(pry_try_phw_usd), mean(ict_phw_usd), mean(dwelling_phw_usd),
-            mean(infrastuct_phw_usd), mean(cultasset_phw_usd), mean(transpeqt_phw_usd),
-            mean(intelprop_phw_usd)) %>% 
+            mean(infrastuct_phw_usd), mean(cultasset_phw_usd), 
+            mean(transpeqt_phw_usd), mean(intelprop_phw_usd)) %>% 
   filter(.cluster %in% c(4)) 
   
 cluster_4_fradeu
