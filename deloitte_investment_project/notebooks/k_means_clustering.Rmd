@@ -72,7 +72,7 @@ inv_asset_europe <- inv_asset %>%
 <br>
 __OECD Data: Investment (Gross Fixed Capital Formation)__
 
-Select the GFCF data (mln USD) of European countries
+Select the GFCF data (million USD) of European countries
 ```{r}
 gfcf_europe <- gfcf %>% 
   filter(
@@ -110,7 +110,7 @@ edu_exp_europe <- edu_exp %>%
 <br>
 __OECD Data: Gross Domestic Product (GDP)__
 
-Select the GDP data (mln USD) of European countries
+Select the GDP data (million USD) of European countries
 ```{r}
 gdp_europe <- gdp %>%
   filter(
@@ -344,7 +344,7 @@ fviz_nbclust(productivity_data_scale, kmeans, method = "gap_stat", nstart = 100)
 <br>
 `Method #2` indicates k=4 clusters and `Method #3` indicates k=9 clusters. For 20 data points, k=4 is a sensible choice.  
 
-Check of education expenditure and key investment assets vs productivity for k=4:
+Check of education expenditure and investment on intellectual property (it includes R&D) vs productivity for k=4:
 
 ```{r}
 clusterings %>% 
