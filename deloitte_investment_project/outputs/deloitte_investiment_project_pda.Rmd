@@ -38,11 +38,11 @@ Productivity is commonly defined as a ratio between the output volume and the vo
 such as labour and capital, are being used in an economy to produce a given level of output (refer to schematic in Figure 1).
 
 
-```{r, echo=FALSE, fig.cap="Figure 1: Productivity Explained (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
+```{r, echo = FALSE, fig.cap = "Figure 1: Productivity Explained (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
 knitr::include_graphics("images/productivity_explained.jpg")
 ```
 <br>
-There are different measures of productivity and the choice between them depends either on the purpose of the productivity measurement and/or data availability. One of the most widely used measures of productivity is Gross Domestic Product (GDP) per hour worked. This measure captures the use of labour inputs better than just output per employee in accordance to the Organisation for Economic Co-operation and Development (OECD)^[https://www.oecd.org/sdd/productivity-stats/40526851.pdf]. 
+There are different measures of productivity and the choice between them depends either on the purpose of the productivity measurement and/or data availability. One of the most widely used measures of productivity is Gross Domestic Product (GDP) per hour worked. This measure captures the use of labour inputs better than just output per employee, as suggested by the Organisation for Economic Co-operation and Development (OECD)^[https://www.oecd.org/sdd/productivity-stats/40526851.pdf]. 
 
 
 ### Productivity and investment
@@ -51,12 +51,12 @@ An outline of the relationship between productivity and investment is provided b
 
 + When productivity fails to grow significantly, it limits potential gains in wages, corporate profits, and living standards. Figure 2 explains schematically the impact of productivity to the economic welfare and prosperity of a country.  
 
-+ Investment in an economy is equal to the level of savings because investment has to be financed from savings. 
++ Investment in an economy is linked to the level of savings because investment has to be financed from savings. 
 
 + Low savings rates can lead to lower investment rates and lower growth rates for labour productivity and real wages. 
 
 
-```{r, echo=FALSE, fig.cap="Figure 2: Benefits of Productivity Growth (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
+```{r, echo = FALSE, fig.cap = "Figure 2: Benefits of Productivity Growth (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
 knitr::include_graphics("images/benefits_of_productivity_growth.jpg")
 ```
 
@@ -81,62 +81,62 @@ The outcomes of the analysis are expected to help in:
 + Providing a framework to accelerate productivity growth in Scotland and the UK overall.
 
 
-
 ### Domain knowledge and the business context
 
 The analysis presented in this report is carried out on behalf of Deloitte, an international professional services network that provides audit, consulting, financial advisory, risk advisory, tax, and related services in different business sectors, including government^[https://www2.deloitte.com/uk/en/footerlinks1/about-deloitte.html]. 
 
-Within the context of a consulting/financial advisory firm, this analysis would provide facts and insights on which the Scotland and the UK in overall could base management and policy decisions. This means that Deloitte would help the country into shaping winning strategies, mobilise for change, build capabilities, and drive successful transformation and lasting improvements.
+Within the context of a consulting/financial advisory firm serving a public organisation, this analysis can potentially provide facts and insights on which Scotland and the UK in overall could base their management and policy decisions. This means that this work could be part of a country's initiative for shaping winning strategies, mobilising for change, building capabilities, and driving successful transformation and lasting improvements.
 
 
 # Data
 
-#### Internal and external data sources
+### Internal and external data sources
 
-Briefly describe your data sources and which were internal (provided by the organisation) and external (not sourced from the organisation's data)
+The data originally intended to be used for this analysis was donated by Deloitte. The data come from the Equifax Ignite Direct data platform which hosts over 50 open data sources^[https://www.consumer.equifax.ca/equifaxignite/ignite-direct/].
 
-
-**Ans**
-
-+ All sources were external (OECD and ONS)
-
-  + OECD_Public_Spending_on_Education_JHios
-  
-  + OECD_Gross_Domestic_Product_GDP_JHios
-  
-  + OECD_GDP_per_Hour_Worked_JHios
-  
-  + OECD_Investment_GFCF_JHios
-  
-  + OECD_Hours_Worked_JHios
-  
-  + OECD_Investment_by_Asset_JHios
-  
-  + ONS_International_Labour_Productivity-Europe (Eurostat, Office for National Statistics)
+Where possible, more recent versions of the data sets were sought in an effort to use the most up to date information for this report. As a result, out of the 7 files used in the the analysis phase, only 1 file was classified as internal (provided by the organisation) and the remaining 6 files were classed as external (not sourced from the organisation's data). A summary of the files used is provided in the table below.
 
 
+  Filename          | Brief Description |Periods of time   |  Format |  Source | Classification type
+--------------------|-------------------|------------------|---------|---------|----------------
+OECD_Public_Spending_on_Education|Education expenditure as % GDP  |  1995-2019 |   .csv | OECD |   external
+OECD_Gross_Domestic_Product_GDP|Annual GDP in USD and USD per capita (current PPPs)  |  1960-2021 |   .csv | OECD |   external     
+OECD_GDP_per_Hour_Worked |GDP per hour estimates  |  1970-2020 |   .csv | OECD |   external  
+OECD_Investment_GFCF|Estimates of GFCF (Gross Fixed Capital Formation)  |  1960-2020 |   .csv | OECD |   external  
+OECD_Hours_Worked|Total number of hours worked per year  |  1950-2020 |   .csv | OECD |   external 
+OECD_Investment_by_Asset | Investment on assets as % GFCF  |  1970-2021 |   .csv | OECD |   external  
+International_Labour_Productivity-Europe | Output per hour by industry in Euros  |  2014-2016  |   .xls | ONS |   internal  
 
-#### Types of data
 
-What kind of data did you work with? E.g. categorical and numerical data and their sub-types.
+Note that,
 
-**Ans**
++ OECD refers to the Organisation for Economic Co-operation and Development (https://www.oecd.org), and 
++ ONS refers to the Office for Nations Statistics (https://www.ons.gov.uk/)
 
-+ Categorical character type (nominal: such as countries, investment sector, ordinal: date-time)
 
-+ Numerical double (discrete: years, continuous: financial indicators, such as productivity, GDP, GFCF, education expenditure etc)
+### Types of data
 
-#### Data formats
+The data used in this analysis fall into the following types:
 
-What format did your data come in? E.g. all downloaded flat files (CSV) or any data from APIs, scraping etc.
++ Categorical character type 
+  + nominal: for instance country names and investment sector
+  + ordinal: date-time
 
-**Ans**
++ Numerical double type
+  + discrete: years
+  + continuous: financial indicators such as productivity, GDP, GFCF, education expenditure and so on
 
-+ 6 data files were in .csv format collected from the OECD online data library
+
+### Data formats
+
+The format types of the data used in the analysis is shown in the table above. Out of the 7 files used: 
+
++ 6 data files were in .csv format and downloaded from the OECD online data library.
  
-+ 1 data file in .xls format originating from ONS and provided by Deloitte
++ 1 data file was in .xls format originating from ONS and provided by Deloitte.
 
-#### Data quality and bias
+
+### Data quality and bias
 
 Briefly describe the quality of the data and whether you have any reasons to suggest the data is biased e.g. only data from a specific demographic even though a broader demographic would be of interest to the organisation.
 
@@ -151,7 +151,7 @@ The OECD views quality in terms of the following seven dimensions
 (Bias in data may impact accuracy. When data is biased it means that it is not representative of the entire population. Account for bias in your measurements if possible, and make sure that data bias is communicated to your users.
 In a data set, individual records can be measured for accuracy, or the whole data set can be measured. Which you choose to do should depend on the purpose of the data and your business needs.)
 
-consistency with output and value-added measures, in particular, by industry, as the LFS is a household survey for which the stratification process may not adequately capture the homogenous strata required in productivity analysis. In addition, in many countries, the LFS does not cover some groups of the population such as persons below or above certain age thresholds (which varies by country), those living and working in communal establishments (such as prisons or long-term care facilities), collective households (such as religious institutions) and the armed forces, all of whose output is included, at least in theory, in estimates of GDP. In addition, the sampling structure of LFS is based on the population usually residing in the country and includes workers in non-resident production units, whereas nonresident cross-border workers working in resident production units are excluded. There may also be biases in LFS responses, reflecting the self-reporting nature of LFS, and these biases, that may also be cultural, appear to be significant with respect to responses on hours actually worked
+consistency with output and value-added measures, in particular, by industry, as the LFS is a household survey for which the stratification process may not adequately capture the homogenous strata required in productivity analysis. In addition, in many countries, the LFS does not cover some groups of the population such as persons below or above certain age thresholds (which varies by country), those living and working in communal establishments (such as prisons or long-term care facilities), collective households (such as religious institutions) and the armed forces, all of whose output is included, at least in theory, in estimates of GDP. In addition, the sampling structure of LFS is based on the population usually residing in the country and includes workers in non-resident production units, whereas non-resident cross-border workers working in resident production units are excluded. There may also be biases in LFS responses, reflecting the self-reporting nature of LFS, and these biases, that may also be cultural, appear to be significant with respect to responses on hours actually worked
 
 + Credibility
 
