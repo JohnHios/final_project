@@ -1,5 +1,7 @@
 ---
-title: "R Notebook"
+title: "Linear Regression"
+author: "John Hios"
+date: "16/06/2022"
 output: html_notebook
 ---
 

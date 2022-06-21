@@ -1,0 +1,304 @@
+---
+title: "Productivity & Investment in the UK"
+subtitle: "Final Project report submitted as per PDA requirements"
+author: "John Hios"
+date: "16/06/2022"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    df_print: paged
+    # css: "style.css"
+    pdf_document: default
+  word_document:
+    toc: yes
+---
+
+
+# Introduction
+
+#### The business problem
+
+*Productivity* is key to the development of local businesses and the wider economy. Over the past decade, productivity has slowed down globally with the UK lagging behind some other developed economies. 
+
+
+# Context
+
+#### Business intelligence and data-driven decision making
+
+What insights can the business/organisation gain from your analysis and how will your analysis help the business/organisation make better decisions?
+
+**Ans**
+
+This report aims at investigating the relationship between productivity and investment with an aim to improve productivity within Scotland and the UK overall. For this purpose, a range of countries were compared to understand the factors that influence both investment levels and productivity. 
+
+Some targeted questions we are interested in for this specific project are listed below: 
+
+1. Does government spending on factors such as mental health, education, and research and development (R&D) affect productivity in the UK? 
+
+2. Is there a relationship between government investment and productivity? 
+
+3. Can investment be used to predicti productivity?
+
+
+**Insights**
+
++ Understand relationship between productivity and investment
+
++ Structural differences of UK productivity vs other high productivity countries
+
++ Prediction of UK productivity based on investment
+
+
+**How is this helping the business/organisation make better decisions?**
+
++ Help understand why productivity growth has slowed sharply in the UK in recent years
+
++ Provide a framework to investigate the effect of factors such as mental health and R&D in the UK productivity
+
++ Provide a framework to accelerate productivity growth in Scotland and the UK overall
+
+#### Domain knowledge and the business context
+
+Briefly describe the business/organisation and where your analysis fits within its aims/activity. 
+
+
+**Ans**
+
++ Consultancy firm (management, finances) serving private, public, and social organisations
+
++ Academic/Research Institute ( improve understanding of the economic and social forces that affect people’s lives, and the ways in which policy can bring about change)
+
++ UK Government : provided facts and insights on which to base management and policy decisions.( ie help into shaping winning strategies, mobilise for change, build capabilities, and drive successful transformation and lasting improvements.)
+
+
+We are interested in performing a prediction task and not only for exploratory analysis
+
+# Data
+
+#### Internal and external data sources
+
+Briefly describe your data sources and which were internal (provided by the organisation) and external (not sourced from the organisation's data)
+
+
+**Ans**
+
++ All sources were external (OECD and ONS)
+
+  + OECD_Public_Spending_on_Education_JHios
+  
+  + OECD_Gross_Domestic_Product_GDP_JHios
+  
+  + OECD_GDP_per_Hour_Worked_JHios
+  
+  + OECD_Investment_GFCF_JHios
+  
+  + OECD_Hours_Worked_JHios
+  
+  + OECD_Investment_by_Asset_JHios
+  
+  + ONS_International_Labour_Productivity-Europe (Eurostat, Office for National Statistics)
+
+
+
+#### Types of data
+
+What kind of data did you work with? E.g. categorical and numerical data and their sub-types.
+
+**Ans**
+
++ Categorical character type (nominal: such as countries, investment sector, ordinal: date-time)
+
++ Numerical double (discrete: years, continuous: financial indicators, such as productivity, GDP, GFCF, education expenditure etc)
+
+#### Data formats
+
+What format did your data come in? E.g. all downloaded flat files (CSV) or any data from APIs, scraping etc.
+
+**Ans**
+
++ 6 data files were in .csv format collected from the OECD online data library
+ 
++ 1 data file in .xls format originating from ONS and provided by Deloitte
+
+#### Data quality and bias
+
+Briefly describe the quality of the data and whether you have any reasons to suggest the data is biased e.g. only data from a specific demographic even though a broader demographic would be of interest to the organisation.
+
+
+**Ans**
+
+The OECD views quality in terms of the following seven dimensions
+
++ Relevance
+
++ Accuracy and Reliability 
+(Bias in data may impact accuracy. When data is biased it means that it is not representative of the entire population. Account for bias in your measurements if possible, and make sure that data bias is communicated to your users.
+In a data set, individual records can be measured for accuracy, or the whole data set can be measured. Which you choose to do should depend on the purpose of the data and your business needs.)
+
+consistency with output and value-added measures, in particular, by industry, as the LFS is a household survey for which the stratification process may not adequately capture the homogenous strata required in productivity analysis. In addition, in many countries, the LFS does not cover some groups of the population such as persons below or above certain age thresholds (which varies by country), those living and working in communal establishments (such as prisons or long-term care facilities), collective households (such as religious institutions) and the armed forces, all of whose output is included, at least in theory, in estimates of GDP. In addition, the sampling structure of LFS is based on the population usually residing in the country and includes workers in non-resident production units, whereas nonresident cross-border workers working in resident production units are excluded. There may also be biases in LFS responses, reflecting the self-reporting nature of LFS, and these biases, that may also be cultural, appear to be significant with respect to responses on hours actually worked
+
++ Credibility
+
++ Timeliness and punctuality
+
++ Accessibility and clarity
+
++ Interpretability
+
++ Coherence and comparability
+
+
+The quality of statistics and indicators disseminated depends on two aspects: the quality of the national statistics received and the quality of the internal
+processes for the collection, processing, analysis and dissemination of data and metadata. While the latter is within OECD’s control, the former is less so.
+
+The quality of national statistics received will essentially be a function of:
+
++ The adequacy of national data sources to provide the required international data
+
++ the extent to which international data definitions and guidelines are correctly applied
+
++ internal capacity within countries to implement OECD guidelines and develop appropriate data collection systems
+
++ the quality and reliability of data transfer channels between national statistics offices and the OECD.
+
+# Ethics
+
+#### Ethical issues in data sourcing and extraction
+
+Do you have any ethical concerns regarding the sourcing and extraction of your data? 
+
+**Ans**
+
+(Does it mean sourcing the data from OECD and ONS? If that is the case then there is no concern, they are open databases. The information does not contain PII and the results aim at providing insights and strategies for improvement of countries.
+Use the data effectively for public benefit, efficiently and safely to deliver high quality public services and government.)
+
+No there are not any:
+
++ ONS collects data in line with their data ethics policy [https://www.ons.gov.uk/aboutus/transparencyandgovernance/datastrategy/datapolicies/dataethicspolicy]
+
++ OECD works on government data of member countries in line with the Quality Framework for OECD Statistical Activities [https://www.oecd.org/sdd/qualityframeworkforoecdstatisticalactivities.htm]
+
+
+#### Ethical implications of business requirements
+
+Are there any ethical implications of the business requirements?
+
+**Ans**
+
+No implications:
+Use the data effectively for public benefit, efficiently and safely to deliver high quality public services and government.
+
+
+# Analysis
+
+#### Stages in the data analysis process
+
+What were the main stages in your data analysis process?
+
+
+**Ans**
+
+1. Data Wrangling (import, tidy, transform data)
+
+    + Importing data
+  
+    + Inspecting data (Provide basic descriptions of the data and features)
+  
+    + Tidying (cleaning) data
+  
+    + Transforming data
+  
+    + Run missing data diagnostics (Check for missing data)
+  
+    + Fixing error and poorly formatted data elements
+  
+    + filtering, subsetting data
+  
+ 
+2. Exploratory data analysis (visualising, further transforming data, identifying significant patterns and modelling the data)
+
+    + Analyse and investigate data sets to discover patterns and/or spot anomalies/errors (shape of the data, significant correlations, outliers in the data set)
+  
+    + Summarise main characteristics using data visualisation methods
+  
+    + Classification via K-means clustering
+  
+    + Predictive modelling using linear regression analysis
+
+  
+
+#### Tools for data analysis
+
+What were the main tools you used for your analysis?
+
+
+**Ans**
+
+Exploratory data analysis tools include:
+  
++ K-means clustering to create graphical displays of multi-dimensional data and to identify patterns
+    
++ Linear regression modelling to predict outcomes from the available data
+    
++ Visualisation tools
+  
+  + Univariate graphical (bar plots)
+  
+  + Multivariate graphical via scatterplots and run charts (line graph of data over time) and heat map (graphical representation of data where values are depicted by colour)
+
+
+#### Descriptive, diagnostic, predictive and prescriptive analysis
+
+Please report under which of the below categories your analysis falls **and why** (can be more than one) 
+
+::: {.emphasis}
+**Descriptive Analytics** tells you what happened in the past.
+
+**Diagnostic Analytics** helps you understand why something happened in the past.
+
+**Predictive Analytics** predicts what is most likely to happen in the future.
+
+**Prescriptive Analytics** recommends actions you can take to affect those outcomes.
+:::
+
+
+**Ans**
+
+The analysis completed falls under the following categories
+
+**Descriptive Analytics:** Current and historical data to identify trends and relationships. Trends and relationships between data were identified for the UK and other countries and information was visually displayed. K-means clustering was used to group countries according to their productivity and investment in key assets and education. Run charts were also used to observe changes in the productivity over time. 
+
+**Diagnostic Analytics:** Diagnostic regression analysis was used to determine the relationship between UK productivity and investment in a historical context. A multiple regression model using 4 predictors and pairwise interactions was developed and measures of how well the data fit that relationship were provided.
+
+**Predictive Analytics:** The linear regression model developed to perform diagnostic analytics may also be used to develop forecasts for the future, however making assumptions about the future and using forecasting to make better decisions and formulate data-informed strategies was not pursued in this work.
+
+**Prescriptive Analytics:**  
+
+
+# PDA Outcomes
+
+### Working with Data (J4Y6 35)
+
+#### 1. Plan an analysis to provide business intelligence
+
+-   1.1 Business intelligence and data-driven decision making
+-   1.2 Domain knowledge and the business context
+-   1.4 Internal and external data sources
+-   1.5 Data quality
+-   1.6 Stages in the data analysis process
+-   1.7 Descriptive, diagnostic, predictive and prescriptive analysis
+-   1.9 Ethical implications of business requirements
+-   1.10 Tools for data analysis
+
+#### 2. Extract data from a variety of sources
+
+-   2.1 Tools for querying data sources
+-   2.2 Types of data (categorical and numerical data and their sub-types)
+-   2.3 Data formats
+-   2.6 Data quality including data bias
+-   2.7 Ethical issues in data sourcing and extraction
+
+#### 4. Analyse data to provide business intelligence
+
+-   4.7 Role of domain knowledge in interpreting analyses

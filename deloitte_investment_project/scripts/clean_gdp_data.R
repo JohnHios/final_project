@@ -45,7 +45,7 @@ gdp %>%
 
 
 #-----------------------------------------------------------------------
-# 4. Select lines and columns for analysis.
+# 4. Select rows and columns for analysis.
 
 gdp <- gdp %>%
   filter(measure == "MLN_USD") %>%

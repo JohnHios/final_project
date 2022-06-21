@@ -1,0 +1,110 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+<br>
+__Library calls__
+```{r}
+library(here)
+library(tidyverse)
+library(janitor)
+```
+
+
+<br>
+__Read cleaned data__
+```{r}
+source(here("scripts/clean_gdp_data.R"))
+```
+
+<br>
+__OECD Data: Gross Domestic Product (GDP)__
+
+Select the GDP data (million USD) of UK and other European countries for year 2018 (K-means clustering is performed for 2018, too) and calculate their share of total Europe's GDP
+```{r}
+gdp_europe <- gdp %>%
+  mutate(year = year(year)) %>%
+  filter(
+    country %in% c("AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", 
+                   "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", 
+                   "LUX", "MLT", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "SVN", 
+                   "ESP", "SWE", "CHE", "GBR", "RUS", "ALB", "SRB", "MKD"),
+    year == 2018
+    ) %>%
+  mutate(country = recode(country,
+    "AUT" = "Austria", "BEL" = "Belgium", "BGR" = "Bulgaria", "HRV" = "Croatia", "CYP" = "Cyprus",
+    "CZE" = "Czech Republic", "DNK" = "Denmark", "EST" = "Estonia", "FIN" = "Finland", 
+    "FRA" = "France", "DEU" = "Germany", "GRC" = "Greece", "HUN" = "Hungary", "IRL" = "Ireland",
+    "ITA" = "Italy", "LVA" = "Latvia", "LTU"= "Lithuania", "LUX" = "Luxembourg", "MLT" = "Malta",
+    "NLD" = "Netherlands", "NOR" = "Norway", "POL" = "Poland", "PRT" = "Portugal", 
+    "ROU" = "Romania", "SVK" = "Slovakia", "SVN" = "Slovenia", "ESP" = "Spain" , "SWE" = "Sweden", 
+    "CHE" = "Switzerland", "GBR" = "UK", "RUS" = "Russia", "ALB" = "Albania", "SRB" = "Serbia", 
+    "MKD" = "North Macedonia"
+  )) %>% 
+  mutate(gdp_pc = gdp_mln_usd/sum(gdp_mln_usd)*100)
+  
+```
+
+
+
+<br>
+Retrieve the world map data:
+```{r}
+euromapdata <- map_data("world")
+glimpse(euromapdata)
+```
+
+Check for NA values:
+```{r}
+euromapdata %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+Left join world map data with European country GDP data 
+```{r}
+mapdata <- mapdata %>%
+  left_join(gdp_europe, by = c("region" = "country")) 
+```
+
+
+
+```{r}
+mapdata %>% 
+  ggplot(aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill = gdp_pc), color = "black") +
+  coord_sf(xlim = c(-13,35), ylim = c(34,72), expand = FALSE) +
+  theme_void() +
+  theme(panel.background = element_blank()) +
+  scale_fill_steps(n.breaks = 4, na.value = "lightgrey") +
+  ggtitle("European countries by share of total Europe's GDP") +
+  labs(fill = "GDP share (%)")
+
+```
+
+```{r}
+gdp_europe %>% 
+  arrange(desc(gdp_pc))
+```
+
+The UK economy is very similar in size with France's economy. 
+
+Germany, France and the UK have comparable economies and population size. Therefore France and to a lesser extent Germany can serve as a basis of comparison.
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+

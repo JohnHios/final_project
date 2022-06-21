@@ -45,7 +45,7 @@ hrs_wrkd %>%
 
 
 #-----------------------------------------------------------------------
-# 4. Select lines and columns for analysis.
+# 4. Select rows and columns for analysis.
 
 hrs_wrkd <- hrs_wrkd %>% 
   filter(measure == "HR_WKD") %>% 

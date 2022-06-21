@@ -1,0 +1,148 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+<br>
+__Library calls__
+```{r}
+library(here)
+library(tidyverse)
+library(janitor)
+```
+
+Load Data
+```{r}
+# country_code_iso3 <- read_csv(here("raw_data/passfort-iso-3-country-code.csv")) %>% 
+#   clean_names()
+# 
+# glimpse(country_code_iso3)
+```
+
+
+<br>
+__Read cleaned data__
+```{r}
+source(here("scripts/clean_gdp_data.R"))
+```
+
+```{r}
+gdp %>% 
+  distinct(country)
+```
+RUS MKD ALB SRB
+
+<br>
+__OECD Data: Gross Domestic Product (GDP)__
+
+Select the GDP data (million USD) of UK and other European countries for year 2018
+```{r}
+gdp_europe <- gdp %>%
+  mutate(year = year(year)) %>%
+  filter(
+    country %in% c("AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", 
+                   "FRA", "DEU", "GRC", "HUN", "IRL", "ITA", "LVA", "LTU", 
+                   "LUX", "MLT", "NLD", "NOR", "POL", "PRT", "ROU", "SVK", "SVN", 
+                   "ESP", "SWE", "CHE", "GBR", "RUS", "ALB", "SRB", "MKD"),
+    year == 2018
+    ) %>%
+  mutate(country = recode(country,
+    "AUT" = "Austria", "BEL" = "Belgium", "BGR" = "Bulgaria", "HRV" = "Croatia", "CYP" = "Cyprus",
+    "CZE" = "Czech Republic", "DNK" = "Denmark", "EST" = "Estonia", "FIN" = "Finland", 
+    "FRA" = "France", "DEU" = "Germany", "GRC" = "Greece", "HUN" = "Hungary", "IRL" = "Ireland",
+    "ITA" = "Italy", "LVA" = "Latvia", "LTU"= "Lithuania", "LUX" = "Luxembourg", "MLT" = "Malta",
+    "NLD" = "Netherlands", "NOR" = "Norway", "POL" = "Poland", "PRT" = "Portugal", 
+    "ROU" = "Romania", "SVK" = "Slovakia", "SVN" = "Slovenia", "ESP" = "Spain" , "SWE" = "Sweden", 
+    "CHE" = "Switzerland", "GBR" = "UK", "RUS" = "Russia", "ALB" = "Albania", "SRB" = "Serbia", 
+    "MKD" = "North Macedonia"
+  )) %>% 
+  mutate(gdp_pc = gdp_mln_usd/sum(gdp_mln_usd)*100)
+  
+```
+
+
+
+```{r}
+mapdata <- map_data("world")
+glimpse(mapdata)
+```
+
+Check for NA values
+```{r}
+mapdata %>% 
+  summarise(across(.cols = everything(),
+                   .fns = ~sum(is.na(.x))))
+```
+
+
+
+```{r}
+mapdata %>% 
+  distinct(region) %>% 
+  arrange(region)
+```
+
+
+```{r}
+mapdata <- mapdata %>%
+  left_join(gdp_europe, by = c("region" = "country")) #%>% 
+  # filter(!is.na(gdp_mln_usd))
+  
+```
+
+
+```{r}
+mapdata %>% 
+  ggplot(aes(x = long, y = lat, group = group)) +
+  # geom_polygon(aes(fill = gdp_mln_usd), color = "black")
+  geom_polygon(aes(fill = gdp_pc), color = "black") +
+  coord_sf(xlim = c(-25,50), ylim = c(35,72), expand = FALSE)
+```
+
+```{r}
+mapdata %>% 
+  ggplot(aes(x = long, y = lat, group = group)) +
+  geom_polygon(aes(fill = gdp_pc, na.value = "grey80"), color = "black") +
+  # geom_polygon(aes(fill = gdp_mln_usd), color = "black") +
+  coord_sf(xlim = c(-13,35), ylim = c(34,72), expand = FALSE) +
+  theme_void() +
+  # theme_bw() +
+  # theme_classic() +
+  theme(panel.background = element_blank()) +
+  # scale_fill_gradient(name = "% gdp", low = "yellow", high = "red", na.value = "grey80")
+  # scale_fill_viridis_c(option = "plasma", trans = "log10")
+  # scale_fill_viridis_c(trans = "log10")
+  # scale_fill_binned()
+  scale_fill_steps(n.breaks = 4, na.value = "lightgrey") +
+  # scale_fill_steps(low = "grey", high = "brown")
+  # scale_fill_steps(low = "yellow", high = "red", n.breaks = 4)
+  # scale_fill_steps2(low = "grey", mid = "white", high = "brown", midpoint = .02)
+  # scale_fill_stepsn(n.breaks = 4, colours = terrain.colors(4))
+  # scale_fill_fermenter(n.breaks = 4)
+   # scale_fill_fermenter(n.breaks = 4, palette = "Oranges")
+  # scale_fill_fermenter(n.breaks = 4, palette = "PuOr", na.value = "lightgrey")
+  # scale_fill_manual(values = gdp_mln_usd,  labels = seq(0.0,5e6, length.out = 10) %>% round(2))
+  # scale_fill_stepsn(colours = terrain.colors(5))
+  ggtitle("European countries by share of total Europe's GDP") +
+  labs(fill = "GDP share (%)")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+

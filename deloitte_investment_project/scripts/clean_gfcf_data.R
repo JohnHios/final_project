@@ -45,7 +45,7 @@ gfcf %>%
 
 
 #-----------------------------------------------------------------------
-# 4. Select lines and columns for analysis.
+# 4. Select rows and columns for analysis.
 
 gfcf <- gfcf %>% 
   filter(measure == "MLN_USD") %>% 
