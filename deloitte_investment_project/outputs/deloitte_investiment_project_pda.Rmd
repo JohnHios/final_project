@@ -23,7 +23,7 @@ output:
 
 This report aims at investigating the relationship between productivity and investment with an aim to improve productivity within Scotland and the UK overall. For this purpose, a range of countries were compared to understand the factors that influence both investment levels and productivity. 
 
-Some targeted questions we are interested in for this specific project are listed below: 
+Some targeted questions of interest for this specific project are listed below: 
 
 1. Does government spending on factors such as mental health, education, and research and development (R&D) affect productivity in the UK? 
 
@@ -65,37 +65,29 @@ knitr::include_graphics("images/benefits_of_productivity_growth.jpg")
 ### Business intelligence and data-driven decision making
 
 
-The analysis presented in this report will provide useful insights towards a better understanding of the:
+The analysis presented in this report aims at providing useful insights towards a better understanding of the following:
 
 + Relationship between productivity and investment, which in turn will allow for predicting UK productivity based on investment.
 
 + Structural differences of UK productivity versus other high productivity countries.
 
 <br>
-The outcomes of the analysis are expected to:
+The outcomes of the analysis are expected to help in:
 
-+ Help understand why productivity growth has slowed sharply in the UK in recent years.
++ Understanding why productivity growth has slowed sharply in the UK in recent years.
 
-+ Provide a framework to investigate the effect of factors such as mental health and R&D in the UK productivity.
++ Providing a framework to investigate the effect of factors such as mental health and R&D in the UK productivity.
 
-+ Provide a framework to accelerate productivity growth in Scotland and the UK overall.
-
-
-#### Domain knowledge and the business context
-
-Briefly describe the business/organisation and where your analysis fits within its aims/activity. 
++ Providing a framework to accelerate productivity growth in Scotland and the UK overall.
 
 
-**Ans**
 
-+ Consultancy firm (management, finances) serving private, public, and social organisations
+### Domain knowledge and the business context
 
-+ Academic/Research Institute ( improve understanding of the economic and social forces that affect people’s lives, and the ways in which policy can bring about change)
+The analysis presented in this report is carried out on behalf of Deloitte, an international professional services network that provides audit, consulting, financial advisory, risk advisory, tax, and related services in different business sectors, including government^[https://www2.deloitte.com/uk/en/footerlinks1/about-deloitte.html]. 
 
-+ UK Government : provided facts and insights on which to base management and policy decisions.( ie help into shaping winning strategies, mobilise for change, build capabilities, and drive successful transformation and lasting improvements.)
+Within the context of a consulting/financial advisory firm, this analysis would provide facts and insights on which the Scotland and the UK in overall could base management and policy decisions. This means that Deloitte would help the country into shaping winning strategies, mobilise for change, build capabilities, and drive successful transformation and lasting improvements.
 
-
-We are interested in performing a prediction task and not only for exploratory analysis
 
 # Data
 
