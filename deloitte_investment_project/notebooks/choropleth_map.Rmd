@@ -79,7 +79,9 @@ mapdata %>%
   theme_void() +
   theme(panel.background = element_blank()) +
   scale_fill_steps(n.breaks = 4, na.value = "lightgrey") +
-  ggtitle("European countries by share of total Europe's GDP") +
+  ggtitle(
+    "European countries by share of total Europe's GDP",
+    subtitle = "(OECD data for 2018)") +
   labs(fill = "GDP share (%)")
 
 ```

@@ -17,18 +17,9 @@ output:
 
 # Introduction
 
-#### The business problem
+### The business problem
 
 *Productivity* is key to the development of local businesses and the wider economy. Over the past decade, productivity has slowed down globally with the UK lagging behind some other developed economies. 
-
-
-# Context
-
-#### Business intelligence and data-driven decision making
-
-What insights can the business/organisation gain from your analysis and how will your analysis help the business/organisation make better decisions?
-
-**Ans**
 
 This report aims at investigating the relationship between productivity and investment with an aim to improve productivity within Scotland and the UK overall. For this purpose, a range of countries were compared to understand the factors that influence both investment levels and productivity. 
 
@@ -38,25 +29,57 @@ Some targeted questions we are interested in for this specific project are liste
 
 2. Is there a relationship between government investment and productivity? 
 
-3. Can investment be used to predicti productivity?
+3. Can investment be used to predict productivity?
 
 
-**Insights**
+### Definition of productivity
 
-+ Understand relationship between productivity and investment
-
-+ Structural differences of UK productivity vs other high productivity countries
-
-+ Prediction of UK productivity based on investment
+Productivity is commonly defined as a ratio between the output volume and the volume of inputs. In other words, it measures how efficiently production inputs, 
+such as labour and capital, are being used in an economy to produce a given level of output (refer to schematic in Figure 1).
 
 
-**How is this helping the business/organisation make better decisions?**
+```{r, echo=FALSE, fig.cap="Figure 1: Productivity Explained (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
+knitr::include_graphics("images/productivity_explained.jpg")
+```
+<br>
+There are different measures of productivity and the choice between them depends either on the purpose of the productivity measurement and/or data availability. One of the most widely used measures of productivity is Gross Domestic Product (GDP) per hour worked. This measure captures the use of labour inputs better than just output per employee in accordance to the Organisation for Economic Co-operation and Development (OECD)^[https://www.oecd.org/sdd/productivity-stats/40526851.pdf]. 
 
-+ Help understand why productivity growth has slowed sharply in the UK in recent years
 
-+ Provide a framework to investigate the effect of factors such as mental health and R&D in the UK productivity
+### Productivity and investment
 
-+ Provide a framework to accelerate productivity growth in Scotland and the UK overall
+An outline of the relationship between productivity and investment is provided below^[https://www.investopedia.com/terms/p/productivity.asp]: 
+
++ When productivity fails to grow significantly, it limits potential gains in wages, corporate profits, and living standards. Figure 2 explains schematically the impact of productivity to the economic welfare and prosperity of a country.  
+
++ Investment in an economy is equal to the level of savings because investment has to be financed from savings. 
+
++ Low savings rates can lead to lower investment rates and lower growth rates for labour productivity and real wages. 
+
+
+```{r, echo=FALSE, fig.cap="Figure 2: Benefits of Productivity Growth (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
+knitr::include_graphics("images/benefits_of_productivity_growth.jpg")
+```
+
+# Context
+
+### Business intelligence and data-driven decision making
+
+
+The analysis presented in this report will provide useful insights towards a better understanding of the:
+
++ Relationship between productivity and investment, which in turn will allow for predicting UK productivity based on investment.
+
++ Structural differences of UK productivity versus other high productivity countries.
+
+<br>
+The outcomes of the analysis are expected to:
+
++ Help understand why productivity growth has slowed sharply in the UK in recent years.
+
++ Provide a framework to investigate the effect of factors such as mental health and R&D in the UK productivity.
+
++ Provide a framework to accelerate productivity growth in Scotland and the UK overall.
+
 
 #### Domain knowledge and the business context
 
