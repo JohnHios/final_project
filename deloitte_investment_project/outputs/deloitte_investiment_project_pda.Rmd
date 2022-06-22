@@ -190,78 +190,54 @@ There are no ethical implications of the business requirements, as the data in t
 
 ### Stages in the data analysis process
 
-The main stages in the data analysis process are the *data wrangling* and the *exploratory data analysis*, which are outlined in the schematic of Figure 4 below.
+The main stages in the data analysis process are the *data wrangling* and the *exploratory data analysis*, these are outlined in the schematic of Figure 4 below.
 
 ```{r, echo = FALSE, fig.cap = "Figure 4: Data wrangling and exploratory data analysis (https://r4ds.had.co.nz/wrangle-intro.html)", out.width = '60%'}
 knitr::include_graphics("images/data_science_wrangle.png")
 ```
+<br>
+The *data wrangling* stage of the analysis consists of the following tasks:
 
-The *data wrangling* stage of the analysis consists of the following tasks: 
 + Importing data.
-+ Inspecting data (Provide basic descriptions of the data and features).
-+ Tidying (cleaning) data.
++ Inspecting and tidying (cleaning) data.
 + Transforming data to more usable formats.
-+ Run missing data diagnostics (Check for missing data).
-+ Fixing error and poorly formatted data elements.
-+ Filtering/subsetting data.  
++ Check for missing data by running missing data diagnostics.
++ Fixing any error and poorly formatted data elements.
++ Filtering/subsetting the data to prepare them for the exploratory analysis stage.  
 
+The *exploratory data analysis* stage consists of the following tasks: 
 
-    
-    
-2. Exploratory data analysis (visualising, further transforming data, identifying significant patterns and modelling the data)
-    + Analyse and investigate data sets to discover patterns and/or spot anomalies/errors (shape of the data, significant correlations, outliers in the data set).
-    + Summarise main characteristics using data visualisation methods.
-    + Classification via K-means clustering.
-    + Predictive modelling using linear regression analysis.
-
++ Analysing and investigating the available data sets to discover significant correlations/patterns between productivity and investment in education and key assets.
++ Summarising the main characteristics of the productivity and investment in education and key assets using visualisation methods, such as:
+  + Bar-plots 
+  + Scatterplots 
+  + Run charts (line graph of data over time) 
+  + Colorpleth maps (graphical representation of data across geographical locations where values are depicted by colour).
++ Classification and graphical display of a multitude of countries in terms of productivity and investment via K-means clustering.
++ Linear regression modelling to determine the relationship between UK productivity and investment.
 
 
 ### Tools for data analysis
 
-What were the main tools you used for your analysis?
+The main tools used to carry out this analysis were:
 
++ **R**: Programming language for statistical computing and graphics - R version 4.1.2 (2021-11-01) -- "Bird Hippie" was used to run this analysis.
++ **RStudio**: Integrated development environment (IDE) for **R** - The 2021.09.1+372 "Ghost Orchid" regular desktop application release was used to run this analysis. 
++ **Rmarkdown**: Authoring framework for data science used for creating markdown documents - it was used for generating the final report.
 
-**Ans**
-
-Exploratory data analysis tools include:
-  
-+ K-means clustering to create graphical displays of multi-dimensional data and to identify patterns
-    
-+ Linear regression modelling to predict outcomes from the available data
-    
-+ Visualisation tools
-  
-  + Univariate graphical (bar plots)
-  
-  + Multivariate graphical via scatterplots and run charts (line graph of data over time) and heat map (graphical representation of data where values are depicted by colour)
 
 
 ### Descriptive, diagnostic, predictive and prescriptive analysis
 
-Please report under which of the below categories your analysis falls **and why** (can be more than one) 
+The analysis completed falls under the following categories:
 
-::: {.emphasis}
-**Descriptive Analytics** tells you what happened in the past.
++ **Descriptive Analytics:** Current and historical data were used to identify trends and relationships between productivity and investment in key assets and education for a multitude of countries. A combination of visual displays, such as run charts and bar-plots were used to confirm that the UK productivity growth has experienced a significant drop since the great recession (that is, the period between Dec 2007 - June 2009). Colorpleth mapping was also used to compare the GDP share of countries across Europe. 
 
-**Diagnostic Analytics** helps you understand why something happened in the past.
++ **Diagnostic Analytics:** K-means clustering was used to group the UK and several European countries according to their productivity and investment in key assets and education. Scatterplots were used to display graphically the outcome of the clustering process and provided insights on the why the UK productivity is lagging behind some other developed economies.
 
-**Predictive Analytics** predicts what is most likely to happen in the future.
-
-**Prescriptive Analytics** recommends actions you can take to affect those outcomes.
-:::
++ **Predictive Analytics:** Linear regression analysis was used to determine the relationship between UK productivity and investment in a historical context. A multiple regression model using 4 predictors and pairwise interactions was developed to measure how well the data fit that relationship. The model can be used to develop forecasts for the future. However the use of forecasting techniques for better decision making and formulating data-informed strategies was not pursued in this work.
 
 
-**Ans**
-
-The analysis completed falls under the following categories
-
-**Descriptive Analytics:** Current and historical data to identify trends and relationships. Trends and relationships between data were identified for the UK and other countries and information was visually displayed. K-means clustering was used to group countries according to their productivity and investment in key assets and education. Run charts were also used to observe changes in the productivity over time. 
-
-**Diagnostic Analytics:** Diagnostic regression analysis was used to determine the relationship between UK productivity and investment in a historical context. A multiple regression model using 4 predictors and pairwise interactions was developed and measures of how well the data fit that relationship were provided.
-
-**Predictive Analytics:** The linear regression model developed to perform diagnostic analytics may also be used to develop forecasts for the future, however making assumptions about the future and using forecasting to make better decisions and formulate data-informed strategies was not pursued in this work.
-
-**Prescriptive Analytics:**  
 
 # Conclusions
 
@@ -271,13 +247,14 @@ The main conclusions drawn from this analysis are listed below:
 
 + Compared to France and Germany (countries similar in size of population and economy) productivity is notably lower in key economic activities.
 
-+ Infrastructure and Dwelling investments seem to have the largest impact in the UK GDP per hour worked (approx. 34% and 35% respectively).
++ Infrastructure and Dwelling investments seem to have the largest impact in the UK GDP per hour worked (approximate values 34% and 35% respectively).
 
-+ Investments in Intellectual property products in the UK is lagging compared to Germany & France and accounts to a small portion of the UK productivity (approx. 18%).
++ Investments in Intellectual property products in the UK is lagging compared to Germany and France - it accounts to a small portion of the UK productivity (approximately 18%).
 
-+ The UK Education investments are notably low compared to most higher productivity economies in Europe – scarcity of data didn’t allow for including this factor in the productivity prediction model.
++ The UK Education investments are notably low compared to most higher productivity economies in Europe (latest data are from 2018) – lack of sufficient data didn’t allow for including this factor in the productivity prediction model.
 
 + Lack of adequate Mental Health data did not allow for any assessments of its impact in productivity.
+
 
 # Recommendations
 
