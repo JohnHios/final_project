@@ -1,5 +1,7 @@
 ---
-title: "R Notebook"
+title: "GDP Colorpleth Map of Europe"
+author: "John Hios"
+date: "16/06/2022"
 output: html_notebook
 ---
 
@@ -65,14 +67,14 @@ euromapdata %>%
 
 Left join world map data with European country GDP data 
 ```{r}
-mapdata <- mapdata %>%
+euromapdata <- euromapdata %>%
   left_join(gdp_europe, by = c("region" = "country")) 
 ```
 
 
 
 ```{r}
-mapdata %>% 
+euromapdata %>% 
   ggplot(aes(x = long, y = lat, group = group)) +
   geom_polygon(aes(fill = gdp_pc), color = "black") +
   coord_sf(xlim = c(-13,35), ylim = c(34,72), expand = FALSE) +

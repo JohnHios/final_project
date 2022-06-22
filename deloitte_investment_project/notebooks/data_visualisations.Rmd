@@ -292,6 +292,11 @@ productivity_phw %>%
   filter(
     country %in% c("United Kingdom", "France", "Germany")
   ) %>% 
+  mutate(country = recode(country,
+                          "France" = "FRA", 
+                          "Germany" = "DEU", 
+                          "United Kingdom" = "GBR")
+  ) %>% 
   ggplot() +
   aes(
     x = section, 

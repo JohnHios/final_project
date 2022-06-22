@@ -26,7 +26,7 @@ library(lubridate)
 #-----------------------------------------------------------------------
 # 1. Read csv data and change names of variables to follow our naming standards.
 
-hrs_wrkd <- read_csv(here("raw_data/OECD_Hours_Worked_JHios.csv")) %>% 
+hrs_wrkd <- read_csv(here("raw_data/OECD_Hours_Worked.csv")) %>% 
   clean_names()
 
 #-----------------------------------------------------------------------

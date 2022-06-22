@@ -16,10 +16,7 @@ output:
     toc: yes
 ---
 
-```{r setup, include=FALSE}
-# knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(echo = FALSE, fig.align = 'center')
-```
+
 
 
 # Introduction
@@ -45,9 +42,10 @@ Productivity is commonly defined as a ratio between the output volume and the vo
 such as labour and capital, are being used in an economy to produce a given level of output (refer to schematic in Figure 1).
 
 
-```{r, echo = FALSE, fig.cap = "Figure 1: Productivity Explained (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
-knitr::include_graphics("images/productivity_explained.jpg")
-```
+<div class="figure" style="text-align: center">
+<img src="images/productivity_explained.jpg" alt="Figure 1: Productivity Explained (https://www.rba.gov.au/education/resources/explainers/productivity.html)" width="50%" />
+<p class="caption">Figure 1: Productivity Explained (https://www.rba.gov.au/education/resources/explainers/productivity.html)</p>
+</div>
 
 <br>
 There are different measures of productivity and the choice between them depends either on the purpose of the productivity measurement and/or data availability. One of the most widely used measures of productivity is Gross Domestic Product (GDP) per hour worked. This measure captures the use of labour inputs better than just output per employee, as suggested by the Organisation for Economic Co-operation and Development (OECD)^[https://www.oecd.org/sdd/productivity-stats/40526851.pdf]. 
@@ -64,9 +62,10 @@ An outline of the relationship between productivity and investment is provided b
 + Low savings rates can lead to lower investment rates and lower growth rates for labour productivity and real wages. 
 
 
-```{r, echo = FALSE, fig.cap = "Figure 2: Benefits of Productivity Growth (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
-knitr::include_graphics("images/benefits_of_productivity_growth.jpg")
-```
+<div class="figure" style="text-align: center">
+<img src="images/benefits_of_productivity_growth.jpg" alt="Figure 2: Benefits of Productivity Growth (https://www.rba.gov.au/education/resources/explainers/productivity.html)" width="50%" />
+<p class="caption">Figure 2: Benefits of Productivity Growth (https://www.rba.gov.au/education/resources/explainers/productivity.html)</p>
+</div>
 
 # Context
 
@@ -165,9 +164,10 @@ During an initial review of the data, the following were noticed:
 2. Education expenditure data for the UK and several other countries had multiple missing values (refer to Figure 3). Imputing the missing data with substitute values was not deemed appropriate as this would distort the dataset. The subsequent steps in the analysis would not benefit from the induced bias and therefore it was decided to limit the scope of this dataset.  
 
 
-```{r, echo = FALSE, fig.cap = "Figure 3: Missing values in UK public spending on education (% GDP)", out.width = '80%'}
-knitr::include_graphics("images/UK_public_spending_on_education.png")
-```
+<div class="figure" style="text-align: center">
+<img src="images/UK_public_spending_on_education.png" alt="Figure 3: Missing values in UK public spending on education (% GDP)" width="80%" />
+<p class="caption">Figure 3: Missing values in UK public spending on education (% GDP)</p>
+</div>
 <br>
 
 #### Bias in data
@@ -203,9 +203,10 @@ There are no ethical implications of the business requirements, as the data in t
 
 The main stages in the data analysis process are the *data wrangling* and the *exploratory data analysis*, these are outlined in the schematic of Figure 4 below.
 
-```{r, echo = FALSE, fig.cap = "Figure 4: Data wrangling and exploratory data analysis (https://r4ds.had.co.nz/wrangle-intro.html)", out.width = '60%'}
-knitr::include_graphics("images/data_science_wrangle.png")
-```
+<div class="figure" style="text-align: center">
+<img src="images/data_science_wrangle.png" alt="Figure 4: Data wrangling and exploratory data analysis (https://r4ds.had.co.nz/wrangle-intro.html)" width="60%" />
+<p class="caption">Figure 4: Data wrangling and exploratory data analysis (https://r4ds.had.co.nz/wrangle-intro.html)</p>
+</div>
 <br>
 The *data wrangling* stage of the analysis consists of the following tasks:
 
@@ -241,26 +242,29 @@ The UK productivity has consistently lagged behind a number of other advanced ec
 + The UK productivity growth has slowed down significantly since the financial crisis of 2008 (the great recession took place between Dec 2007 - June 2009). This has opened a up a large gap between anticipated and actual GDP per hour worked.
 
 
-```{r, echo = FALSE, fig.cap = "Figure 5: Run chart of G-7 productivity trends (country names are per ISO 3166-1 alpha-3^[https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3])", out.width = '80%'}
-knitr::include_graphics("images/G7_cross_country_gdp_phw_marked.png")
-```
+<div class="figure" style="text-align: center">
+<img src="images/G7_cross_country_gdp_phw_marked.png" alt="Figure 5: Run chart of G-7 productivity trends (country names are per ISO 3166-1 alpha-3^[https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3])" width="80%" />
+<p class="caption">Figure 5: Run chart of G-7 productivity trends (country names are per ISO 3166-1 alpha-3^[https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3])</p>
+</div>
 
 <br>
 
 Note that even when the UK is compared to a broader set of OECD countries, the productivity is not ranking high as seen in Figure 6 below. 
 
-```{r, echo = FALSE, fig.cap = "Figure 6: OECD cross country productivity for 2020 (country names are per ISO 3166-1 alpha-3; UK is highlighted in red)", out.width = '80%'}
-knitr::include_graphics("images/cross_country_gdp_phw_2020.png")
-```
+<div class="figure" style="text-align: center">
+<img src="images/cross_country_gdp_phw_2020.png" alt="Figure 6: OECD cross country productivity for 2020 (country names are per ISO 3166-1 alpha-3; UK is highlighted in red)" width="80%" />
+<p class="caption">Figure 6: OECD cross country productivity for 2020 (country names are per ISO 3166-1 alpha-3; UK is highlighted in red)</p>
+</div>
 
 
 #### Classification of UK economy
 
 The size of the UK economy in terms of GDP is comparable to the economy of France and to Germany's to a lesser extent as seen in Figure 7 and the table below. Note that the map depicts data for 2018, but similar results can be derived for more recent years. 
 
-```{r, echo = FALSE, fig.cap = "Figure 7: Map of European countries by share of their GDP in 2018 (where no data is available, countries are coloured in light grey; transcontinental countries not included)", out.width = '90%'}
-knitr::include_graphics("images/european_countries_by_gdp_share_2018.png")
-```
+<div class="figure" style="text-align: center">
+<img src="images/european_countries_by_gdp_share_2018.png" alt="Figure 7: Map of European countries by share of their GDP in 2018 (where no data is available, countries are coloured in light grey; transcontinental countries not included)" width="90%" />
+<p class="caption">Figure 7: Map of European countries by share of their GDP in 2018 (where no data is available, countries are coloured in light grey; transcontinental countries not included)</p>
+</div>
 
 <br>
 
@@ -276,9 +280,10 @@ Spain             |  ESP               | 46.66                | 1.90            
 
 The UK is lagging behind France and Germany in productivity of key economic activities
 
-```{r, echo = FALSE, fig.cap = "Figure 8: Comparison of French, German and UK productivity by NACE industry", out.width = '80%'}
-knitr::include_graphics("images/output_per_hour_by_industry_2014-2016.png")
-```
+<div class="figure" style="text-align: center">
+<img src="images/output_per_hour_by_industry_2014-2016.png" alt="Figure 8: Comparison of French, German and UK productivity by NACE industry" width="80%" />
+<p class="caption">Figure 8: Comparison of French, German and UK productivity by NACE industry</p>
+</div>
 
 <br>
 
@@ -302,9 +307,10 @@ R-U   | Arts, entertainment and recreation; other service activities
 
 
 
-```{r, echo = FALSE, figures-side, fig.show="hold", fig.cap = "Figure 9: Bar plot of", out.width = '80%'}
-knitr::include_graphics(c("images/kmeans_productivity_vs_education_2018.png", "images/kmeans_productivity_vs_intellectual_property_2018.png"))
-```
+<div class="figure" style="text-align: center">
+<img src="images/kmeans_productivity_vs_education_2018.png" alt="Figure 9: Bar plot of" width="80%" /><img src="images/kmeans_productivity_vs_intellectual_property_2018.png" alt="Figure 9: Bar plot of" width="80%" />
+<p class="caption">Figure 9: Bar plot of</p>
+</div>
 
 
 #### Productivity prediction modelling

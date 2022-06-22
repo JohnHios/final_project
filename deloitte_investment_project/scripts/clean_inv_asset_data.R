@@ -26,7 +26,7 @@ library(lubridate)
 #-----------------------------------------------------------------------
 # 1. Read csv data and change names of variables to follow our naming standards.
 
-inv_asset <- read_csv(here("raw_data/OECD_Investment_by_Asset_JHios.csv")) %>% 
+inv_asset <- read_csv(here("raw_data/OECD_Investment_by_Asset.csv")) %>% 
   clean_names()
 
 #-----------------------------------------------------------------------

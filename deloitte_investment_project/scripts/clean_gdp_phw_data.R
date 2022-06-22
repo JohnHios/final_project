@@ -26,7 +26,7 @@ library(lubridate)
 #-----------------------------------------------------------------------
 # 1. Read csv data and change names of variables to follow our naming standards.
 
-gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked_JHios.csv")) %>% 
+gdp_phw <- read_csv(here("raw_data/OECD_GDP_per_Hour_Worked.csv")) %>% 
   clean_names() 
 
 #-----------------------------------------------------------------------

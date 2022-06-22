@@ -26,7 +26,7 @@ library(lubridate)
 #-----------------------------------------------------------------------
 # 1. Read csv data and change names of variables to follow our naming standards.
 
-gfcf <- read_csv(here("raw_data/OECD_Investment_GFCF_JHios.csv")) %>% 
+gfcf <- read_csv(here("raw_data/OECD_Investment_GFCF.csv")) %>% 
   clean_names()
 
 #-----------------------------------------------------------------------
