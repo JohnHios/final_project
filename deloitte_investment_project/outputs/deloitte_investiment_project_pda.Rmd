@@ -21,15 +21,15 @@ output:
 
 *Productivity* is key to the development of local businesses and the wider economy. Over the past decade, productivity has slowed down globally with the UK lagging behind some other developed economies. 
 
-This report aims at investigating the relationship between productivity and investment with an aim to improve productivity within Scotland and the UK overall. For this purpose, a range of countries were compared to understand the factors that influence both investment levels and productivity. 
+This report *aims at* investigating the relationship between productivity and investment with an aim to improve productivity within Scotland and the UK overall. For this purpose, a range of countries were compared to understand the factors that influence both investment levels and productivity. 
 
 Some targeted questions of interest for this specific project are listed below: 
 
-1. Does government spending on factors such as mental health, education, and research and development (R&D) affect productivity in the UK? 
+1. Does government spending on factors such as *mental health*, *education*, and *research and development (R&D)* affect *productivity* in the UK? 
 
-2. Is there a relationship between government investment and productivity? 
+2. Is there a relationship between government *investment* and *productivity*? 
 
-3. Can investment be used to predict productivity?
+3. Can *investment* be used to predict *productivity*?
 
 
 ### Definition of productivity
@@ -41,6 +41,7 @@ such as labour and capital, are being used in an economy to produce a given leve
 ```{r, echo = FALSE, fig.cap = "Figure 1: Productivity Explained (https://www.rba.gov.au/education/resources/explainers/productivity.html)", out.width = '50%'}
 knitr::include_graphics("images/productivity_explained.jpg")
 ```
+
 <br>
 There are different measures of productivity and the choice between them depends either on the purpose of the productivity measurement and/or data availability. One of the most widely used measures of productivity is Gross Domestic Product (GDP) per hour worked. This measure captures the use of labour inputs better than just output per employee, as suggested by the Organisation for Economic Co-operation and Development (OECD)^[https://www.oecd.org/sdd/productivity-stats/40526851.pdf]. 
 
@@ -94,11 +95,13 @@ Within the context of a consulting/financial advisory firm serving a public orga
 
 The data originally intended to be used for this analysis was donated by Deloitte. The data come from the Equifax Ignite Direct data platform which hosts over 50 open data sources^[https://www.consumer.equifax.ca/equifaxignite/ignite-direct/].
 
-Where possible, more recent versions of the data sets were sought in an effort to use the most up to date information for this report. As a result, out of the 7 files used in the the analysis phase, only 1 file was classified as internal (provided by the organisation) and the remaining 6 files were classed as external (not sourced from the organisation's data). A summary of the files used is provided in the table below.
+Where possible, more recent versions of the data sets were sought in an effort to use the most up-to-date information for this report. If data more relevant to the scope of this work were identified in open databases, these were also considered in the analysis. 
+
+As a result, out of the 8 files considered in the the analysis phase, only 2 files were classified as internal (provided by Deloitte) and the remaining 6 files were classed as external (not sourced from Deloitte's data). A summary of the files used is provided in the table below.
 
 
-  Filename          | Brief Description |Periods of time   |  Format |  Source | Classification type
---------------------|-------------------|------------------|---------|---------|----------------
+  Filename         | Brief Description |Periods of time   |  Format |  Source | Classification type
+-------------------|-------------------|------------------|---------|---------|------------------
 OECD_Public_Spending_on_Education|Education expenditure as % GDP  |  1995-2019 |   .csv | OECD |   external
 OECD_Gross_Domestic_Product_GDP|Annual GDP in USD and USD per capita (current PPPs)  |  1960-2021 |   .csv | OECD |   external     
 OECD_GDP_per_Hour_Worked |GDP per hour estimates  |  1970-2020 |   .csv | OECD |   external  
@@ -106,12 +109,15 @@ OECD_Investment_GFCF|Estimates of GFCF (Gross Fixed Capital Formation)  |  1960-
 OECD_Hours_Worked|Total number of hours worked per year  |  1950-2020 |   .csv | OECD |   external 
 OECD_Investment_by_Asset | Investment on assets as % GFCF  |  1970-2021 |   .csv | OECD |   external  
 International_Labour_Productivity-Europe | Output per hour by industry in Euros  |  2014-2016  |   .xls | ONS |   internal  
-
+Cross_country_Government-expenditure_on_mental_health | Expenditure on mental health  |  2011  |   .csv | WHO |   internal  
 
 Note that,
 
 + OECD refers to the Organisation for Economic Co-operation and Development (https://www.oecd.org), and 
-+ ONS refers to the Office for Nations Statistics (https://www.ons.gov.uk/)
+
++ ONS refers to the Office for National Statistics (https://www.ons.gov.uk/)
+
++ WHO refers to the World Health Organisation (https://www.who.int/)
 
 
 ### Types of data
@@ -119,7 +125,7 @@ Note that,
 The data used in this analysis fall into the following types:
 
 + Categorical character type 
-  + nominal: for instance country names and investment sector
+  + nominal: for instance country names, education type, investment sector and so on
   + ordinal: date-time
 
 + Numerical double type
@@ -129,121 +135,87 @@ The data used in this analysis fall into the following types:
 
 ### Data formats
 
-The format types of the data used in the analysis is shown in the table above. Out of the 7 files used: 
+The format types of the data used in the analysis is shown in the table above. Out of the 8 files considered: 
 
-+ 6 data files were in .csv format and downloaded from the OECD online data library.
- 
 + 1 data file was in .xls format originating from ONS and provided by Deloitte.
 
++ 7 data files were in .csv format and downloaded from the OECD online data library.
+ 
 
 ### Data quality and bias
 
-Briefly describe the quality of the data and whether you have any reasons to suggest the data is biased e.g. only data from a specific demographic even though a broader demographic would be of interest to the organisation.
+The available data contain historical records of cross-country productivity, other key quantities such as investment and education, and mental health expenditures.
+
+####  Data quality issues
+
+During an initial review of the data, the following were noticed:
+
+1. The mental health dataset was limited in scope as there were no references for the UK, and only outdated information from 2011 was available for all other countries. As a result, the mental health data were not considered in this work. 
+2. Education expenditure data for the UK and several other countries had multiple missing values, which could pose a problem in the subsequent analysis (refer to Figure 3).  
 
 
-**Ans**
-
-The OECD views quality in terms of the following seven dimensions
-
-+ Relevance
-
-+ Accuracy and Reliability 
-(Bias in data may impact accuracy. When data is biased it means that it is not representative of the entire population. Account for bias in your measurements if possible, and make sure that data bias is communicated to your users.
-In a data set, individual records can be measured for accuracy, or the whole data set can be measured. Which you choose to do should depend on the purpose of the data and your business needs.)
-
-consistency with output and value-added measures, in particular, by industry, as the LFS is a household survey for which the stratification process may not adequately capture the homogenous strata required in productivity analysis. In addition, in many countries, the LFS does not cover some groups of the population such as persons below or above certain age thresholds (which varies by country), those living and working in communal establishments (such as prisons or long-term care facilities), collective households (such as religious institutions) and the armed forces, all of whose output is included, at least in theory, in estimates of GDP. In addition, the sampling structure of LFS is based on the population usually residing in the country and includes workers in non-resident production units, whereas non-resident cross-border workers working in resident production units are excluded. There may also be biases in LFS responses, reflecting the self-reporting nature of LFS, and these biases, that may also be cultural, appear to be significant with respect to responses on hours actually worked
-
-+ Credibility
-
-+ Timeliness and punctuality
-
-+ Accessibility and clarity
-
-+ Interpretability
-
-+ Coherence and comparability
+```{r, echo = FALSE, fig.cap = "Figure 3: Missing values in UK public spending on education (% GDP)", out.width = '80%'}
+knitr::include_graphics("images/UK_public_spending_on_education.png")
+```
 
 
-The quality of statistics and indicators disseminated depends on two aspects: the quality of the national statistics received and the quality of the internal
-processes for the collection, processing, analysis and dissemination of data and metadata. While the latter is within OECD’s control, the former is less so.
+#### Bias in data
 
-The quality of national statistics received will essentially be a function of:
+A potential source of bias in the data is related to the calculation of the average hours worked per person across different countries. Bias in this calculation impacts he accuracy of the derived productivity (GDP per hour worked). In accordance to OECD, *labour force surveys (LFS)*^[https://www.oecd.org/sdd/productivity-stats/OECD-Productivity-Statistics-Methodological-note.pdf] are often used to work out the average hours worked per person. The main limitations of LFS are listed below:
 
-+ The adequacy of national data sources to provide the required international data
++ It is a household survey and so may have limited consistency with output and value added measures collected in business surveys, especially by industry.
++ Concept of employment typically not be in line with the resident (domestic) concept in national accounts.
++ There may be reporting biases in reported hours worked, reflecting the self-reporting nature of LFS, and these biases, that may also be cultural, may have a significant impact on hours actually worked. 
++ Excludes people living in collective households, although this is unlikely to significantly affect numbers of persons employed.
 
-+ the extent to which international data definitions and guidelines are correctly applied
-
-+ internal capacity within countries to implement OECD guidelines and develop appropriate data collection systems
-
-+ the quality and reliability of data transfer channels between national statistics offices and the OECD.
+To account for this kind of data bias, OECD and ONS rely on their own quality guidelines.
 
 # Ethics
 
-#### Ethical issues in data sourcing and extraction
+### Ethical issues in data sourcing and extraction
 
-Do you have any ethical concerns regarding the sourcing and extraction of your data? 
+There are no ethical concerns regarding the sourcing and extraction of the datasets, as they have been acquired from open databases for the purpose of providing insights and strategies for improvement of governance and do not contain any Personal identifiable information (PII).
 
-**Ans**
-
-(Does it mean sourcing the data from OECD and ONS? If that is the case then there is no concern, they are open databases. The information does not contain PII and the results aim at providing insights and strategies for improvement of countries.
-Use the data effectively for public benefit, efficiently and safely to deliver high quality public services and government.)
-
-No there are not any:
-
-+ ONS collects data in line with their data ethics policy [https://www.ons.gov.uk/aboutus/transparencyandgovernance/datastrategy/datapolicies/dataethicspolicy]
++ ONS collects data in line with their own data ethics policy [https://www.ons.gov.uk/aboutus/transparencyandgovernance/datastrategy/datapolicies/dataethicspolicy]
 
 + OECD works on government data of member countries in line with the Quality Framework for OECD Statistical Activities [https://www.oecd.org/sdd/qualityframeworkforoecdstatisticalactivities.htm]
 
 
-#### Ethical implications of business requirements
+### Ethical implications of business requirements
 
-Are there any ethical implications of the business requirements?
-
-**Ans**
-
-No implications:
-Use the data effectively for public benefit, efficiently and safely to deliver high quality public services and government.
+There are no ethical implications of the business requirements, as the data in this work are used for public benefit, and to deliver high quality public services and government.
 
 
 # Analysis
 
-#### Stages in the data analysis process
+### Stages in the data analysis process
 
 What were the main stages in your data analysis process?
 
 
-**Ans**
 
 1. Data Wrangling (import, tidy, transform data)
-
-    + Importing data
-  
-    + Inspecting data (Provide basic descriptions of the data and features)
-  
-    + Tidying (cleaning) data
-  
-    + Transforming data
-  
-    + Run missing data diagnostics (Check for missing data)
-  
-    + Fixing error and poorly formatted data elements
-  
-    + filtering, subsetting data
-  
- 
+    + Importing data.
+    + Inspecting data (Provide basic descriptions of the data and features).
+    + Tidying (cleaning) data.
+    + Transforming data.
+    + Run missing data diagnostics (Check for missing data).
+    + Fixing error and poorly formatted data elements.
+    + Filtering/subsetting data.  
+    
 2. Exploratory data analysis (visualising, further transforming data, identifying significant patterns and modelling the data)
+    + Analyse and investigate data sets to discover patterns and/or spot anomalies/errors (shape of the data, significant correlations, outliers in the data set).
+    + Summarise main characteristics using data visualisation methods.
+    + Classification via K-means clustering.
+    + Predictive modelling using linear regression analysis.
 
-    + Analyse and investigate data sets to discover patterns and/or spot anomalies/errors (shape of the data, significant correlations, outliers in the data set)
-  
-    + Summarise main characteristics using data visualisation methods
-  
-    + Classification via K-means clustering
-  
-    + Predictive modelling using linear regression analysis
 
-  
 
-#### Tools for data analysis
+```{r, echo = FALSE, fig.cap = "Figure 4: Data wrangling and exploratory data analysis (https://r4ds.had.co.nz/wrangle-intro.html)", out.width = '60%'}
+knitr::include_graphics("images/data_science_wrangle.png")
+```
+
+### Tools for data analysis
 
 What were the main tools you used for your analysis?
 
@@ -263,7 +235,7 @@ Exploratory data analysis tools include:
   + Multivariate graphical via scatterplots and run charts (line graph of data over time) and heat map (graphical representation of data where values are depicted by colour)
 
 
-#### Descriptive, diagnostic, predictive and prescriptive analysis
+### Descriptive, diagnostic, predictive and prescriptive analysis
 
 Please report under which of the below categories your analysis falls **and why** (can be more than one) 
 

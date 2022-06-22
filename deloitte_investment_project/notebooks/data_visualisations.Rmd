@@ -28,7 +28,6 @@ __View GDP per hour worked data (productivity)__
 View G-7 cross-country GDP per hour worked time-series
 ```{r}
 gdp_phw %>% 
-  select(-c(indicator, subject, frequency, flag_codes)) %>% 
   filter(
     country %in% c("CAN", "FRA", "DEU", "ITA", "JPN", "USA", "GBR"),
     measure == "USD"
@@ -58,8 +57,7 @@ gdp_phw %>%
   filter(
     measure == "USD",
     year == 2020
-  ) %>%  
-  select(-c(indicator, frequency, measure, subject, year, flag_codes)) %>%  
+  ) %>% 
   ggplot() +
   aes(
     x = reorder(country, value), 
@@ -89,8 +87,7 @@ gdp_phw %>%
   filter(
     measure == "IDX2015",
     year == 2020
-  ) %>%  
-  select(-c(indicator, frequency, measure, subject, year, flag_codes)) %>%  
+  ) %>%
   ggplot() +
   aes(
     x = reorder(country, value), 
@@ -118,7 +115,6 @@ __View Investment by asset data__
 View UK investment by Asset (% GFCF) time-series
 ```{r}
 inv_asset %>%
-  select(-c(indicator, frequency, flag_codes)) %>%
   filter(country == "GBR") %>%
   ggplot() +
   aes(x = year, y = value, colour = subject) +
@@ -184,7 +180,6 @@ inv_asset_usd <- inv_asset %>%
 View UK investment by asset time-series
 ```{r}
 inv_asset_usd %>%
-  select(-c(indicator, frequency, measure, flag_codes)) %>%
   filter(country == "GBR") %>%
   ggplot() +
   aes(x = year, y = value_mln_usd, colour = subject) +
@@ -209,8 +204,14 @@ __OECD Education Spending Expenditure__
 View UK education expenditure (% of GDP) by type time-series
 ```{r}
 edu_exp %>%
-  select(-c(indicator, frequency, measure, flag_codes)) %>%
   filter(country == "GBR") %>%
+  mutate(
+    subject = recode(subject,
+                     "TRY" = "Tertiary",
+                     "PRY_NTRY" = "Primary to post-secondary\nNon-Tertiary",
+                     "PRY_TRY" = "Primary to Tertiary"
+                     )
+  ) %>% 
   ggplot() +
   aes(x = year, y = value, colour = subject) +
   geom_line(size = 0.75) +
