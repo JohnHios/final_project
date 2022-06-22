@@ -190,18 +190,23 @@ There are no ethical implications of the business requirements, as the data in t
 
 ### Stages in the data analysis process
 
-What were the main stages in your data analysis process?
+The main stages in the data analysis process are the *data wrangling* and the *exploratory data analysis*, which are outlined in the schematic of Figure 4 below.
+
+```{r, echo = FALSE, fig.cap = "Figure 4: Data wrangling and exploratory data analysis (https://r4ds.had.co.nz/wrangle-intro.html)", out.width = '60%'}
+knitr::include_graphics("images/data_science_wrangle.png")
+```
+
+The *data wrangling* stage of the analysis consists of the following tasks: 
++ Importing data.
++ Inspecting data (Provide basic descriptions of the data and features).
++ Tidying (cleaning) data.
++ Transforming data to more usable formats.
++ Run missing data diagnostics (Check for missing data).
++ Fixing error and poorly formatted data elements.
++ Filtering/subsetting data.  
 
 
-
-1. Data Wrangling (import, tidy, transform data)
-    + Importing data.
-    + Inspecting data (Provide basic descriptions of the data and features).
-    + Tidying (cleaning) data.
-    + Transforming data.
-    + Run missing data diagnostics (Check for missing data).
-    + Fixing error and poorly formatted data elements.
-    + Filtering/subsetting data.  
+    
     
 2. Exploratory data analysis (visualising, further transforming data, identifying significant patterns and modelling the data)
     + Analyse and investigate data sets to discover patterns and/or spot anomalies/errors (shape of the data, significant correlations, outliers in the data set).
@@ -210,10 +215,6 @@ What were the main stages in your data analysis process?
     + Predictive modelling using linear regression analysis.
 
 
-
-```{r, echo = FALSE, fig.cap = "Figure 4: Data wrangling and exploratory data analysis (https://r4ds.had.co.nz/wrangle-intro.html)", out.width = '60%'}
-knitr::include_graphics("images/data_science_wrangle.png")
-```
 
 ### Tools for data analysis
 
@@ -262,30 +263,39 @@ The analysis completed falls under the following categories
 
 **Prescriptive Analytics:**  
 
+# Conclusions
 
-# PDA Outcomes
+The main conclusions drawn from this analysis are listed below:
 
-### Working with Data (J4Y6 35)
++ UK productivity growth dropped after 2008 (onset of great recession) and since then it is not ranking high compared to other countries.
 
-#### 1. Plan an analysis to provide business intelligence
++ Compared to France and Germany (countries similar in size of population and economy) productivity is notably lower in key economic activities.
 
--   1.1 Business intelligence and data-driven decision making
--   1.2 Domain knowledge and the business context
--   1.4 Internal and external data sources
--   1.5 Data quality
--   1.6 Stages in the data analysis process
--   1.7 Descriptive, diagnostic, predictive and prescriptive analysis
--   1.9 Ethical implications of business requirements
--   1.10 Tools for data analysis
++ Infrastructure and Dwelling investments seem to have the largest impact in the UK GDP per hour worked (approx. 34% and 35% respectively).
 
-#### 2. Extract data from a variety of sources
++ Investments in Intellectual property products in the UK is lagging compared to Germany & France and accounts to a small portion of the UK productivity (approx. 18%).
 
--   2.1 Tools for querying data sources
--   2.2 Types of data (categorical and numerical data and their sub-types)
--   2.3 Data formats
--   2.6 Data quality including data bias
--   2.7 Ethical issues in data sourcing and extraction
++ The UK Education investments are notably low compared to most higher productivity economies in Europe – scarcity of data didn’t allow for including this factor in the productivity prediction model.
 
-#### 4. Analyse data to provide business intelligence
++ Lack of adequate Mental Health data did not allow for any assessments of its impact in productivity.
 
--   4.7 Role of domain knowledge in interpreting analyses
+# Recommendations
+
+The following actions are recommended:
+
++ Investments in Education and key economic activities are vital to increasing productivity in the UK. 
+
++ A detailed study of the French and German economy may identify areas of improvement in the UK.
+
+# Future Work
+
++ Acquisition of mental health info to answer the business question.
+
++ Explore alternative clustering methods for grouping data (for instance, ANN, distribution-based / density-based methods).
+
++ Detailed literature survey on predicting productivity using investment data with a view to:
+  + Identify commonly used modelling approaches (Linear regression, time-series models, ANN etc).
+  + Best modelling practices.
+
+
+# References
