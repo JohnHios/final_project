@@ -2,7 +2,7 @@
 title: "Productivity & Investment in the UK"
 subtitle: "Final Project report submitted as per PDA requirements"
 author: "John Hios"
-date: "16/06/2022"
+date: "22/06/2022"
 output:
   html_document:
     toc: yes
@@ -146,6 +146,7 @@ The format types of the data used in the analysis is shown in the table above. O
 
 The available data contain historical records of cross-country productivity, other key quantities such as investment and education, and mental health expenditures.
 
+
 ####  Data quality issues
 
 During an initial review of the data, the following were noticed:
@@ -157,7 +158,6 @@ During an initial review of the data, the following were noticed:
 ```{r, echo = FALSE, fig.cap = "Figure 3: Missing values in UK public spending on education (% GDP)", out.width = '80%'}
 knitr::include_graphics("images/UK_public_spending_on_education.png")
 ```
-
 
 #### Bias in data
 
@@ -200,7 +200,7 @@ The *data wrangling* stage of the analysis consists of the following tasks:
 
 + Importing data.
 + Inspecting and tidying (cleaning) data.
-+ Transforming data to more usable formats.
++ Transforming data to more usable formats / joining different datasets.
 + Check for missing data by running missing data diagnostics.
 + Fixing any error and poorly formatted data elements.
 + Filtering/subsetting the data to prepare them for the exploratory analysis stage.  
@@ -222,9 +222,8 @@ The *exploratory data analysis* stage consists of the following tasks:
 The main tools used to carry out this analysis were:
 
 + **R**: Programming language for statistical computing and graphics - R version 4.1.2 (2021-11-01) -- "Bird Hippie" was used to run this analysis.
-+ **RStudio**: Integrated development environment (IDE) for **R** - The 2021.09.1+372 "Ghost Orchid" regular desktop application release was used to run this analysis. 
++ **RStudio**: Integrated development environment (IDE) for **R** - the regular desktop application release 2021.09.1+372 "Ghost Orchid" was used to run this analysis. 
 + **Rmarkdown**: Authoring framework for data science used for creating markdown documents - it was used for generating the final report.
-
 
 
 ### Descriptive, diagnostic, predictive and prescriptive analysis
@@ -238,10 +237,43 @@ The analysis completed falls under the following categories:
 + **Predictive Analytics:** Linear regression analysis was used to determine the relationship between UK productivity and investment in a historical context. A multiple regression model using 4 predictors and pairwise interactions was developed to measure how well the data fit that relationship. The model can be used to develop forecasts for the future. However the use of forecasting techniques for better decision making and formulating data-informed strategies was not pursued in this work.
 
 
+# Results
+
+The data cleaning R scripts are available for review within the `scripts` folder inside the project's GitHup repo. The data visualisations (run charts, bar-plots, choropleth map) and the developed machine learning outputs (K-means clustering and linear regression model) are available for review in individual R notebooks within the `notebooks` folder.
+
+
+### UK Productivity
+
+
+```{r, echo = FALSE, fig.cap = "Figure 5: Run chart of", out.width = '80%'}
+knitr::include_graphics("images/G7_cross_country_gdp_phw.png")
+```
+
+```{r, echo = FALSE, fig.cap = "Figure 6: Bar plot of", out.width = '80%'}
+knitr::include_graphics("images/cross_country_gdp_phw_2020.png")
+```
+
+```{r, echo = FALSE, fig.cap = "Figure 7: Bar plot of", out.width = '80%'}
+knitr::include_graphics("images/european_countries_by_gdp_share_2018.png")
+```
+
+```{r, echo = FALSE, fig.cap = "Figure 8: Bar plot of", out.width = '80%'}
+knitr::include_graphics("images/output_per_hour_by_industry_2014-2016.png")
+```
+
+```{r, echo = FALSE, figures-side, fig.show="hold", fig.cap = "Figure 9: Bar plot of", out.width = '80%'}
+knitr::include_graphics(c("images/kmeans_productivity_vs_education_2018.png", "images/kmeans_productivity_vs_intellectual_property_2018.png"))
+```
+
+
+### Prediction of Productivity Based on Investment
+
+
+
 
 # Conclusions
 
-The main conclusions drawn from this analysis are listed below:
+The main insights drawn from this analysis are listed below:
 
 + UK productivity growth dropped after 2008 (onset of great recession) and since then it is not ranking high compared to other countries.
 
