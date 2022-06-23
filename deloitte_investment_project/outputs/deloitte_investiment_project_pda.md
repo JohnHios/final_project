@@ -237,10 +237,10 @@ The *exploratory data analysis* stage consists of the following tasks:
 
 ### Results
 
-The data cleaning R scripts are available for review within the `scripts` folder inside the project's [GitHub repo](https://github.com/JohnHios/final_project_john_hios). The data visualisations (run charts, bar-plots, choropleth mapping) and the machine learning outputs (K-means clustering and linear regression model) are available for review in individual R notebooks within the `notebooks` folder.
+The data cleaning R scripts are available for review within the `scripts` folder inside the project's [GitHub repo](https://github.com/JohnHios/final_project_john_hios). The data visualisations (run charts, bar-plots, choropleth mapping) and the machine learning outputs (K-means clustering and linear regression modelling) are available for review in individual R notebooks within the `notebooks` folder.
 
 
-#### UK productivity - A cross country comparison
+#### UK productivity: A cross-country comparison
 
 The UK productivity has consistently lagged behind a number of other advanced economies. This is demonstrated in Figure 5 where the productivity time series of the G-7 countries is shown. The key takeaways are:
 
@@ -258,15 +258,18 @@ The UK productivity has consistently lagged behind a number of other advanced ec
 Note that even when the UK is compared to a broader set of OECD countries, the productivity is not ranking high as seen in Figure 6 below. 
 
 <div class="figure" style="text-align: center">
-<img src="images/cross_country_gdp_phw_2020.png" alt="Figure 6: OECD cross country productivity for 2020 (country names are per ISO 3166-1 alpha-3; UK is highlighted in red)" width="80%" />
-<p class="caption">Figure 6: OECD cross country productivity for 2020 (country names are per ISO 3166-1 alpha-3; UK is highlighted in red)</p>
+<img src="images/cross_country_gdp_phw_2020.png" alt="Figure 6: OECD cross-country productivity for 2020 (country names are per ISO 3166-1 alpha-3; UK is highlighted in red)" width="80%" />
+<p class="caption">Figure 6: OECD cross-country productivity for 2020 (country names are per ISO 3166-1 alpha-3; UK is highlighted in red)</p>
 </div>
 
 <br>
 
-#### Classification of UK productivity
+#### Relationship between productivity and investment
+
+##### Cross-country comparison of UK economy
 
 The UK population and economy size in terms of GDP is comparable to other leading advanced economies in Europe, such as France and Germany, as seen in Figure 7 and the table below. Note that the data are from 2018, but similar results can be derived for more recent years. 
+
 
 <div class="figure" style="text-align: center">
 <img src="images/european_countries_by_gdp_share_2018.png" alt="Figure 7: Map of European countries by share of their GDP in 2018 (where no data is available, countries are coloured in light grey; transcontinental countries are not included)" width="90%" />
@@ -286,6 +289,7 @@ Spain             |  ESP               | 46.66                | 1.90            
 
 A closer observation of the French, German and UK economies shows that the UK productivity in key economic activities is shortfalling relative to France and Germany (refer to Figure 8). The aggregated productivity values for 2014-2016 show that the UK shortfall is more evident in the information and communication sector (NACE Industry Code J) and in the professional, scientific and technical activities (NACE Industry Code M-N).
 
+
 <div class="figure" style="text-align: center">
 <img src="images/output_per_hour_by_industry_2014-2016.png" alt="Figure 8: Comparison of French, German and UK productivity by NACE industry" width="80%" />
 <p class="caption">Figure 8: Comparison of French, German and UK productivity by NACE industry</p>
@@ -303,30 +307,39 @@ F     | Construction
 G-I   | Wholesale and retail trade, transport, accommodation and food service activities 
 J     | Information and communication
 K     | Financial and insurance activities
-M-N   | Professional, scientific and technical activitiesl administrative and support service activities
-O-Q   | Public administration, defence, education, human health and social work activities
+M-N   | Professional, scientific and technical activities; administrative and support service activities
+O-Q   | Public administration, defense, education, human health and social work activities
 R-U   | Arts, entertainment and recreation; other service activities
 
 
 <br>
 
-To determine if government spending on factors such as education and R&D affect productivity in the UK, the structural differences between the UK and leading advanced economies have to be understood first. For this purpose, data from 20 European countries were compared in terms of productivity and investment in education and key assets such as:
+##### K-means clustering
 
-+ Intellectual property (R&D, software & databases, literary and artistic originals, etc).
+To answer the business questions (1) and (2) posed in the `Introduction` section, the structural differences between the UK and leading advanced economies have to be understood first. 
+
+For this purpose, data from 20 European countries were compared in terms of productivity and investment in education and key assets such as:
+
++ Intellectual Property Products (R&D, software & databases, literary and artistic originals, etc).
 + Dwellings (excluding land).
 + Cultivated biological resources (managed forests, livestock raised for milk production, etc).
 + Infrastructures (roads, bridges, airfields, dams, etc).
 + Transportation equipment (ships, trains, aircraft, etc).
-+ Information and Communication Technology (software, hardware, databases, telecoms equipment, etc).
++ Information & Communication Technology (software, hardware, databases, telecoms equipment, etc).
 
-K-means clustering was used to partition the preceding dataset. The optimal number of clusters was determined using the `silhouette` method^[https://www.datanovia.com/en/lessons/determining-the-optimal-number-of-clusters-3-must-know-methods/] and resulted in a total of 4 clusters which are listed below:
+The analysis focused on year 2018, as there were no recent data in public education expenditure for the UK (refer to Figure 3). The dataset was partitioned using the K-means clustering algorithm^[https://en.wikipedia.org/wiki/K-means_clustering]. The optimal number of clusters was determined using the `silhouette` method and resulted in a total of 4 clusters which are listed below:
 
 + **Cluster #1**: Higher productivity economies of smaller EU countries and Scandinavia.
 + **Cluster #2**: Mid-range to low productivity EU economies.
 + **Cluster #3**: Italy, Spain and the UK (mid-range productivity).
 + **Cluster #4**: France and Germany (advanced productivity).
 
-The scatterplots of Figure 9 display graphically the partitioning of the countries with respect to tertiary education and intellectual property expenditure. The plots show that although the UK economy size is closer to that of France and Germany, in terms of productivity and investment it lags behind as it clusters with Italy and Spain. 
+The scatterplots of Figure 9 display graphically the partitioning of the countries with respect to tertiary education and intellectual property expenditure. The key takeaways from these plots are:
+
++ Although the UK economy size is closer to that of France and Germany, in terms of productivity and investment it shows a very different profile, as it clusters with Italy and Spain.
+
++ Germany and France spend more money on education and intellectual property products (which also include R&D).
+
 
 <div class="figure" style="text-align: center">
 <img src="images/kmeans_productivity_vs_education_2018.png" alt="Figure 9: Grouping of European economies via K-means clustering (productivity vs education and intellectual property expenditure)" width="80%" /><img src="images/kmeans_productivity_vs_intellectual_property_2018.png" alt="Figure 9: Grouping of European economies via K-means clustering (productivity vs education and intellectual property expenditure)" width="80%" />
@@ -337,17 +350,21 @@ The scatterplots of Figure 9 display graphically the partitioning of the countri
 
 #### Productivity prediction modelling
 
-+ Data from years 1995-2020 were used.
-+ Factors used to predict productivity:
-  + Intellectual Property (R&D, software & databases, literary and artistic originals, etc).
-  + Dwellings (excluding land).
-  + Cultivated biological resources (managed forests, livestock raised for milk production, etc.).
-  + Infrastructures (roads, bridges, airfields, dams, etc.).
-  + Transportation equipment (ships, trains, aircraft, etc.).
-  + Information and Communication Tech (software, hardware, databases, telecoms equipment, etc.).
-+ Education and mental health not included in model due to data scarcity.
+To answer the business question (3) posed in the `Introduction` section, multiple linear regression modelling is used to predict UK productivity based on investment data. 
+
++ The 6 investment asset groups used previously in the K-means clustering were used as model predictors (that is, Intellectual Property Products, Dwellings, Cultivated biological resources, Infrastructures, Transportation equipment and Information & Communication Technology).  
++ Data from years 1995-2020 were used, due to unavailability of earlier Information & Communication Technology data (refer to Figure 10).
++ Education and mental health were not included in the model due to lack of sufficient data.
 
 
+<div class="figure" style="text-align: center">
+<img src="images/UK_investment_by_asset.png" alt="Figure 10: Run chart of UK investment by asset" width="85%" />
+<p class="caption">Figure 10: Run chart of UK investment by asset</p>
+</div>
+
+<br>
+
+A genetic algorithm was used to identify the model below:
 $$
 \begin{aligned}
 (GDP\,per\,hour\,worked\,$) = & \,\,31.08 \\ 
@@ -357,6 +374,27 @@ $$
 &  - 0.001338\times(Infrastructures\,$billion \times\,Dwellings\,$billion)
 \end{aligned}
 $$
+
+Due to the limited amount of observations (25 in total), the model was cross-validated using a k-fold algorithm^[https://www.statology.org/k-fold-cross-validation-in-r/] with 10 folds (that is, k = 10).
+
+The table below summarises the model performance in terms of variance explained by each regressor and goodness-of-fit via the Root Mean Square Error (RMSE) and the coefficient of determination (R^2^).
+ 
+  Regressor term                   | Variance explained (%)
+-----------------------------------|:----------:
+Infrastructures                    | 33.92
+Intellectual Property              | 18.23
+Dwellings                          | 35.00
+Infrastructures $\times$ Dwellings | 12.85
+                                   |
+**RMSE:** 0.593                    |
+**R^2^:** 0.945                    |
+
+
+The key takeaways from this analysis are:
+
++ Infrastructure and Dwelling investments seem to have the largest impact in the UK GDP per hour worked (approx. 34% and 35% respectively).
+
++ Investments in Intellectual property products in the UK accounts to a small portion of the UK productivity (approx. 18%).
 
 
 ### Tools for data analysis
