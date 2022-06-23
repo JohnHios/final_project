@@ -116,6 +116,15 @@ View UK investment by Asset (% GFCF) time-series
 ```{r}
 inv_asset %>%
   filter(country == "GBR") %>%
+  mutate(subject = recode(subject,
+                          "OTHMACHINEQT" = "ICT", 
+                          "CULTASSET" = "cultivated biological resources", 
+                          "OTHBUILDING" = "infrastructures", 
+                          "FIXASSET" = "IPP",
+                          "TRANSPEQT" = "transport equipment", 
+                          "DWELLING" = "dwellings"
+                          )
+  ) %>% 
   ggplot() +
   aes(x = year, y = value, colour = subject) +
   geom_line(size = 0.75) +
@@ -181,6 +190,15 @@ View UK investment by asset time-series
 ```{r}
 inv_asset_usd %>%
   filter(country == "GBR") %>%
+  mutate(subject = recode(subject,
+                          "OTHMACHINEQT" = "ICT", 
+                          "CULTASSET" = "cultivated biological resources", 
+                          "OTHBUILDING" = "infrastructures", 
+                          "FIXASSET" = "IPP",
+                          "TRANSPEQT" = "transport equipment", 
+                          "DWELLING" = "dwellings"
+                          )
+  ) %>% 
   ggplot() +
   aes(x = year, y = value_mln_usd, colour = subject) +
   geom_line(size = 0.75) +
@@ -194,7 +212,6 @@ inv_asset_usd %>%
   ) 
 
 ```
-
 
 
 
@@ -267,6 +284,13 @@ View UK expenditure on education time-series
 ```{r}
 edu_exp_usd %>%
   filter(country == "GBR") %>%
+  mutate(
+    subject = recode(subject,
+                     "TRY" = "Tertiary",
+                     "PRY_NTRY" = "Primary to post-secondary\nNon-Tertiary",
+                     "PRY_TRY" = "Primary to Tertiary"
+                     )
+  ) %>% 
   ggplot() +
   aes(x = year, y = value_mil_usd, colour = subject) +
   geom_line(size = 0.75) +

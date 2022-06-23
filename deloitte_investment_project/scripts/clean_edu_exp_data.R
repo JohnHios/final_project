@@ -26,7 +26,7 @@ library(lubridate)
 #-----------------------------------------------------------------------
 # 1. Read csv data and change names of variables to follow our naming standards.
 
-edu_exp <- read_csv(here("raw_data/OECD_Public_Spending_on_Education_JHios.csv")) %>% 
+edu_exp <- read_csv(here("raw_data/OECD_Public_Spending_on_Education.csv")) %>% 
   clean_names()
 
 #-----------------------------------------------------------------------

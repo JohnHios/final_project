@@ -16,6 +16,11 @@ output:
     toc: yes
 ---
 
+<style>
+body {
+text-align: justify}
+</style>
+
 
 
 
@@ -106,17 +111,17 @@ Where possible, more recent versions of the data sets were sought in an effort t
 As a result, out of the 9 files considered in the the analysis phase, only 2 files were classified as internal (provided by Deloitte) and the remaining 7 files were classed external (not sourced from Deloitte's data). These files can be found in the `raw_data` folder inside the project's [GitHub repo](https://github.com/JohnHios/final_project_john_hios). A summary of the files used is provided in the table below.
 
 
-  Filename         | Brief Description |Periods of time   |  Format |  Source | Classification type
--------------------|-------------------|------------------|---------|---------|------------------
-OECD_Public_Spending_on_Education|Education expenditure as % GDP  |  1995-2019 |   .csv | OECD |   external
+  Filename         | Brief Description | Periods of time  |  Format |  Source | Classification type
+:-----------------:|:-----------------:|:----------------:|:-------:|:-------:|:-----------------:
+OECD_Public_Spending_on_Education|Education expenditure (% GDP)  |  1995-2019 |   .csv | OECD |   external
 OECD_Gross_Domestic_Product_GDP|Annual GDP in USD and USD per capita (current PPPs)  |  1960-2021 |   .csv | OECD |   external     
-OECD_GDP_per_Hour_Worked |GDP per hour estimates  |  1970-2020 |   .csv | OECD |   external  
+OECD_GDP_per_Hour_Worked |GDP per hour worked estimates  |  1970-2020 |   .csv | OECD |   external  
 OECD_Investment_GFCF|Estimates of GFCF (Gross Fixed Capital Formation)  |  1960-2020 |   .csv | OECD |   external  
 OECD_Hours_Worked|Total number of hours worked per year  |  1950-2020 |   .csv | OECD |   external 
-OECD_Investment_by_Asset | Investment on assets as % GFCF  |  1970-2021 |   .csv | OECD |   external
+OECD_Investment_by_Asset | Investment on assets (% GFCF)  |  1970-2021 |   .csv | OECD |   external
 Data_Commons_Population_Trends | Eurostat regional population data |  1960-2019  |   .csv | Eurostat |   external
 International_Labour_Productivity-Europe | Output per hour by industry in Euros  |  2014-2016  |   .xls | ONS |   internal  
-Cross_country_Government-expenditure_on_mental_health | Expenditure on mental health  |  2011  |   .csv | WHO |   internal  
+Cross_country_Government-expenditure_on_mental_health | Mental health expenditure |  2011  |   .csv | WHO |   internal  
 
 
 Note that,
@@ -161,7 +166,7 @@ During an initial review of the data, the following were noticed:
 
 1. The mental health dataset was limited in scope as there were no references for the UK, and only outdated information from 2011 was available for all other countries. As a result, the mental health data were not considered in this work. 
 
-2. Education expenditure data for the UK and several other countries had multiple missing values (refer to Figure 3). Imputing the missing data with substitute values was not deemed appropriate as this would distort the dataset. The subsequent steps in the analysis would not benefit from the induced bias and therefore it was decided to limit the scope of this dataset.  
+2. The public spending on education dataset had multiple missing values for the UK and several other countries (see Figure 3). Imputing the missing data with substitute values was not deemed appropriate, as this would distort the dataset. The subsequent steps in the analysis would not benefit from the induced bias and therefore it was decided to limit the scope of this dataset.  
 
 
 <div class="figure" style="text-align: center">
@@ -187,9 +192,10 @@ To account for this kind of data bias, OECD and ONS rely on their own quality gu
 
 There are no ethical concerns regarding the sourcing and extraction of the datasets, as they have been acquired from open databases for the purpose of providing insights and strategies for improvement of governance and do not contain any Personal identifiable information (PII).
 
-+ ONS collects data in line with their own data ethics policy [https://www.ons.gov.uk/aboutus/transparencyandgovernance/datastrategy/datapolicies/dataethicspolicy]
++ ONS collects data in line with their own data ethics policy   
+(https://www.ons.gov.uk/aboutus/transparencyandgovernance/datastrategy/datapolicies/dataethicspolicy)
 
-+ OECD works on government data of member countries in line with the Quality Framework for OECD Statistical Activities [https://www.oecd.org/sdd/qualityframeworkforoecdstatisticalactivities.htm]
++ OECD works on government data of member countries in line with the Quality Framework for OECD Statistical Activities (https://www.oecd.org/sdd/qualityframeworkforoecdstatisticalactivities.htm)
 
 
 ### Ethical implications of business requirements
@@ -239,7 +245,7 @@ The data cleaning R scripts are available for review within the `scripts` folder
 The UK productivity has consistently lagged behind a number of other advanced economies. This is demonstrated in Figure 5 where the productivity time series of the G-7 countries is shown. The key takeaways are:
 
 + For the past 20 years the UK productivity is sitting in the mid-range of the G-7 countries as it lags behind France, Germany and the USA but performs better compared to Canada, Italy and Japan. 
-+ The UK productivity growth has slowed down significantly since the financial crisis of 2008 (the great recession took place between Dec 2007 - June 2009). This has opened a up a large gap between anticipated and actual GDP per hour worked.
++ The UK productivity growth has slowed down significantly since the financial crisis of 2008^[https://www.historyextra.com/period/modern/financial-crisis-crash-explained-facts-causes/]. This has opened a up a large gap between anticipated and actual GDP per hour worked.
 
 
 <div class="figure" style="text-align: center">
@@ -256,14 +262,15 @@ Note that even when the UK is compared to a broader set of OECD countries, the p
 <p class="caption">Figure 6: OECD cross country productivity for 2020 (country names are per ISO 3166-1 alpha-3; UK is highlighted in red)</p>
 </div>
 
+<br>
 
-#### Classification of UK economy
+#### Classification of UK productivity
 
-The size of the UK economy in terms of GDP is comparable to the economy of France and to Germany's to a lesser extent as seen in Figure 7 and the table below. Note that the map depicts data for 2018, but similar results can be derived for more recent years. 
+The UK population and economy size in terms of GDP is comparable to other leading advanced economies in Europe, such as France and Germany, as seen in Figure 7 and the table below. Note that the data are from 2018, but similar results can be derived for more recent years. 
 
 <div class="figure" style="text-align: center">
-<img src="images/european_countries_by_gdp_share_2018.png" alt="Figure 7: Map of European countries by share of their GDP in 2018 (where no data is available, countries are coloured in light grey; transcontinental countries not included)" width="90%" />
-<p class="caption">Figure 7: Map of European countries by share of their GDP in 2018 (where no data is available, countries are coloured in light grey; transcontinental countries not included)</p>
+<img src="images/european_countries_by_gdp_share_2018.png" alt="Figure 7: Map of European countries by share of their GDP in 2018 (where no data is available, countries are coloured in light grey; transcontinental countries are not included)" width="90%" />
+<p class="caption">Figure 7: Map of European countries by share of their GDP in 2018 (where no data is available, countries are coloured in light grey; transcontinental countries are not included)</p>
 </div>
 
 <br>
@@ -277,8 +284,7 @@ Italy             |  ITA               | 60.48                | 2.60            
 Spain             |  ESP               | 46.66                | 1.90                             | 6.68
 
 
-
-The UK is lagging behind France and Germany in productivity of key economic activities
+A closer observation of the French, German and UK economies shows that the UK productivity in key economic activities is shortfalling relative to France and Germany (refer to Figure 8). The aggregated productivity values for 2014-2016 show that the UK shortfall is more evident in the information and communication sector (NACE Industry Code J) and in the professional, scientific and technical activities (NACE Industry Code M-N).
 
 <div class="figure" style="text-align: center">
 <img src="images/output_per_hour_by_industry_2014-2016.png" alt="Figure 8: Comparison of French, German and UK productivity by NACE industry" width="80%" />
@@ -304,18 +310,53 @@ R-U   | Arts, entertainment and recreation; other service activities
 
 <br>
 
+To determine if government spending on factors such as education and R&D affect productivity in the UK, the structural differences between the UK and leading advanced economies have to be understood first. For this purpose, data from 20 European countries were compared in terms of productivity and investment in education and key assets such as:
 
++ Intellectual property (R&D, software & databases, literary and artistic originals, etc).
++ Dwellings (excluding land).
++ Cultivated biological resources (managed forests, livestock raised for milk production, etc).
++ Infrastructures (roads, bridges, airfields, dams, etc).
++ Transportation equipment (ships, trains, aircraft, etc).
++ Information and Communication Technology (software, hardware, databases, telecoms equipment, etc).
 
+K-means clustering was used to partition the preceding dataset. The optimal number of clusters was determined using the `silhouette` method^[https://www.datanovia.com/en/lessons/determining-the-optimal-number-of-clusters-3-must-know-methods/] and resulted in a total of 4 clusters which are listed below:
+
++ **Cluster #1**: Higher productivity economies of smaller EU countries and Scandinavia.
++ **Cluster #2**: Mid-range to low productivity EU economies.
++ **Cluster #3**: Italy, Spain and the UK (mid-range productivity).
++ **Cluster #4**: France and Germany (advanced productivity).
+
+The scatterplots of Figure 9 display graphically the partitioning of the countries with respect to tertiary education and intellectual property expenditure. The plots show that although the UK economy size is closer to that of France and Germany, in terms of productivity and investment it lags behind as it clusters with Italy and Spain. 
 
 <div class="figure" style="text-align: center">
-<img src="images/kmeans_productivity_vs_education_2018.png" alt="Figure 9: Bar plot of" width="80%" /><img src="images/kmeans_productivity_vs_intellectual_property_2018.png" alt="Figure 9: Bar plot of" width="80%" />
-<p class="caption">Figure 9: Bar plot of</p>
+<img src="images/kmeans_productivity_vs_education_2018.png" alt="Figure 9: Grouping of European economies via K-means clustering (productivity vs education and intellectual property expenditure)" width="80%" /><img src="images/kmeans_productivity_vs_intellectual_property_2018.png" alt="Figure 9: Grouping of European economies via K-means clustering (productivity vs education and intellectual property expenditure)" width="80%" />
+<p class="caption">Figure 9: Grouping of European economies via K-means clustering (productivity vs education and intellectual property expenditure)</p>
 </div>
 
+<br>
 
 #### Productivity prediction modelling
 
++ Data from years 1995-2020 were used.
++ Factors used to predict productivity:
+  + Intellectual Property (R&D, software & databases, literary and artistic originals, etc).
+  + Dwellings (excluding land).
+  + Cultivated biological resources (managed forests, livestock raised for milk production, etc.).
+  + Infrastructures (roads, bridges, airfields, dams, etc.).
+  + Transportation equipment (ships, trains, aircraft, etc.).
+  + Information and Communication Tech (software, hardware, databases, telecoms equipment, etc.).
++ Education and mental health not included in model due to data scarcity.
 
+
+$$
+\begin{aligned}
+(GDP\,per\,hour\,worked\,$) = & \,\,31.08 \\ 
+&  + 0.1261\times(Infrastructures\,$billion) \\ 
+&  + 0.0498\times(Intellectual\,Property\,$billion) \\
+&  + 0.2404\times(Dwellings\,$billion) \\ 
+&  - 0.001338\times(Infrastructures\,$billion \times\,Dwellings\,$billion)
+\end{aligned}
+$$
 
 
 ### Tools for data analysis
@@ -331,7 +372,7 @@ The main tools used to carry out this analysis were:
 
 The analysis completed falls under the following categories:
 
-+ **Descriptive Analytics:** Current and historical data were used to identify trends and relationships between productivity and investment in key assets and education for a multitude of countries. A combination of visual displays, such as run charts and bar-plots were used to confirm that the UK productivity growth has slowed down significantly since the great recession (that is, the period between Dec 2007 - June 2009). Colorpleth mapping was also used to compare the GDP share of countries across Europe. 
++ **Descriptive Analytics:** Current and historical data were used to identify trends and relationships between productivity and investment in key assets and education for a multitude of countries. A combination of visual displays, such as run charts and bar-plots were used to confirm that the UK productivity growth has slowed down significantly since the financial crisis of 2008. Colorpleth mapping was also used to compare the GDP share of countries across Europe. 
 
 + **Diagnostic Analytics:** K-means clustering was used to group the UK and several European countries according to their productivity and investment in key assets and education. Scatterplots were used to display graphically the outcome of the clustering process and provided insights on the why the UK productivity is lagging behind some other developed economies.
 
@@ -342,7 +383,7 @@ The analysis completed falls under the following categories:
 
 The main insights drawn from this analysis are listed below:
 
-+ UK productivity growth slowed down after 2008 (onset of great recession) and since then it is not ranking high compared to other countries.
++ UK productivity growth slowed down after the financial crisis of 2008 and since then it is not ranking high compared to other countries.
 
 + Compared to France and Germany (countries similar in size of population and economy) productivity is notably lower in key economic activities.
 
